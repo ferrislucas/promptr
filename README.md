@@ -4,7 +4,7 @@ Promptr is a command-line interface (CLI) tool built on Node.js that writes the 
 
 ## Installation
 
-To install Promptr run `npm install -g promptr`
+To install Promptr run `npm install -g promptr`. You'll need to set an environment variable called `OPENAI_API_KEY` with your OpenAI API secret key.
 
 
 ## Usage
