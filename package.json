@@ -1,0 +1,14 @@
+{
+  "name": "promptr",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "promptr": "./bin/index.js"
+  },
+  "dependencies": {
+    "openai": "^3.2.1",
+    "prompt-sync": "^4.2.0"
+  }
+}
