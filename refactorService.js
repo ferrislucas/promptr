@@ -46,19 +46,31 @@ export default class RefactorService {
 
   static async write(data, filePath) {
     try {
-      await fs.promises.writeFile(filePath, data)
+      await fs.promises.writeFile(filePath, data, { flag: 'wx' })
     } catch (err) {
       this.log(err)
     }
   }
 
   static async load(filePath) {
+    const fileDoesNotExist = !await this.fileExists(filePath)
+    if (fileDoesNotExist) return("")
     try {
       // Use the fs module to read the file
       const data = await fs.promises.readFile(filePath, "utf-8")
       return data
     } catch (err) {
       this.log(err)
+      return("")
+    }
+  }
+
+  static async fileExists(filePath) {
+    try {
+      await fs.access(filePath, fs.constants.F_OK)
+      return(true)
+    } catch (err) {
+      return(false)
     }
   }
 
