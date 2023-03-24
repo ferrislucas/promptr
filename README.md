@@ -2,38 +2,65 @@
 
 Promptr is a command-line interface (CLI) tool that writes the output of GPT3  model prompts to a specified file. Promptr can also accept additional arguments that specify one or more files to include in the prompt.
 
-Here's an example:
 
-At the command line, you type: `$ promptr index.js`
+## Example
 
-Promptr says: `Your wish is my command:`
+```
+$ promptr service.js
+```
 
-You type: `alphabetize the methods in this class`
+promptr waits for instructions: 
+```
+promptr#
+```
 
-Prompter makes a call to the OpenAI API and replaces the contents of `index.js` with the result. 
+You decide you want to remove unused private methods: 
+```
+promptr# remove unused private methods
+```
 
-Type `exit` to end the session
+prompter leverages OpenAI GPT3 to create a new version of `service.js`
 
-
+<br /><br />
 ## Usage
 
 To use Promptr, run it from the command line with the following syntax:
 `promptr <file1> <file2> ... <output-file>`
 
-The `<file1>`, `<file2>`, ..., parameters are optional and specify the paths to the files that will be included in the LLM prompt. They should be separated by a space.
+The `<file1>`, `<file2>`, ..., parameters are optional and specify the paths to the files that will be included as context in the prompt that's sent to OpenAI. The parameters should be separated by a space.
 
-The `<output-file>` parameter is required and specifies the path to the file where the LLM output will be written.
+The `<output-file>` parameter is required and specifies the path to the file which will be created or modified with the results of your instructions.
+
+Enter `exit` or `\q` to exit the session.
+
+<br />
 
 Here's another example usage of the tool:
-`promptr file1_spec.rb file2_spec.rb output.rb`
+```
+promptr file1_spec.rb file2_spec.rb output.rb
+```
+
+
+
 
 
 In this example, the LLM output will be written to `output.rb`, and the prompt will include the contents of `file1_spec.rb` and `file2_spec.rb`. Including files in the prompt is useful for having the LLM create an implementation that passes one or more tests. In the example above, you could use the prompt "Make the tests pass" - the LLM will attempt to create an implementation that passes the tests in `file1_spec.rb` and `file2_spec.rb`.
 
-
+<br /><br />
 ## Installation
 
-To install Promptr run `npm install -g @ifnotnowwhen/promptr` or `yarn global add @ifnotnowwhen/promptr`. You'll need to set an environment variable called `OPENAI_API_KEY` with your OpenAI API secret key.
+### With yarn
+```
+yarn global add @ifnotnowwhen/promptr
+```
+
+### With npm
+```
+npm install -g @ifnotnowwhen/promptr
+```
+
+### Set OpenAI API Key
+An environment variable called `OPENAI_API_KEY` is expected to contain your OpenAI API secret key.
 
 
 ## License

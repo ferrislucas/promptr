@@ -26,7 +26,7 @@ export default class {
 
     while (true) {
       let userInput = await new Promise(resolve => {
-        rl.question('Your wish is my command: ', _input => {
+        rl.question('promptr# ', _input => {
           resolve(_input)
         })
       })
