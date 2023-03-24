@@ -17,8 +17,6 @@ export default class {
       input: process.stdin,
       output: process.stdout
     })
-
-    const context = await RefactorService.load(outputFile)
   
     const __filename = fileURLToPath(import.meta.url)
     const __dirname = dirname(__filename)
@@ -43,14 +41,14 @@ export default class {
           `Unit tests in file called "${filename}":\n${s}\n------------------\n\n`
         )
       }
-
+      let context = await RefactorService.load(outputFile)
       if (context?.trim()?.length > 0) {
         prompt = `${preamble} ${
           additionalContext.length > 0 ? additionalContext : ''
         } Your instruction is: ${prompt} \n The current source code is: ${context}`;
       }
-      //console.log(prompt)
-      await RefactorService.call(prompt, outputFile)
+      //console.log(`Prompt: \n${prompt}\n\n`)
+      await RefactorService.call(prompt, outputFile, true)
     }
     rl.close()
   }
