@@ -33,7 +33,7 @@ In this example, the LLM output will be written to `output.rb`, and the prompt w
 
 ## Installation
 
-To install Promptr run `npm install -g promptr`. You'll need to set an environment variable called `OPENAI_API_KEY` with your OpenAI API secret key.
+To install Promptr run `npm install -g @ifnotnowwhen/promptr` or `yarn global add @ifnotnowwhen/promptr`. You'll need to set an environment variable called `OPENAI_API_KEY` with your OpenAI API secret key.
 
 
 ## License
