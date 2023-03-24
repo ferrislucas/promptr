@@ -16,16 +16,18 @@ export default class RefactorService {
     })
 
     if (shouldLog) {
-      this.log(`Response received: ${response}`)
-      this.log(`Usage: ${response.usage}`)
+      this.log(`Response received: \n`)
+      this.log(response)
+      this.log(`Choices:`)
+      this.log(response?.data?.choices)
     }
     if (!response?.data?.choices) return null
-    if (shouldLog) {
-      this.log(`response choices ${response.data.choices.length}`)
-    }
     let result = response.data.choices
       .map((d) => d?.text?.trim())
       .join()
+    if (shouldLog) {
+      this.log(`joined choices: ${result}`)
+    }
     this.write(this.extractSourceCode(result), filePath)
     return result
   }
@@ -45,11 +47,7 @@ export default class RefactorService {
   }
 
   static async write(data, filePath) {
-    try {
-      await fs.promises.writeFile(filePath, data, { flag: 'wx' })
-    } catch (err) {
-      this.log(err)
-    }
+    await fs.promises.writeFile(filePath, data)
   }
 
   static async load(filePath) {
@@ -66,12 +64,7 @@ export default class RefactorService {
   }
 
   static async fileExists(filePath) {
-    try {
-      await fs.access(filePath, fs.constants.F_OK)
-      return(true)
-    } catch (err) {
-      return(false)
-    }
+    return fs.existsSync(filePath)
   }
 
   static async getPreamble(preamblePath) {
