@@ -1,12 +1,11 @@
-Main.call()
-
 import RefactorService from './refactorService.js'
 import readline from 'readline'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 
-class Main {
+export default class Main {
+  
   static async call() {
     const args = process.argv.slice(2)
     const lastArgument = args.slice(-1)[0]
@@ -25,11 +24,11 @@ class Main {
     const preamble = await RefactorService.load(path.join(__dirname, 'preamble.txt'))
 
     while (true) {
-      let userInput = await Main.getUserInput(rl);
+      let userInput = await this.getUserInput(rl);
       if (!userInput) continue
       if (userInput == 'exit' || userInput == "\\q") break
 
-      await Main.plugin(userInput, argsExceptLast, outputFile, preamble)
+      await this.plugin(userInput, argsExceptLast, outputFile, preamble)
     }
     rl.close()
   }
@@ -37,13 +36,13 @@ class Main {
   static async plugin(userInput, argsExceptLast, outputFile, preamble) {
     let prompt = userInput.toString().trim()
 
-    let additionalContext = await Main.getAdditionalContext(argsExceptLast)
+    let additionalContext = await this.getAdditionalContext(argsExceptLast)
     let context = await RefactorService.load(outputFile)
     if (context?.trim()?.length > 0) {
       prompt = `${preamble} ${additionalContext.length > 0 ? additionalContext : ''} Your instruction is: ${prompt} \n The current source code is: ${context}`
     }
     //console.log(`Prompt: \n${prompt}\n\n`)
-    await RefactorService.call(prompt, outputFile, true)
+    await RefactorService.call(prompt, outputFile)
   }
 
   static async getUserInput(rl) {
