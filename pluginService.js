@@ -13,7 +13,7 @@ export default class PluginService {
         const outputFile = path.join(process.cwd(), lastArgument)
         console.log(`Output file is: ${outputFile}`)
     
-        argsExceptLast = args.slice(0, -1)
+        let argsExceptLast = args.slice(0, -1)
         let prompt = userInput.toString().trim()
     
         let additionalContext = await this.getAdditionalContext(argsExceptLast)
@@ -26,7 +26,7 @@ export default class PluginService {
       }
 
       static async getAdditionalContext(argsExceptLast) {
-        let additionalContext = `Here are some unit tests that you need to make pass:\n\n`;
+        let additionalContext = `Here are some unit tests that you need to make pass:\n\n`
         for (let n = 0; n < argsExceptLast.length; n++) {
           const filename = argsExceptLast[n]
           let s = await RefactorService.load(path.join(process.cwd(), filename))
@@ -34,6 +34,6 @@ export default class PluginService {
             `Unit tests in file called "${filename}":\n${s}\n------------------\n\n`
           )
         }
-        return additionalContext;
+        return additionalContext
       }
 }
