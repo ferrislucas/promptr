@@ -12,7 +12,7 @@ export default class RefactorService {
       model: "text-davinci-003",
       prompt: prompt,
       temperature: 0.5,
-      max_tokens: 1512
+      max_tokens: (4096 - (prompt.split(" ").length * 2)),
     })
 
     if (shouldLog) {
