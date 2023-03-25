@@ -16,7 +16,7 @@ export default class Main {
       if (!userInput) continue
       if (userInput == 'exit' || userInput == "\\q") break
 
-      await PluginService.plugin(userInput, args)
+      await PluginService.call(userInput, args)
     }
     rl.close()
   }
