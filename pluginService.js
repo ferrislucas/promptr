@@ -19,13 +19,14 @@ export default class PluginService {
     let additionalContext = await this.getAdditionalContext(argsExceptLast)
     let context = await RefactorService.load(outputFile)
     if (context?.trim()?.length > 0) {
-      prompt = `${preamble} ${additionalContext.length > 0 ? additionalContext : ''} Your instruction is: ${prompt} \n The current source code is: ${context}`
+      prompt = `${preamble} ${additionalContext.length > 0 ? additionalContext : ''} Your instruction is: ${prompt} \n The current source code is: ${context}\n\n`
     }
     //console.log(`Prompt: \n${prompt}\n\n`)
     await RefactorService.call(prompt, outputFile)
   }
 
   static async getAdditionalContext(argsExceptLast) {
+    if (argsExceptLast.length === 0) return("")
     let additionalContext = `Here are some unit tests that you need to make pass:\n\n`
     for (let n = 0; n < argsExceptLast.length; n++) {
       const filename = argsExceptLast[n]
