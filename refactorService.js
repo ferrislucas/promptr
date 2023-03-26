@@ -1,16 +1,14 @@
 import { Configuration, OpenAIApi } from "openai"
-import fs from 'fs'
+import { FileService } from "./fileService.js"
+import ConfigService from "./configService.js"
 
 export default class RefactorService {
-  static async call(prompt, filePath, shouldLog = true) {
-    if (shouldLog) {
-      this.log(`Prompt: \n${prompt}\n\n============`)
-    }
+  static async call(prompt, filePath, shouldLog = false) {
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY
     })
     const openai = new OpenAIApi(configuration)
-    const config = await this.retrieveConfig();
+    const config = await ConfigService.retrieveConfig();
     const response = await openai.createCompletion({
       ...config,
       prompt: prompt,
@@ -30,7 +28,7 @@ export default class RefactorService {
     if (shouldLog) {
       this.log(`joined choices: ${result}`)
     }
-    this.write(this.extractSourceCode(result), filePath)
+    FileService.write(this.extractSourceCode(result), filePath)
     return result
   }
 
@@ -48,27 +46,6 @@ export default class RefactorService {
     return lines.join("\n")
   }
 
-  static async write(data, filePath) {
-    await fs.promises.writeFile(filePath, data)
-  }
-
-  static async load(filePath) {
-    const fileDoesNotExist = !await this.fileExists(filePath)
-    if (fileDoesNotExist) return("")
-    try {
-      // Use the fs module to read the file
-      const data = await fs.promises.readFile(filePath, "utf-8")
-      return data
-    } catch (err) {
-      this.log(err)
-      return("")
-    }
-  }
-
-  static async fileExists(filePath) {
-    return fs.existsSync(filePath)
-  }
-
   static async getPreamble(preamblePath) {
     try {
       // Use the fs module to read the file
@@ -81,20 +58,6 @@ export default class RefactorService {
 
   static log(message) {
     console.log(message)
-  }
-  
-  static async retrieveConfig() {
-    const userHomeDir = process.env.HOME;
-    const configPath = `${userHomeDir}/.promptr.json`;
-    const fileDoesNotExist = !await this.fileExists(configPath)
-    if (fileDoesNotExist) return { model: "text-davinci-003", temperature: 0.5 };
-    try {
-      const data = await fs.promises.readFile(configPath, "utf-8")
-      return JSON.parse(data);
-    } catch (err) {
-      this.log(err)
-      return { model: "text-davinci-003", temperature: 0.5 };
-    }
   }
 
 }
