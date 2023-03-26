@@ -5,3 +5,15 @@ You are to follow the instruction by applying changes to the source code you are
 Respond with the source code only. Your response should only contain valid syntactically correct source code.
 Do not preface your response with anything.
 Always leave existing code intact unless instructed not to.
+
+{% if additionalContext != blank %}
+Here are some unit tests that you need to make pass:
+-- BEGIN UNIT TESTS --
+{{additionalContext}}
+-- END UNIT TESTS --
+{% endif %}
+
+Your instruction is: {{prompt}}
+
+The current source code is:
+{{context}}

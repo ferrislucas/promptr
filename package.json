@@ -8,6 +8,7 @@
     "promptr": "bin/index.js"
   },
   "dependencies": {
+    "liquidjs": "^10.7.0",
     "openai": "^3.2.1",
     "prompt-sync": "^4.2.0"
   },

@@ -1,16 +1,14 @@
 import { Configuration, OpenAIApi } from "openai"
 import { FileService } from "./fileService.js"
+import ConfigService from "./configService.js"
 
 export default class RefactorService {
   static async call(prompt, filePath, shouldLog = false) {
-    if (shouldLog) {
-      this.log(`Prompt: \n${prompt}\n\n============`)
-    }
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY
     })
     const openai = new OpenAIApi(configuration)
-    const config = await this.retrieveConfig();
+    const config = await ConfigService.retrieveConfig();
     const response = await openai.createCompletion({
       ...config,
       prompt: prompt,
@@ -60,23 +58,6 @@ export default class RefactorService {
 
   static log(message) {
     console.log(message)
-  }
-  
-  static async retrieveConfig() {
-    const config = { model: "text-davinci-003", temperature: 0.5 };
-    const userHomeDir = process.env.HOME;
-    const configPath = `${userHomeDir}/.promptr.json`;
-    const fileExists = await FileService.fileExists(configPath)
-    if (fileExists) {
-      try {
-        const data = await fs.promises.readFile(configPath, "utf-8")
-        return JSON.parse(data);
-      } catch (err) {
-        this.log(err)
-        return config;
-      }
-    }
-    return config;
   }
 
 }
