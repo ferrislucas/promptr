@@ -4,29 +4,24 @@ import { dirname } from 'path'
 import { Liquid } from 'liquidjs'
 import RefactorService from './refactorService.js'
 import { FileService } from './fileService.js'
-import { Command } from 'commander'
+import CliState from './cliState.js'
 
 export default class PluginService {
-  static async call(userInput, args) {
-    const program = new Command();
-    program.option('-v, --verbose', 'Verbose output');
-    program.option('-t, --template <template>', 'Path to template file')
-    program.parse(args);
-    const verbose = program.opts().verbose;
-    const outputFile = program.args.slice(-1)[0]
+  static async call(userInput) {
+    const verbose = CliState.opts().verbose
+    const outputFile = CliState.args.slice(-1)[0]
     if (verbose) console.log(`Output file is: ${outputFile}`)
 
-    let argsExceptLast = program.args.slice(0, -1)
     let prompt = userInput.toString().trim()
 
     let context = await FileService.load(outputFile)
     if (context?.trim()?.length > 0) {
-      let additionalContext = await this.getAdditionalContext(argsExceptLast)
+      let additionalContext = await this.getAdditionalContext()
       const __filename = fileURLToPath(import.meta.url)
       const __dirname = dirname(__filename)
 
       let templatePath = path.join(__dirname, 'template.txt')
-      const userTemplate = program.opts().template
+      const userTemplate = CliState.opts().template
       if (userTemplate) templatePath = path.join(process.cwd(), userTemplate)
       if (verbose) console.log(`Template path is: ${templatePath}`)
       prompt = await this.loadTemplate(prompt, context, additionalContext, templatePath)
@@ -47,7 +42,8 @@ export default class PluginService {
     return content
   }
 
-  static async getAdditionalContext(argsExceptLast) {
+  static async getAdditionalContext() {
+    let argsExceptLast = CliState.args.slice(0, -1)
     if (argsExceptLast.length === 0) return("")
     let additionalContext = ""
     for (let n = 0; n < argsExceptLast.length; n++) {
@@ -58,9 +54,5 @@ export default class PluginService {
       )
     }
     return additionalContext
-  }
-
-  static shouldLog(args) {
-    return args.some(arg => arg === '-v' || arg === '--verbose');
   }
 }

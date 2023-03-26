@@ -1,5 +1,6 @@
 import readline from 'readline'
 import PluginService from './pluginService.js'
+import CliState from './cliState.js'
 
 export default class Main {
   
@@ -8,6 +9,26 @@ export default class Main {
       console.log("Usage: promptr [<input path 1> <input path 2> ...] <output path>");
       process.exit(-1);
     }
+    
+    CliState.init(process.argv)
+
+    // Interactive mode
+    if (CliState.opts().interactive) {
+      await this.loopUntilUserExit()
+      process.exit(0);
+    }
+
+    // Non-interactive mode
+    const prompt = CliState.opts().prompt
+    if (!prompt) {
+      console.log("No prompt was specified. Please specify a prompt with the --prompt option, or use interactive mode by using the --interactive option.");
+      process.exit(-1);
+    }
+    await PluginService.call(prompt)
+    process.exit(0)
+  }
+
+  static async loopUntilUserExit() {
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout
@@ -18,7 +39,7 @@ export default class Main {
       if (!userInput) continue
       if (userInput == 'exit' || userInput == "\\q") break
 
-      await PluginService.call(userInput, process.argv)
+      await PluginService.call(userInput)
     }
     rl.close()
   }
