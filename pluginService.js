@@ -2,12 +2,13 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import RefactorService from './refactorService.js'
+import { FileService } from './fileService.js'
 
 export default class PluginService {
   static async call(userInput, args) {
     const __filename = fileURLToPath(import.meta.url)
     const __dirname = dirname(__filename)
-    const preamble = await RefactorService.load(path.join(__dirname, 'preamble.txt'))
+    const preamble = await FileService.load(path.join(__dirname, 'preamble.txt'))
 
     const lastArgument = args.slice(-1)[0]
     const outputFile = path.join(process.cwd(), lastArgument)
@@ -17,7 +18,7 @@ export default class PluginService {
     let prompt = userInput.toString().trim()
 
     let additionalContext = await this.getAdditionalContext(argsExceptLast)
-    let context = await RefactorService.load(outputFile)
+    let context = await FileService.load(outputFile)
     if (context?.trim()?.length > 0) {
       prompt = `${preamble} ${additionalContext.length > 0 ? additionalContext : ''} Your instruction is: ${prompt} \n The current source code is: ${context}\n\n`
     }
@@ -31,7 +32,7 @@ export default class PluginService {
     for (let n = 0; n < argsExceptLast.length; n++) {
       const filename = argsExceptLast[n]
       if(filename !== "-v" && filename !== "--verbose") {
-        let s = await RefactorService.load(path.join(process.cwd(), filename))
+        let s = await FileService.load(path.join(process.cwd(), filename))
         additionalContext = additionalContext.concat(
           `Unit tests in file called "${filename}":\n${s}\n------------------\n\n`
         )
