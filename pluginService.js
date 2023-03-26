@@ -4,14 +4,18 @@ import { dirname } from 'path'
 import { Liquid } from 'liquidjs'
 import RefactorService from './refactorService.js'
 import { FileService } from './fileService.js'
+import { Command } from 'commander'
 
 export default class PluginService {
   static async call(userInput, args) {
-    const lastArgument = args.slice(-1)[0]
-    const outputFile = path.join(process.cwd(), lastArgument)
-    if (this.shouldLog(args)) console.log(`Output file is: ${outputFile}`)
+    const program = new Command();
+    program.option('-v, --verbose', 'Verbose output');
+    program.parse(args);
+    const verbose = program.opts().verbose;
+    const outputFile = program.args.slice(-1)[0]
+    if (verbose) console.log(`Output file is: ${outputFile}`)
 
-    let argsExceptLast = args.slice(0, -1)
+    let argsExceptLast = program.args.slice(0, -1)
     let prompt = userInput.toString().trim()
 
     let context = await FileService.load(outputFile)
@@ -19,8 +23,8 @@ export default class PluginService {
       let additionalContext = await this.getAdditionalContext(argsExceptLast)
       prompt = await this.loadTemplate(prompt, context, additionalContext)
     }
-    if (this.shouldLog(args)) console.log(`Prompt: \n${prompt}\n\n`)
-    await RefactorService.call(prompt, outputFile, this.shouldLog(args))
+    if (verbose) console.log(`Prompt: \n${prompt}\n\n`)
+    await RefactorService.call(prompt, outputFile, verbose)
   }
 
   static async loadTemplate(prompt, context, additionalContext) {

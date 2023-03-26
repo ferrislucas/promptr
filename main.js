@@ -4,8 +4,6 @@ import PluginService from './pluginService.js'
 export default class Main {
   
   static async call() {
-    const args = process.argv.slice(2)
-
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout
@@ -16,7 +14,7 @@ export default class Main {
       if (!userInput) continue
       if (userInput == 'exit' || userInput == "\\q") break
 
-      await PluginService.call(userInput, args)
+      await PluginService.call(userInput, process.argv)
     }
     rl.close()
   }
