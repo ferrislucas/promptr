@@ -10,6 +10,7 @@ export default class PluginService {
   static async call(userInput, args) {
     const program = new Command();
     program.option('-v, --verbose', 'Verbose output');
+    program.option('-t, --template <template>', 'Path to template file')
     program.parse(args);
     const verbose = program.opts().verbose;
     const outputFile = program.args.slice(-1)[0]
@@ -21,16 +22,18 @@ export default class PluginService {
     let context = await FileService.load(outputFile)
     if (context?.trim()?.length > 0) {
       let additionalContext = await this.getAdditionalContext(argsExceptLast)
-      prompt = await this.loadTemplate(prompt, context, additionalContext)
+      const __filename = fileURLToPath(import.meta.url)
+      const __dirname = dirname(__filename)
+      let templatePath = program.opts().template || path.join(__dirname, 'template.txt')
+      if (verbose) console.log(`Template path is: ${templatePath}`)
+      prompt = await this.loadTemplate(prompt, context, additionalContext, templatePath)
     }
     if (verbose) console.log(`Prompt: \n${prompt}\n\n`)
     await RefactorService.call(prompt, outputFile, verbose)
   }
 
-  static async loadTemplate(prompt, context, additionalContext) {
-    const __filename = fileURLToPath(import.meta.url)
-    const __dirname = dirname(__filename)
-    const templateText = await FileService.load(path.join(__dirname, 'template.txt'))
+  static async loadTemplate(prompt, context, additionalContext, templatePath) {
+    const templateText = await FileService.load(templatePath)
     const engine = new Liquid()
     const tpl = engine.parse(templateText)
     const content = await engine.render(tpl, {

@@ -1,0 +1,4 @@
+Your instruction is: {{prompt}}
+
+The current source code is:
+{{context}}
