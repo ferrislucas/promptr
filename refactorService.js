@@ -2,17 +2,19 @@ import { Configuration, OpenAIApi } from "openai"
 import fs from 'fs'
 
 export default class RefactorService {
-  static async call(prompt, filePath, shouldLog = false) {
+  static async call(prompt, filePath, shouldLog = true) {
+    if (shouldLog) {
+      this.log(`Prompt: \n${prompt}\n\n============`)
+    }
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY
     })
     const openai = new OpenAIApi(configuration)
-
+    const config = await this.retrieveConfig();
     const response = await openai.createCompletion({
-      model: "text-davinci-003",
+      ...config,
       prompt: prompt,
-      temperature: 0.5,
-      max_tokens: 1512
+      max_tokens: (4096 - (prompt.split(" ").length * 2)),
     })
 
     if (shouldLog) {
@@ -80,4 +82,19 @@ export default class RefactorService {
   static log(message) {
     console.log(message)
   }
+  
+  static async retrieveConfig() {
+    const userHomeDir = process.env.HOME;
+    const configPath = `${userHomeDir}/.promptr.json`;
+    const fileDoesNotExist = !await this.fileExists(configPath)
+    if (fileDoesNotExist) return { model: "text-davinci-003", temperature: 0.5 };
+    try {
+      const data = await fs.promises.readFile(configPath, "utf-8")
+      return JSON.parse(data);
+    } catch (err) {
+      this.log(err)
+      return { model: "text-davinci-003", temperature: 0.5 };
+    }
+  }
+
 }
