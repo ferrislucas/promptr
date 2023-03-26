@@ -6,6 +6,7 @@ export default class CliState {
 
   static init(_args) {
     this.program = new Command();
+    this.program.option('-d, --dry-run', 'Dry run only: just display the prompt')
     this.program.option('-i, --interactive', 'Interactive mode');
     this.program.option('-p, --prompt <prompt>', 'Prompt to use in non-interactive mode');
     this.program.option('-t, --template-path <templatePath>', 'Path to template file')

@@ -25,7 +25,14 @@ export default class PluginService {
       if (verbose) console.log(`Template path is: ${templatePath}`)
       prompt = await this.loadTemplate(prompt, context, additionalContext, templatePath)
     }
+    
     if (verbose) console.log(`Prompt: \n${prompt}\n\n`)
+    
+    if (CliState.opts().dryRun) {
+      console.log(prompt)
+      process.exit(0)
+    }
+    
     const output = await RefactorService.call(prompt, outputFile)
     if (outputFile) await FileService.write(output, outputFile)
     else console.log(output)
