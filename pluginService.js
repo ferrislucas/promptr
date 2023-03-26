@@ -9,25 +9,26 @@ import CliState from './cliState.js'
 export default class PluginService {
   static async call(userInput) {
     const verbose = CliState.opts().verbose
-    const outputFile = CliState.args.slice(-1)[0]
-    if (verbose) console.log(`Output file is: ${outputFile}`)
-
+    const outputFile = CliState.opts().outputPath
     let prompt = userInput.toString().trim()
 
-    let context = await FileService.load(outputFile)
+    let lastArg = CliState.args.slice(-1)[0]
+    let context = await FileService.load(lastArg)
     if (context?.trim()?.length > 0) {
       let additionalContext = await this.getAdditionalContext()
       const __filename = fileURLToPath(import.meta.url)
       const __dirname = dirname(__filename)
 
       let templatePath = path.join(__dirname, 'template.txt')
-      const userTemplate = CliState.opts().template
+      const userTemplate = CliState.opts().templatePath
       if (userTemplate) templatePath = path.join(process.cwd(), userTemplate)
       if (verbose) console.log(`Template path is: ${templatePath}`)
       prompt = await this.loadTemplate(prompt, context, additionalContext, templatePath)
     }
     if (verbose) console.log(`Prompt: \n${prompt}\n\n`)
-    await RefactorService.call(prompt, outputFile, verbose)
+    const output = await RefactorService.call(prompt, outputFile)
+    if (outputFile) await FileService.write(output, outputFile)
+    else console.log(output)
   }
 
   static async loadTemplate(prompt, context, additionalContext, templatePath) {

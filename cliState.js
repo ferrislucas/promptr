@@ -8,7 +8,8 @@ export default class CliState {
     this.program = new Command();
     this.program.option('-i, --interactive', 'Interactive mode');
     this.program.option('-p, --prompt <prompt>', 'Prompt to use in non-interactive mode');
-    this.program.option('-t, --template <template>', 'Path to template file')
+    this.program.option('-t, --template-path <templatePath>', 'Path to template file')
+    this.program.option('-o, --output-path <outputPath>', 'Path to output file. If no path is specified, output will be printed to stdout.')
     this.program.option('-v, --verbose', 'Verbose output');
 
     this.program.addHelpText('after', `
