@@ -2,7 +2,7 @@ import { Configuration, OpenAIApi } from "openai"
 import fs from 'fs'
 
 export default class RefactorService {
-  static async call(prompt, filePath, shouldLog = true) {
+  static async call(prompt, filePath, shouldLog = false) {
     if (shouldLog) {
       this.log(`Prompt: \n${prompt}\n\n============`)
     }
@@ -84,17 +84,20 @@ export default class RefactorService {
   }
   
   static async retrieveConfig() {
+    const config = { model: "text-davinci-003", temperature: 0.5 };
     const userHomeDir = process.env.HOME;
     const configPath = `${userHomeDir}/.promptr.json`;
-    const fileDoesNotExist = !await this.fileExists(configPath)
-    if (fileDoesNotExist) return { model: "text-davinci-003", temperature: 0.5 };
-    try {
-      const data = await fs.promises.readFile(configPath, "utf-8")
-      return JSON.parse(data);
-    } catch (err) {
-      this.log(err)
-      return { model: "text-davinci-003", temperature: 0.5 };
+    const fileExists = await this.fileExists(configPath)
+    if (fileExists) {
+      try {
+        const data = await fs.promises.readFile(configPath, "utf-8")
+        return JSON.parse(data);
+      } catch (err) {
+        this.log(err)
+        return config;
+      }
     }
+    return config;
   }
 
 }
