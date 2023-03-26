@@ -21,7 +21,7 @@ export default class PluginService {
 
       let templatePath = path.join(__dirname, 'template.txt')
       const userTemplate = CliState.opts().templatePath
-      if (userTemplate) templatePath = path.join(process.cwd(), userTemplate)
+      if (userTemplate) templatePath = userTemplate
       if (verbose) console.log(`Template path is: ${templatePath}`)
       prompt = await this.loadTemplate(prompt, context, additionalContext, templatePath)
     }
@@ -32,6 +32,10 @@ export default class PluginService {
   }
 
   static async loadTemplate(prompt, context, additionalContext, templatePath) {
+    if (!await FileService.fileExists(templatePath)) {
+      console.log(`Template file ${templatePath} does not exist`)
+      process.exit(1)
+    }
     const templateText = await FileService.load(templatePath)
     const engine = new Liquid()
     const tpl = engine.parse(templateText)
