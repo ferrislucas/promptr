@@ -24,7 +24,7 @@ export default class PluginService {
       let additionalContext = await this.getAdditionalContext(argsExceptLast)
       const __filename = fileURLToPath(import.meta.url)
       const __dirname = dirname(__filename)
-      let templatePath = program.opts().template || path.join(__dirname, 'template.txt')
+      let templatePath = path.join(process.cwd(), program.opts().template) || path.join(__dirname, 'template.txt')
       if (verbose) console.log(`Template path is: ${templatePath}`)
       prompt = await this.loadTemplate(prompt, context, additionalContext, templatePath)
     }
