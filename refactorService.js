@@ -28,8 +28,9 @@ export default class RefactorService {
     if (shouldLog) {
       this.log(`joined choices: ${result}`)
     }
-    FileService.write(this.extractSourceCode(result), filePath)
-    return result
+    const output = this.extractSourceCode(result)
+    await FileService.write(output, filePath)
+    return output
   }
 
   static extractSourceCode(input) {
