@@ -1,9 +1,8 @@
 import { Configuration, OpenAIApi } from "openai"
-import { FileService } from "./fileService.js"
 import ConfigService from "./configService.js"
 
 export default class RefactorService {
-  static async call(prompt, filePath, shouldLog = false) {
+  static async call(prompt) {
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY
     })
@@ -15,21 +14,12 @@ export default class RefactorService {
       max_tokens: (4096 - (prompt.split(" ").length * 2)),
     })
 
-    if (shouldLog) {
-      this.log(`Response received: \n`)
-      this.log(response)
-      this.log(`Choices:`)
-      this.log(response?.data?.choices)
-    }
     if (!response?.data?.choices) return null
     let result = response.data.choices
       .map((d) => d?.text?.trim())
       .join()
-    if (shouldLog) {
-      this.log(`joined choices: ${result}`)
-    }
-    FileService.write(this.extractSourceCode(result), filePath)
-    return result
+    const output = this.extractSourceCode(result)
+    return output
   }
 
   static extractSourceCode(input) {
