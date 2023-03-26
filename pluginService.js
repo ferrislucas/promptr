@@ -46,12 +46,10 @@ export default class PluginService {
     let additionalContext = ""
     for (let n = 0; n < argsExceptLast.length; n++) {
       const filename = argsExceptLast[n]
-      if(filename !== "-v" && filename !== "--verbose") {
-        let s = await FileService.load(path.join(process.cwd(), filename))
-        additionalContext = additionalContext.concat(
-          `Unit tests in file called "${filename}":\n${s}\n------------------\n\n`
-        )
-      }
+      let s = await FileService.load(path.join(process.cwd(), filename))
+      additionalContext = additionalContext.concat(
+        `Unit tests in file called "${filename}":\n${s}\n------------------\n\n`
+      )
     }
     return additionalContext
   }
