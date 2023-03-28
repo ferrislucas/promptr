@@ -1,4 +1,5 @@
 import { FileService } from "./fileService.js";
+import fs from 'fs'
 
 export default class ConfigService {
   static async retrieveConfig() {
@@ -16,7 +17,7 @@ export default class ConfigService {
         const data = await fs.promises.readFile(configPath, "utf-8")
         return JSON.parse(data);
       } catch (err) {
-        this.log(err)
+        console.log(err)
         return config;
       }
     }
