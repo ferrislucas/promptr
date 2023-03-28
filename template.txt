@@ -6,14 +6,10 @@ Respond with the source code only. Your response should only contain valid synta
 Do not preface your response with anything.
 Always leave existing code intact unless instructed not to.
 
-{% if additionalContext != blank %}
-Here are some unit tests that you need to make pass:
--- BEGIN UNIT TESTS --
-{{additionalContext}}
--- END UNIT TESTS --
-{% endif %}
+Produce the source code to accomplish this instruction: {{prompt}}
 
-Your instruction is: {{prompt}}
-
+{% if context != blank %}
 The current source code is:
+{{additionalContext}}
 {{context}}
+{% endif %}

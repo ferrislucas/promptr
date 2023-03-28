@@ -61,7 +61,7 @@ export default class PluginService {
       const filename = argsExceptLast[n]
       let s = await FileService.load(path.join(process.cwd(), filename))
       additionalContext = additionalContext.concat(
-        `Unit tests in file called "${filename}":\n${s}\n------------------\n\n`
+        `File "${filename}" contents:\n${s}\n------------------\n\n`
       )
     }
     return additionalContext
