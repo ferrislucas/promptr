@@ -14,18 +14,16 @@ export default class PluginService {
 
     let lastArg = CliState.args.slice(-1)[0]
     let context = await FileService.load(lastArg)
-    if (context?.trim()?.length > 0) {
-      let additionalContext = await this.getAdditionalContext()
-      const __filename = fileURLToPath(import.meta.url)
-      const __dirname = dirname(__filename)
+    let additionalContext = await this.getAdditionalContext()
+    const __filename = fileURLToPath(import.meta.url)
+    const __dirname = dirname(__filename)
 
-      let templatePath = path.join(__dirname, 'template.txt')
-      const userTemplate = CliState.opts().templatePath
-      if (userTemplate) templatePath = userTemplate
-      if (verbose) console.log(`Template path is: ${templatePath}`)
-      prompt = await this.loadTemplate(prompt, context, additionalContext, templatePath)
-    }
+    let templatePath = path.join(__dirname, 'template.txt')
+    const userTemplate = CliState.opts().templatePath
+    if (userTemplate) templatePath = userTemplate
+    if (verbose) console.log(`Template path is: ${templatePath}`)
     
+    prompt = await this.loadTemplate(prompt, context, additionalContext, templatePath)
     if (verbose) console.log(`Prompt: \n${prompt}\n\n`)
     
     if (CliState.opts().dryRun) {
@@ -45,7 +43,8 @@ export default class PluginService {
     }
     const templateText = await FileService.load(templatePath)
     const engine = new Liquid()
-    const tpl = engine.parse(templateText)
+    engine.registerFilter("jsonToObject", (json) => JSON.parse(json));
+    const tpl = engine.parse(templateText)    
     const content = await engine.render(tpl, {
       additionalContext: additionalContext,
       context: context,
