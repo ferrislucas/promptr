@@ -1,4 +1,5 @@
 import { Configuration, OpenAIApi } from "openai"
+import CliState from "./cliState.js";
 import ConfigService from "./configService.js"
 
 export default class RefactorService {
@@ -6,18 +7,24 @@ export default class RefactorService {
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY
     })
+    const verbose = CliState.opts().verbose
     const openai = new OpenAIApi(configuration)
     const config = await ConfigService.retrieveConfig();
-    const response = await openai.createCompletion({
-      ...config,
+    const promptLength = Math.ceil((prompt.split(" ").length + prompt.split("\t").length + prompt.split("\n").length) * 1.25)
+    const apiConfig = {
+      ...config.api,
       prompt: prompt,
-      max_tokens: (4096 - (prompt.split(" ").length * 2)),
-    })
+      max_tokens: (config.settings.maxTokens - promptLength),
+    }
+    if (verbose) console.log(`apiConfig: ${JSON.stringify(apiConfig)}`)
+    
+    const response = await openai.createCompletion(apiConfig)
 
     if (!response?.data?.choices) return null
     let result = response.data.choices
       .map((d) => d?.text?.trim())
       .join()
+    if (verbose) console.log(`Response: \n${result}`)
     const output = this.extractSourceCode(result)
     return output
   }
