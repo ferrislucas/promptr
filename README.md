@@ -5,10 +5,11 @@ Promptr is a command-line interface (CLI) tool that writes the output of GPT3  m
 <br /><br />
 ## Usage
 
-To use Promptr, run it from the command line with the following syntax:
-`promptr -i <file1>`
+To use Promptr, run it from the command line. This example sends GPT-3 the contents of `index.js` with a prompt `"Cleanup the code in this file"`. The model's response replaces the contents of `index.js`:
+`promptr -m gpt3 index.js -o index.js -p "Cleanup the code in this file"`
 
 ## Options
+- `-m, --mode <mode>`: Required flag to set the mode. Supported values are: (gpt3|gpt4)
 - `-d, --dry-run`: Optional boolean flag that can be used to run the tool in dry-run mode where only a prompt is displayed and no changes are made.
 - `-i, --interactive`: Optional boolean flag that enables interactive mode where the user can provide input interactively. If this flag is not set, the tool runs in non-interactive mode.
 - `-p, --prompt <prompt>`: Optional string flag that specifies the prompt to use in non-interactive mode. If this flag is not set, the default prompt is used.
@@ -17,20 +18,17 @@ To use Promptr, run it from the command line with the following syntax:
 - `-v, --verbose`: Optional boolean flag that enables verbose output, providing more detailed information during execution.
 
 
-The `<file1>`, `<file2>`, ..., parameters specify the paths to the files that will be included as context in the prompt. The parameters should be separated by a space.
-
-
-In interactive mode, you can enter `exit` or `\q` to quit the session.
+Additional parameters can specify the paths to files that will be included as context in the prompt. The parameters should be separated by a space.
 
 <br />
 
-Here's another example usage of the tool:
+Here's another example using multiple input files:
 ```
-promptr file1_spec.rb file2_spec.rb output.rb -o output.rb
+promptr -m gpt4 file1_spec.rb file2_spec.rb implementation.rb -o implementation.rb -p "make the tests pass"
 ```
 
 
-In this example, the LLM output will be written to `output.rb`, and the prompt will include the contents of `file1_spec.rb` and `file2_spec.rb`. Including files in the prompt is useful for having the LLM create an implementation that passes one or more tests. In the example above, you could use the prompt "Make the tests pass" - the LLM will attempt to create an implementation that passes the tests in `file1_spec.rb` and `file2_spec.rb`.
+In this example, the LLM output will be written to `implementation.rb`, and the prompt will include the contents of `file1_spec.rb` and `file2_spec.rb`. Including files in the prompt is useful for having the LLM create an implementation that passes some tests that you supply. In the example above, the model output will be an implementation intended to pass the given tests.
 
 <br /><br />
 ## Installation
