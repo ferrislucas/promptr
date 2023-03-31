@@ -22,13 +22,13 @@ Additional parameters can specify the paths to files that will be included as co
 
 <br />
 
-Here's another example using multiple input files:
+Here's another example using multiple input files and the "tests" template:
 ```
-promptr -m gpt4 file1_spec.rb file2_spec.rb implementation.rb -o implementation.rb -p "make the tests pass"
+promptr -m gpt4 -t tests file1_spec.rb file2_spec.rb implementation.rb -o implementation.rb -p "use functional coding style"
 ```
 
 
-In this example, the LLM output will be written to `implementation.rb`, and the prompt will include the contents of `file1_spec.rb` and `file2_spec.rb`. Including files in the prompt is useful for having the LLM create an implementation that passes some tests that you supply. In the example above, the model output will be an implementation intended to pass the given tests.
+In this example, the LLM output will be written to `implementation.rb`, and the prompt will include the contents of `file1_spec.rb` and `file2_spec.rb`. Including files in the prompt is useful for having the LLM create an implementation that passes some tests that you supply. In the example above, the model output will be an implementation intended to pass the given tests. The `-t` options specifies the "tests" template which is intended to help the model produce an implementation that passes the tests in `file1_spec.rb` and `file2_spec.rb`.
 
 <br /><br />
 ## Installation
