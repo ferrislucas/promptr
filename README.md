@@ -8,15 +8,36 @@ Promptr is a command-line interface (CLI) tool that allows you to pass file cont
 
 ### Cleanup some code
 This example sends GPT-3 the contents of `index.js` with a prompt `"Cleanup the code in this file"`. The model's response replaces the contents of index.js: 
+<br />
 `promptr -m gpt3 index.js -o index.js -p "Cleanup the code in this file"`
 
 <br /><br />
 ### Describe the codebase
 This example sends GPT-4 the codebase (honoring .gitignore) instructing the model to describe the codebase. The model's response is displayed in the console: 
 ```
-promptr -m gpt4 -p "Describe this codebase. Include examples of important entry points." $(git ls-tree -r --name-only HEAD | tr '\n' ' ')
+promptr -m gpt4 -p "Describe this codebase. List each class and what the class is responsible for. Also, describe the main entry point and what technologies are used." $(git ls-tree -r --name-only HEAD | tr '\n' ' ')
 
+This codebase is a command-line interface (CLI) tool called Promptr. It allows users to pass file contents through liquidjs templates and pass the resulting prompt to GPT-3 or GPT-4. The main technologies used in this codebase are Node.js, liquidjs, and the OpenAI API.
 
+The main entry point is "bin/index.js", which imports and calls the MainService from "main.js".
+
+There are several classes in this codebase:
+
+1. CliState (cliState.js): This class handles the initialization and management of command-line arguments and options.
+
+2. ConfigService (configService.js): This class is responsible for retrieving and managing the configuration settings for the application.
+
+3. FileService (fileService.js): This class provides file-related utility functions, such as reading and writing files.
+
+4. Gpt3Service (gpt3Service.js): This class is responsible for interacting with the GPT-3 API and processing the response.
+
+5. Gpt4Service (gpt4Service.js): This class is responsible for interacting with the GPT-4 API and processing the response.
+
+6. Main (main.js): This class is the main entry point of the application, responsible for handling user input and managing the application flow.
+
+7. PluginService (pluginService.js): This class is responsible for processing the user input and managing the interaction with the GPT-3 or GPT-4 services based on the user's selected mode.
+
+In addition to the main classes, there are several templates used for generating prompts, located in the "templates" folder.
 
 ```
 
