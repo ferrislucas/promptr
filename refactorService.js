@@ -1,6 +1,7 @@
 import { Configuration, OpenAIApi } from "openai"
 import CliState from "./cliState.js";
 import ConfigService from "./configService.js"
+import { encode } from "gpt-3-encoder"
 
 export default class RefactorService {
   static async call(prompt) {
@@ -11,7 +12,9 @@ export default class RefactorService {
     const openai = new OpenAIApi(configuration)
     
     const config = await ConfigService.retrieveConfig();
-    const promptLength = Math.ceil((prompt.split(" ").length + prompt.split("\t").length + prompt.split("\n").length) * 1.25)
+    const encoded = encode(prompt)
+    if (verbose) console.log(`Encoded prompt: ${encoded.length}`)
+    const promptLength = encoded.length 
     const apiConfig = {
       ...config.api,
       prompt: prompt,
