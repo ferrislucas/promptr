@@ -2,7 +2,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import { Liquid } from 'liquidjs'
-import RefactorService from './refactorService.js'
+import Gpt3Service from './gpt3Service.js'
 import { FileService } from './fileService.js'
 import CliState from './cliState.js'
 import Gpt4Service from './gpt4Service.js'
@@ -49,7 +49,7 @@ export default class PluginService {
       process.exit(1)
     }
     if (mode === "gpt3") {
-      return await RefactorService.call(prompt, outputFile)
+      return await Gpt3Service.call(prompt, outputFile)
     }
     if (mode === "gpt4") {
       return await Gpt4Service.call(prompt, outputFile)

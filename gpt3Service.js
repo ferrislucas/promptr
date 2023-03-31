@@ -3,7 +3,7 @@ import CliState from "./cliState.js";
 import ConfigService from "./configService.js"
 import { encode } from "gpt-3-encoder"
 
-export default class RefactorService {
+export default class Gpt3Service {
   static async call(prompt) {
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY
