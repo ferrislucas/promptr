@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "commander": "^10.0.0",
+    "gpt-3-encoder": "^1.1.4",
     "liquidjs": "^10.7.0",
     "openai": "^3.2.1",
     "prompt-sync": "^4.2.0"
