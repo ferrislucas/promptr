@@ -1,12 +1,26 @@
 # Promptr
 
-Promptr is a command-line interface (CLI) tool that writes the output of GPT3  model prompts to a specified file. Promptr can also accept additional arguments that specify one or more files to include in the prompt.
+Promptr is a command-line interface (CLI) tool that allows you to pass file contents through liquidjs templates and pass the resulting prompt to GPT3 or GPT4.
 
 <br /><br />
-## Usage
+## Example Uses
 
-To use Promptr, run it from the command line. This example sends GPT-3 the contents of `index.js` with a prompt `"Cleanup the code in this file"`. The model's response replaces the contents of `index.js`:
+
+### Cleanup some code
+This example sends GPT-3 the contents of `index.js` with a prompt `"Cleanup the code in this file"`. The model's response replaces the contents of index.js: 
 `promptr -m gpt3 index.js -o index.js -p "Cleanup the code in this file"`
+
+<br /><br />
+### Describe the codebase
+This example sends GPT-4 the codebase (honoring .gitignore) instructing the model to describe the codebase. The model's response is displayed in the console: 
+```
+promptr -m gpt4 -p "Describe this codebase. Include examples of important entry points." $(git ls-tree -r --name-only HEAD | tr '\n' ' ')
+
+
+
+```
+
+<br /><br />
 
 ## Options
 - `-m, --mode <mode>`: Required flag to set the mode. Supported values are: (gpt3|gpt4)
