@@ -3,7 +3,7 @@ import CliState from "./cliState.js";
 import ConfigService from "./configService.js"
 import { encode } from "gpt-3-encoder"
 
-export default class RefactorService {
+export default class Gpt4Service {
   static async call(prompt) {
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY
@@ -18,16 +18,18 @@ export default class RefactorService {
     const apiConfig = {
       ...config.api,
       prompt: prompt,
-      max_tokens: (4096 - promptLength),
+      max_tokens: (8192 - promptLength),
     }
-    if (verbose) console.log(`GPT-3 apiConfig: ${JSON.stringify(apiConfig)}`)    
-    const response = await openai.createCompletion(apiConfig)
+    if (verbose) console.log(`GPT-4 apiConfig: ${JSON.stringify(apiConfig)}`)    
+    
+    const response = await openai.createChatCompletion({
+      model: "gpt-4",
+      temperature: config.api.temperature,
+      messages: [{role: "user", content: prompt }],
+    });
 
     if (!response?.data?.choices) return null
-    let result = response.data.choices
-      .map((d) => d?.text?.trim())
-      .join()
-
+    let result = response.data.choices.map((d) => d?.message?.content?.trim()).join()
     if (verbose) console.log(`Response: \n${result}`)
     const output = this.extractSourceCode(result)
     return output

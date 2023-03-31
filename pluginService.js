@@ -5,10 +5,12 @@ import { Liquid } from 'liquidjs'
 import RefactorService from './refactorService.js'
 import { FileService } from './fileService.js'
 import CliState from './cliState.js'
+import Gpt4Service from './gpt4Service.js'
 
 export default class PluginService {
   static async call(userInput) {
     const verbose = CliState.opts().verbose
+    const mode = CliState.opts().mode
     const outputFile = CliState.opts().outputPath
     let prompt = userInput.toString().trim()
 
@@ -31,9 +33,25 @@ export default class PluginService {
       process.exit(0)
     }
     
-    const output = await RefactorService.call(prompt, outputFile)
+
+    const output = await this.executeMode(mode, prompt, outputFile)
     if (outputFile) await FileService.write(output, outputFile)
     else console.log(output)
+  }
+
+  static async executeMode(mode, prompt, outputFile) {
+    if (mode != "gpt3" && mode != "gpt4") {
+      console.log(`Mode ${mode} is not supported`)
+      process.exit(1)
+    }
+    if (mode === "gpt3") {
+      return await RefactorService.call(prompt, outputFile)
+    }
+    if (mode === "gpt4") {
+      return await Gpt4Service.call(prompt, outputFile)
+    }
+    console.log(`Mode "${mode}" is not supported`)
+    exit(1)
   }
 
   static async loadTemplate(prompt, context, additionalContext, templatePath) {
