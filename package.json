@@ -7,6 +7,9 @@
   "bin": {
     "promptr": "bin/index.js"
   },
+  "files": [
+    "templates/**"
+  ],
   "dependencies": {
     "commander": "^10.0.0",
     "gpt-3-encoder": "^1.1.4",

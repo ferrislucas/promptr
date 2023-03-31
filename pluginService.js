@@ -20,9 +20,14 @@ export default class PluginService {
     const __filename = fileURLToPath(import.meta.url)
     const __dirname = dirname(__filename)
 
-    let templatePath = path.join(__dirname, 'template.txt')
+    let templatePath = path.join(__dirname, "templates", 'empty.txt')
     const userTemplate = CliState.opts().templatePath
-    if (userTemplate) templatePath = userTemplate
+    if (userTemplate) {
+      templatePath = userTemplate
+      if (!templatePath.startsWith("/")) {
+        templatePath = path.join(__dirname, "templates", `${templatePath}.txt`)
+      }
+    } 
     if (verbose) console.log(`Template path is: ${templatePath}`)
     
     prompt = await this.loadTemplate(prompt, context, additionalContext, templatePath)
@@ -32,7 +37,6 @@ export default class PluginService {
       console.log(prompt)
       process.exit(0)
     }
-    
 
     const output = await this.executeMode(mode, prompt, outputFile)
     if (outputFile) await FileService.write(output, outputFile)
