@@ -1,0 +1,5 @@
+{{prompt}}
+{% if context != blank %}
+{{additionalContext}}
+{{context}}
+{% endif %}
