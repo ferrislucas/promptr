@@ -38,21 +38,21 @@ export default class PluginService {
       process.exit(0)
     }
 
-    const output = await this.executeMode(mode, prompt, outputFile)
+    const output = await this.executeMode(mode, prompt)
     if (outputFile) await FileService.write(output, outputFile)
     else console.log(output)
   }
 
-  static async executeMode(mode, prompt, outputFile) {
+  static async executeMode(mode, prompt) {
     if (mode != "gpt3" && mode != "gpt4") {
       console.log(`Mode ${mode} is not supported`)
       process.exit(1)
     }
     if (mode === "gpt3") {
-      return await Gpt3Service.call(prompt, outputFile)
+      return await Gpt3Service.call(prompt)
     }
     if (mode === "gpt4") {
-      return await Gpt4Service.call(prompt, outputFile)
+      return await Gpt4Service.call(prompt)
     }
     console.log(`Mode "${mode}" is not supported`)
     exit(1)
