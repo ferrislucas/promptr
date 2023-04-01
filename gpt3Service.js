@@ -28,7 +28,7 @@ export default class Gpt3Service {
       .map((d) => d?.text?.trim())
       .join()
 
-    if (verbose) console.log(`Response: \n${result}`)
+    if (verbose) console.log(`--Response--\n${result}`)
     const output = this.extractSourceCode(result)
     return output
   }
