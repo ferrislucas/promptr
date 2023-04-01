@@ -6,7 +6,7 @@ export default class Main {
   
   static async call() {
     if (process.argv.length <= 2) {
-      console.log("Usage: promptr [<input path 1> <input path 2> ...] <output path>");
+      console.log("Usage: promptr -m (gpt3|gpt4) <input filepath(s)> -o <output filepath> -p \"Cleanup the code in this file\"");
       process.exit(-1);
     }
     
