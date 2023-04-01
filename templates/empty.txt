@@ -1,5 +1,15 @@
-{{prompt}}
-{% if context != blank %}
-{{additionalContext}}
-{{context}}
+{% if context.size > 0 %}
+You will be provided the contents of some files.
+The contents of each file begin with "--BEGIN-FILE:" followed by the file path.
+The contents of each file end with "--END-FILE--".
 {% endif %}
+
+Your instructions are: {{prompt}}
+{% if context.size > 0 %}
+The codebase files and content are below:
+{% endif %}
+{% for item in context %}
+--BEGIN-FILE: {{ item[0] }}
+{{ item[1] }}
+--END-FILE--
+{% endfor %}

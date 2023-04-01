@@ -1,0 +1,23 @@
+{% if context.size > 0 %}
+You will be provided the contents of all files in a codebase.
+The contents of each file begin with "--BEGIN-FILE:" followed by the file path.
+The contents of each file end with "--END-FILE--".
+{% endif %}
+
+Your response should be valid json. The json should be an array of objects. 
+Each object should represent a file that should be created, updated, or deleted. 
+Each object should have three keys: “crudOperation”, “filePath”, and “fileContents”.
+The ”crudOperation” value should contain the operation that you would like to perform for the given file. The “crudOperation” value should be “create”, “update”, or “delete”.
+The “filePath” value should contain the path to the file. 
+The “fileContents” value should be the contents of the file if the file is being created or updated - if the file is being deleted then the “fileContents” key can be omitted.
+
+Your instructions are: {{prompt}}
+
+{% if context.size > 0 %}
+The codebase files and content are below:
+{% endif %}
+{% for item in context %}
+--BEGIN-FILE: {{ item[0] }}
+{{ item[1] }}
+--END-FILE--
+{% endfor %}

@@ -3,24 +3,15 @@ Respond with the source code only. Your response should only contain valid synta
 Do not preface your response with anything.
 Always leave existing code intact unless instructed not to.
 
-{% if context != blank %}
-You will be provided the current implentation of an object oriented class. 
-The implementation source code begins with "HERE IS THE IMPLEMENTATION" and ends with "END IMPLEMENTATION".
-{% endif %}
+You will be provided the contents of some files from a codebase.
+The contents of each file begin with "--BEGIN-FILE:" followed by the file path.
+The contents of each file end with "--END-FILE--".
 
+Produce an implementation of the class described in the first file that will pass the unit tests specified in the other files: 
+{{prompt}}
 
-You will be provided unit tests for the object oriented class.
-The unit tests will begin with "HERE ARE THE TESTS" and end with "END TESTS".
-Produce an implementation of the class that will pass the following unit tests: {{prompt}}
-
-{% if context != blank %}
-HERE IS THE IMPLEMENTATION
-{{context}}
-END IMPLEMENTATION
-{% endif %}
-
-{% if context != blank %}
-HERE ARE THE TESTS
-{{additionalContext}}
-END TESTS
-{% endif %}
+{% for item in context %}
+--BEGIN-FILE: {{ item[0] }}
+{{ item[1] }}
+--END-FILE--
+{% endfor %}

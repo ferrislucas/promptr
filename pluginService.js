@@ -13,10 +13,7 @@ export default class PluginService {
     const mode = CliState.opts().mode
     const outputFile = CliState.opts().outputPath
     let prompt = userInput.toString().trim()
-
-    let lastArg = CliState.args.slice(-1)[0]
-    let context = await FileService.load(lastArg)
-    let additionalContext = await this.getAdditionalContext()
+    let context = await this.buildContext(CliState.args)
     const __filename = fileURLToPath(import.meta.url)
     const __dirname = dirname(__filename)
 
@@ -30,7 +27,7 @@ export default class PluginService {
     } 
     if (verbose) console.log(`Template path is: ${templatePath}`)
     
-    prompt = await this.loadTemplate(prompt, context, additionalContext, templatePath)
+    prompt = await this.loadTemplate(prompt, context, templatePath)
     if (verbose) console.log(`Prompt: \n${prompt}\n\n`)
     
     if (CliState.opts().dryRun) {
@@ -58,7 +55,18 @@ export default class PluginService {
     exit(1)
   }
 
-  static async loadTemplate(prompt, context, additionalContext, templatePath) {
+  static async buildContext(args) {
+    let context = { }
+    for (let n = 0; n < args.length; n++) {
+      const arg = args[n]
+      const filename = arg
+      const fileContent = await FileService.load(filename)
+      context[filename] = fileContent
+    }
+    return context
+  }
+
+  static async loadTemplate(prompt, context, templatePath) {
     if (!await FileService.fileExists(templatePath)) {
       console.log(`Template file ${templatePath} does not exist`)
       process.exit(1)
@@ -68,24 +76,9 @@ export default class PluginService {
     engine.registerFilter("jsonToObject", (json) => JSON.parse(json));
     const tpl = engine.parse(templateText)    
     const content = await engine.render(tpl, {
-      additionalContext: additionalContext,
       context: context,
       prompt: prompt,
     })
     return content
-  }
-
-  static async getAdditionalContext() {
-    let argsExceptLast = CliState.args.slice(0, -1)
-    if (argsExceptLast.length === 0) return("")
-    let additionalContext = ""
-    for (let n = 0; n < argsExceptLast.length; n++) {
-      const filename = argsExceptLast[n]
-      let s = await FileService.load(path.join(process.cwd(), filename))
-      additionalContext = additionalContext.concat(
-        `File "${filename}" contents:\n${s}\n------------------\n\n`
-      )
-    }
-    return additionalContext
   }
 }
