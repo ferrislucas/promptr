@@ -53,7 +53,7 @@ export default class PluginService {
     if (mode === "gpt4") {
       return await Gpt4Service.call(prompt)
     }
-    console.log(`Mode "${mode}" is not supported`)
+    console.log(`Mode ${mode} is not supported`)
     exit(1)
   }
 
