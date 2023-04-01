@@ -8,7 +8,8 @@
     "promptr": "bin/index.js"
   },
   "files": [
-    "templates/**"
+    "templates/**",
+    "*.js"
   ],
   "dependencies": {
     "commander": "^10.0.0",
