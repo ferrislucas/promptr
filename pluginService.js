@@ -2,6 +2,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import { Liquid } from 'liquidjs'
+import { encode } from "gpt-3-encoder"
 import Gpt3Service from './gpt3Service.js'
 import { FileService } from './fileService.js'
 import CliState from './cliState.js'
@@ -32,6 +33,7 @@ export default class PluginService {
     
     if (CliState.opts().dryRun) {
       console.log(prompt)
+      console.log(`Prompt token count: ${encode(prompt).length}`)
       process.exit(0)
     }
 
