@@ -8,6 +8,7 @@ import { FileService } from './fileService.js'
 import CliState from './cliState.js'
 import Gpt4Service from './gpt4Service.js'
 import RefactorResultProcessor from './refactorResultProcessor.js'
+import fs from 'fs'
 
 export default class PluginService {
   static async call(userInput) {
@@ -46,7 +47,8 @@ export default class PluginService {
   static async executeMode(mode, prompt) {
     const executePath = CliState.getExecutePath()
     if (executePath) {
-      return await RefactorResultProcessor.call(executePath)
+      const operations = JSON.parse(await fs.promises.readFile(executePath, 'utf-8'))
+      return await RefactorResultProcessor.call(operations)
     }
 
     if (mode != "gpt3" && mode != "gpt4") {
