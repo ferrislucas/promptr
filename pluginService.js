@@ -44,11 +44,20 @@ export default class PluginService {
     else console.log(output)
   }
 
+  static async processPipedInput() {
+    const pipedJson = await new Promise((resolve) => {
+      process.stdin.once('data', resolve);
+    });
+    const operations = JSON.parse(pipedJson)
+    return await RefactorResultProcessor.call(operations)
+  }
+
   static async executeMode(mode, prompt) {
     const executePath = CliState.getExecutePath()
     if (executePath) {
-      const operations = JSON.parse(await fs.promises.readFile(executePath, 'utf-8'))
-      return await RefactorResultProcessor.call(operations)
+      process.stdin.setEncoding('utf8')
+      await this.processPipedInput()
+      return "Changes applied"
     }
 
     if (mode != "gpt3" && mode != "gpt4") {
