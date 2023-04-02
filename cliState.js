@@ -12,8 +12,10 @@ export default class CliState {
     this.program.option('-t, --template-path <templatePath>', 'Path to template file')
     this.program.option('-o, --output-path <outputPath>', 'Path to output file. If no path is specified, output will be printed to stdout.')
     this.program.option('-v, --verbose', 'Verbose output')
+    this.program.option('-x, --execute <executePath>', 'Execute refactor result processor on specified file')
     this.program.requiredOption('-m, --mode <mode>', 'Specify the mode: (gpt3|gpt4)')
     this.program.addHelpText('after', `
+
 Example call:
   $ promptr -m gpt3 index.js -o index.js -p "Cleanup the code in this file"`);
 
@@ -52,4 +54,9 @@ Example call:
   static isInteractive() {
     return this.program.opts().interactive
   }
+
+  static getExecutePath() {
+    return this.program.opts().execute
+  }
+
 }

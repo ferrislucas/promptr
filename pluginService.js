@@ -7,6 +7,7 @@ import Gpt3Service from './gpt3Service.js'
 import { FileService } from './fileService.js'
 import CliState from './cliState.js'
 import Gpt4Service from './gpt4Service.js'
+import RefactorResultProcessor from './refactorResultProcessor.js'
 
 export default class PluginService {
   static async call(userInput) {
@@ -43,6 +44,11 @@ export default class PluginService {
   }
 
   static async executeMode(mode, prompt) {
+    const executePath = CliState.getExecutePath()
+    if (executePath) {
+      return await RefactorResultProcessor.call(executePath)
+    }
+
     if (mode != "gpt3" && mode != "gpt4") {
       console.log(`Mode ${mode} is not supported`)
       process.exit(1)
