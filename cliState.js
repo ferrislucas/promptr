@@ -28,4 +28,28 @@ Example call:
   static verbose() {
     return this.program.opts().verbose
   }
+
+  static getMode() {
+    return this.program.opts().mode
+  }
+
+  static getOutputPath() {
+    return this.program.opts().outputPath
+  }
+
+  static getTemplatePath() {
+    return this.program.opts().templatePath
+  }
+
+  static getPrompt() {
+    return this.program.opts().prompt
+  }
+
+  static isDryRun() {
+    return this.program.opts().dryRun
+  }
+
+  static isInteractive() {
+    return this.program.opts().interactive
+  }
 }
