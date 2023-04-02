@@ -24,4 +24,8 @@ Example call:
   static opts() {
     return this.program.opts()
   }
+
+  static verbose() {
+    return this.program.opts().verbose
+  }
 }

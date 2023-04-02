@@ -10,7 +10,7 @@ import Gpt4Service from './gpt4Service.js'
 
 export default class PluginService {
   static async call(userInput) {
-    const verbose = CliState.opts().verbose
+    const verbose = CliState.verbose()
     const mode = CliState.opts().mode
     const outputFile = CliState.opts().outputPath
     let prompt = userInput.toString().trim()

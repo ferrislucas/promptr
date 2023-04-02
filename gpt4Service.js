@@ -8,7 +8,7 @@ export default class Gpt4Service {
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY
     })
-    const verbose = CliState.opts().verbose
+    const verbose = CliState.verbose()
     const openai = new OpenAIApi(configuration)
     
     const config = await ConfigService.retrieveConfig();
