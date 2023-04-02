@@ -11,15 +11,15 @@ import Gpt4Service from './gpt4Service.js'
 export default class PluginService {
   static async call(userInput) {
     const verbose = CliState.verbose()
-    const mode = CliState.opts().mode
-    const outputFile = CliState.opts().outputPath
+    const mode = CliState.getMode()
+    const outputFile = CliState.getOutputPath()
     let prompt = userInput.toString().trim()
     let context = await this.buildContext(CliState.args)
     const __filename = fileURLToPath(import.meta.url)
     const __dirname = dirname(__filename)
 
     let templatePath = path.join(__dirname, "templates", 'empty.txt')
-    const userTemplate = CliState.opts().templatePath
+    const userTemplate = CliState.getTemplatePath()
     if (userTemplate) {
       templatePath = userTemplate
       if (!templatePath.startsWith("/")) {
@@ -31,7 +31,7 @@ export default class PluginService {
     prompt = await this.loadTemplate(prompt, context, templatePath)
     if (verbose) console.log(`Prompt: \n${prompt}\n\n`)
     
-    if (CliState.opts().dryRun) {
+    if (CliState.isDryRun()) {
       console.log(prompt)
       console.log(`Prompt token count: ${encode(prompt).length}`)
       process.exit(0)

@@ -13,13 +13,13 @@ export default class Main {
     CliState.init(process.argv)
 
     // Interactive mode
-    if (CliState.opts().interactive) {
+    if (CliState.isInteractive()) {
       await this.loopUntilUserExit()
       process.exit(0);
     }
 
     // Non-interactive mode
-    const prompt = CliState.opts().prompt
+    const prompt = CliState.getPrompt()
     if (!prompt) {
       console.log("No prompt was specified. Please specify a prompt with the --prompt option, or use interactive mode by using the --interactive option.");
       process.exit(-1);
