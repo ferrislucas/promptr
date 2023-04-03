@@ -21,7 +21,8 @@ This example sends GPT-4 the all the javascript files in the codebase and instru
 
 2. __Cleanup some code__
 This example sends GPT-3 the contents of `index.js` with a prompt `"Cleanup the code in this file"`. The model's response replaces the contents of index.js: 
-`promptr -m gpt3 index.js -o index.js -p "Cleanup the code in this file"<br /><br />
+`promptr -m gpt3 index.js -o index.js -p "Cleanup the code in this file"`
+<br /><br />
 
 3. __Test First: You supply the unit tests, GPT updates your implementation:__ We can use the `test-first` template to guide GPT into implemeting a class by supplying GPT with a set of unit tests that the implementation should pass:
 `
