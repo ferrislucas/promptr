@@ -17,7 +17,6 @@ This example sends GPT-4 the all the javascript files in the codebase and instru
 - `-t refactor` tells Promptr to use the `refactor` template.
 - `$(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ')` gathers all the javascript files in the git repository and passes their paths to Promptr.
 - `-p` provides the prompt that is passed as instructions to GPT.
-<br />
 - The ending `| promptr -m execute` pipes the model output from the first call to `promptr` into Promptr, this time using the `-m execute` option to tell Promptr to apply the changes to the working directory.
 
 2. __Cleanup some code__
