@@ -39,19 +39,4 @@ export default class Gpt4Service {
     }
     return lines.join("\n")
   }
-
-  static async getPreamble(preamblePath) {
-    try {
-      // Use the fs module to read the file
-      const preamble = await fs.promises.readFile(preamblePath, "utf-8")
-      return preamble
-    } catch (err) {
-      this.log(err)
-    }
-  }
-
-  static log(message) {
-    console.log(message)
-  }
-
 }
