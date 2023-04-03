@@ -3,7 +3,7 @@
 Promptr is a CLI tool for dynamically including one or more files into GPT prompts. Promptr uses  the GPT3 or GPT4 API to include the files you specify with your prompt using liquidjs templates. Various templates are included, and users can create their own templates.
 <br />
 
-####Some useful workflows that Promptr enables
+#### Some useful workflows that Promptr enables
 - __Ask GPT to refactor your code base:__ Promptr handles passing the codebase and your prompt to GPT. Promptr then parses the response and applies the changes recommended by GPT to your codebase.
 - __Ask GPT to update a class to pass some tests:__ given a set of unit tests and a class’s current implementation, Promptr will tell GPT to create or update an implementation of a class that makes the tests pass. Promptr handles parsing GPT’s response and updating your code. See the `test-first` example below.
 - __Automate recursive prompts:__ by using Promptr to pipe model output into a file. Then use Promptr to pass the contents of that file to GPT as a prompt.
