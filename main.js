@@ -20,7 +20,7 @@ export default class Main {
 
     // Non-interactive mode
     const prompt = CliState.getPrompt()
-    if (!prompt) {
+    if (!prompt && CliState.getMode() != "execute") {
       console.log("No prompt was specified. Please specify a prompt with the --prompt option, or use interactive mode by using the --interactive option.");
       process.exit(-1);
     }

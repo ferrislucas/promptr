@@ -15,30 +15,32 @@ export default class PluginService {
     const verbose = CliState.verbose()
     const mode = CliState.getMode()
     const outputFile = CliState.getOutputPath()
-    let prompt = userInput.toString().trim()
-    let context = await this.buildContext(CliState.args)
-    const __filename = fileURLToPath(import.meta.url)
-    const __dirname = dirname(__filename)
+    let prompt = null
+    if (CliState.getMode() != "execute") {
+      let context = await this.buildContext(CliState.args)
+      const __filename = fileURLToPath(import.meta.url)
+      const __dirname = dirname(__filename)
 
-    let templatePath = path.join(__dirname, "templates", 'empty.txt')
-    const userTemplate = CliState.getTemplatePath()
-    if (userTemplate) {
-      templatePath = userTemplate
-      if (!templatePath.startsWith("/")) {
-        templatePath = path.join(__dirname, "templates", `${templatePath}.txt`)
+      let templatePath = path.join(__dirname, "templates", 'empty.txt')
+      const userTemplate = CliState.getTemplatePath()
+      if (userTemplate) {
+        templatePath = userTemplate
+        if (!templatePath.startsWith("/")) {
+          templatePath = path.join(__dirname, "templates", `${templatePath}.txt`)
+        }
+      } 
+      if (verbose) console.log(`Template path is: ${templatePath}`)
+      
+      prompt = await this.loadTemplate(userInput.toString().trim(), context, templatePath)
+      if (verbose) console.log(`Prompt: \n${prompt}\n\n`)
+      
+      if (CliState.isDryRun()) {
+        console.log(prompt)
+        console.log(`Prompt token count: ${encode(prompt).length}`)
+        process.exit(0)
       }
-    } 
-    if (verbose) console.log(`Template path is: ${templatePath}`)
-    
-    prompt = await this.loadTemplate(prompt, context, templatePath)
-    if (verbose) console.log(`Prompt: \n${prompt}\n\n`)
-    
-    if (CliState.isDryRun()) {
-      console.log(prompt)
-      console.log(`Prompt token count: ${encode(prompt).length}`)
-      process.exit(0)
     }
-
+    
     const output = await this.executeMode(mode, prompt)
     if (outputFile) await FileService.write(output, outputFile)
     else console.log(output)
@@ -53,16 +55,14 @@ export default class PluginService {
   }
 
   static async executeMode(mode, prompt) {
-    const executePath = CliState.getExecutePath()
-    if (executePath) {
+    if (mode != "gpt3" && mode != "gpt4" && mode != "execute") {
+      console.log(`Mode ${mode} is not supported`)
+      process.exit(1)
+    }
+    if (mode === "execute") {
       process.stdin.setEncoding('utf8')
       await this.processPipedInput()
       return "Changes applied"
-    }
-
-    if (mode != "gpt3" && mode != "gpt4") {
-      console.log(`Mode ${mode} is not supported`)
-      process.exit(1)
     }
     if (mode === "gpt3") {
       return await Gpt3Service.call(prompt)

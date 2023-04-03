@@ -12,7 +12,6 @@ export default class CliState {
     this.program.option('-t, --template-path <templatePath>', 'Path to template file')
     this.program.option('-o, --output-path <outputPath>', 'Path to output file. If no path is specified, output will be printed to stdout.')
     this.program.option('-v, --verbose', 'Verbose output')
-    this.program.option('-x, --execute', 'Execute refactor result processor on specified file')
     this.program.requiredOption('-m, --mode <mode>', 'Specify the mode: (gpt3|gpt4)')
     this.program.addHelpText('after', `
 
