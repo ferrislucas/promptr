@@ -9,7 +9,31 @@ Promptr is a CLI tool for dynamically including one or more files into GPT promp
 - __Automate recursive prompts:__ by using Promptr to pipe model output into a file. Then use Promptr to pass the contents of that file to GPT as a prompt.
 - __Experimentation:__ Promptr was born as a tool for experimenting with LLM’s. There are interactive and dry run modes as well as a templating system that exposes the files you pass to Promptr. This allows  you to use those file names and file contents as you wish in your own prompts.
 <br /><br />
-#### Example Uses
+
+## Usage
+
+`promptr  -m <mode> [options] <file1> <file2> <file3> ...`
+
+
+- Refactor a single file (using `-o` to update a single file):
+
+```bash
+$ promptr -m gpt3 index.js -o index.js -p "Cleanup the code in this file"
+```
+
+- Refactor multiple files (applies the changes to your codebase by piping output into `promptr -m execute`):
+
+```bash
+$ promptr -m gpt3 index.js app.js -t refactor -p "Cleanup the code in these files" | promptr -m execute
+```
+
+- Refactor all the javascript files in the codebase (use `git-tree`, `grep`, and `tr` to specify the paths to all .js files):
+
+```bash
+$ promptr -m gpt4 -t refactor -p "Cleanup the code in these files" $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ') | promptr -m execute
+```
+<br />
+#### Use Cases
 
 1. __Refactor the codebase__ 
 This example sends GPT-4 the all the javascript files in the codebase and instructs the model to remove any unused methods: <br /> `promptr -m gpt4 -t refactor $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ') -p "Remove any unused methods" | promptr -m execute` <br />
@@ -19,7 +43,7 @@ This example sends GPT-4 the all the javascript files in the codebase and instru
 - `-p` provides the prompt that is passed as instructions to GPT.
 - The ending `| promptr -m execute` pipes the model output from the first call to `promptr` into Promptr, this time using the `-m execute` option to tell Promptr to apply the changes to the working directory.
 
-2. __Cleanup some code__
+2. __Cleanup a file__
 This example sends GPT-3 the contents of `index.js` with a prompt `"Cleanup the code in this file"`. The model's response replaces the contents of index.js: 
 `promptr -m gpt3 index.js -o index.js -p "Cleanup the code in this file"`
 <br /><br />
