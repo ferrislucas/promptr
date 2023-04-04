@@ -99,6 +99,7 @@ In addition to the main classes, there are several templates used for generating
 Additional parameters can specify the paths to files that will be included as context in the prompt. The parameters should be separated by a space.
 
 <br />
+
 #### Installation
 
 #### With yarn
