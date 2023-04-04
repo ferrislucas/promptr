@@ -69,6 +69,7 @@ In addition to the main classes, there are several templates used for generating
 - `-t, --template-path <templatePath>`: Optional string flag that specifies the absolute path to the template file that will be used to generate the output. Default is an empty template.
 - `-o, --output-path <outputPath>`: Optional string flag that specifies the path to the output file. If this flag is not set, the output will be printed to stdout.
 - `-v, --verbose`: Optional boolean flag that enables verbose output, providing more detailed information during execution.
+- `--version`: Display the version and exit
 
 Additional parameters can specify the paths to files that will be included as context in the prompt. The parameters should be separated by a space.
 

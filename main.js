@@ -1,16 +1,17 @@
 import readline from 'readline'
 import PluginService from './pluginService.js'
 import CliState from './cliState.js'
+import fs from 'fs/promises'
 
 export default class Main {
   
   static async call() {
+    CliState.init(process.argv, await this.getVersion())
+
     if (process.argv.length <= 2) {
       console.log("Usage: promptr -m (gpt3|gpt4) <input filepath(s)> -o <output filepath> -p \"Cleanup the code in this file\"");
       process.exit(-1);
     }
-    
-    CliState.init(process.argv)
 
     // Interactive mode
     if (CliState.isInteractive()) {
@@ -52,4 +53,9 @@ export default class Main {
     })
   }
 
+  static async getVersion() {
+    const packageJson = await fs.readFile('./package.json', 'utf8')
+    const packageData = JSON.parse(packageJson)
+    return packageData.version
+  }
 }
