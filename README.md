@@ -1,6 +1,6 @@
 # Promptr
 
-Promptr is a CLI tool for operating on your codebase using GPT. Promptr dynamically includes one or more files into your GPT prompts, and it can optionally parse and apply the changes that GPT suggests to your codebase. Promptr uses the GPT3 or GPT4 API to include the files you specify with your prompt and optionally parses the results and applies the changes to your files. Various liquidjs prompt templates are included, and users can create their own templates. 
+Promptr is a CLI tool for operating on your codebase using GPT. Promptr dynamically includes one or more files into your GPT prompts, and it can optionally parse and apply the changes that GPT suggests to your codebase. Several prompt templates are included for various purposes, and users can create their own templates. 
 <br />
 
 #### Some useful workflows that Promptr enables
