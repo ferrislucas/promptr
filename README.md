@@ -33,7 +33,8 @@ $ promptr -m gpt3 index.js app.js -t refactor -p "Cleanup the code in these file
 $ promptr -m gpt4 -t refactor -p "Cleanup the code in these files" $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ') | promptr -m execute
 ```
 <br />
-## Use Cases
+
+### Use Cases
 
 1. __Refactor the codebase__ 
 This example sends GPT-4 the all the javascript files in the codebase and instructs the model to remove any unused methods: <br /> `promptr -m gpt4 -t refactor $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ') -p "Remove any unused methods" | promptr -m execute` <br />
