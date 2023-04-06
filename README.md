@@ -115,6 +115,16 @@ npm install -g @ifnotnowwhen/promptr
 #### Set OpenAI API Key
 An environment variable called `OPENAI_API_KEY` is expected to contain your OpenAI API secret key.
 
+#### Build Binaries using PKG
+```
+npm run bundle
+```
+```
+npm run build:<platform win|macos|linux>
+```
+```
+npm run test-binary
+```
 <br /><br />
 #### License
 

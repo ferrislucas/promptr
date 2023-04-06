@@ -20,10 +20,22 @@
   },
   "description": "Promptr is a command-line interface (CLI) tool that writes the output of GPT3  model prompts to a specified file. Promptr can also accept additional arguments that specify one or more files to include in the prompt.",
   "devDependencies": {
-    "mocha": "^10.2.0"
+    "mocha": "^10.2.0",
+    "webpack": "^5.77.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-node-externals": "^3.0.0",
+    "babel-loader": "^9.1.2",
+    "@babel/cli": "^7.21.0",
+    "@babel/core": "^7.21.4",
+    "@babel/preset-env": "^7.21.4"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "bundle": "webpack && cp build.json dist/package.json && cd dist && npm install  && cd ..",
+    "build:win": "cd dist && pkg -t node14-win . && cd ..",
+    "build:macos": "cd dist && pkg -t node14-macos . && cd ..",
+    "build:linux": "cd dist && pkg -t node14-linux . && cd ..",
+    "test-binary": "cd dist && ./promptr -m gpt3 run.py -o run.py -p \"Cleanup the code in this file\" && cd .."
   },
   "repository": {
     "type": "git",
