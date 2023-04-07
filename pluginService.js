@@ -75,12 +75,14 @@ export default class PluginService {
   }
 
   static async buildContext(args) {
-    let context = { }
+    let context = { 
+      files: [],
+    }
     for (let n = 0; n < args.length; n++) {
-      const arg = args[n]
-      const filename = arg
-      const fileContent = await FileService.load(filename)
-      context[filename] = fileContent
+      context.files.push({
+        filename: args[n],
+        content: await FileService.load(args[n]),
+      })
     }
     return context
   }
