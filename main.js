@@ -1,7 +1,6 @@
 import readline from 'readline'
 import PluginService from './pluginService.js'
 import CliState from './cliState.js'
-import fs from 'fs/promises'
 
 export default class Main {
   
@@ -54,8 +53,6 @@ export default class Main {
   }
 
   static async getVersion() {
-    const packageJson = await fs.readFile('./package.json', 'utf8')
-    const packageData = JSON.parse(packageJson)
-    return packageData.version
+    return "1.1.7"
   }
 }
