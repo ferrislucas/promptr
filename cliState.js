@@ -9,7 +9,7 @@ export default class CliState {
     this.program.option('-d, --dry-run', 'Dry run only: just display the prompt')
     this.program.option('-i, --interactive', 'Interactive mode');
     this.program.option('-p, --prompt <prompt>', 'Prompt to use in non-interactive mode');
-    this.program.option('-t, --template-path <templatePath>', 'Path to template file')
+    this.program.option('-t, --template <template>', 'Teplate name, template path, or a url for a template file')
     this.program.option('-o, --output-path <outputPath>', 'Path to output file. If no path is specified, output will be printed to stdout.')
     this.program.option('-v, --verbose', 'Verbose output')
     this.program.requiredOption('-m, --mode <mode>', 'Specify the mode: (gpt3|gpt4)')
@@ -46,7 +46,7 @@ Example call:
   }
 
   static getTemplatePath() {
-    return this.program.opts().templatePath
+    return this.program.opts().template
   }
 
   static getPrompt() {

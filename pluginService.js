@@ -8,7 +8,6 @@ import { FileService } from './fileService.js'
 import CliState from './cliState.js'
 import Gpt4Service from './gpt4Service.js'
 import RefactorResultProcessor from './refactorResultProcessor.js'
-import fs from 'fs'
 
 export default class PluginService {
   static async call(userInput) {
@@ -25,10 +24,7 @@ export default class PluginService {
       const userTemplate = CliState.getTemplatePath()
       if (userTemplate) {
         templatePath = userTemplate
-        if (!templatePath.startsWith("/")) {
-          templatePath = path.join(__dirname, "templates", `${templatePath}.txt`)
-        }
-      } 
+      }
       if (verbose) console.log(`Template path is: ${templatePath}`)
       
       prompt = await this.loadTemplate(userInput.toString().trim(), context, templatePath)
@@ -87,12 +83,10 @@ export default class PluginService {
     return context
   }
 
-  static async loadTemplate(prompt, context, templatePath) {
-    if (!await FileService.fileExists(templatePath)) {
-      console.log(`Template file ${templatePath} does not exist`)
-      process.exit(1)
-    }
-    const templateText = await FileService.load(templatePath)
+  static async loadTemplate(prompt, context, template) {
+    const templateText = template.startsWith("http://") || template.startsWith("https://") ? 
+      await this.loadTemplateFromUrl(template) : 
+      await this.loadTemplateFromPath(template)
     const engine = new Liquid()
     engine.registerFilter("jsonToObject", (json) => JSON.parse(json));
     const tpl = engine.parse(templateText)    
@@ -101,5 +95,22 @@ export default class PluginService {
       prompt: prompt,
     })
     return content
+  }
+
+  static async loadTemplateFromUrl(templateUrl) {
+    const response = await fetch(templateUrl)
+    const body = await response.text()
+    return body
+  }
+
+  static async loadTemplateFromPath(templatePath) {
+    if (!templatePath.startsWith("/")) {
+      templatePath = path.join(__dirname, "templates", `${templatePath}.txt`)
+    }
+    if (!await FileService.fileExists(templatePath)) {
+      console.log(`Template file ${templatePath} does not exist`)
+      process.exit(1)
+    }
+    return await FileService.load(templatePath)
   }
 }
