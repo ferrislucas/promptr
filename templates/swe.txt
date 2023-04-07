@@ -5,7 +5,7 @@ You are to follow the instruction by applying changes to the source code you are
 Respond with the source code only. Your response should only contain valid syntactically correct source code.
 Do not preface your response with anything.
 
-{% if context.size > 0 %}
+{% if context.files.size > 0 %}
 You will be provided the contents of some files.
 The contents of each file begin with "--BEGIN-FILE:" followed by the file path.
 The contents of each file end with "--END-FILE--".
@@ -13,11 +13,11 @@ The contents of each file end with "--END-FILE--".
 
 Produce the source code to accomplish this instruction: {{prompt}}
 
-{% if context.size > 0 %}
+{% if context.files.size > 0 %}
 The codebase files and content are below:
 {% endif %}
-{% for item in context %}
---BEGIN-FILE: {{ item[0] }}
-{{ item[1] }}
+{% for item in context.files %}
+--BEGIN-FILE: {{ item.filename }}
+{{ item.content }}
 --END-FILE--
 {% endfor %}
