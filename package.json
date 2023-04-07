@@ -35,7 +35,7 @@
     "build:win": "cd dist && pkg -t node14-win . && cd ..",
     "build:macos": "cd dist && pkg -t node14-macos . && cd ..",
     "build:linux": "cd dist && pkg -t node14-linux . && cd ..",
-    "test-binary": "cd dist && ./promptr -m gpt3 run.py -o run.py -p \"Cleanup the code in this file\" && cd .."
+    "test-binary": "cd dist && ./promptr -m gpt3 -d -p \"This is a test prompt\" && cd .."
   },
   "repository": {
     "type": "git",
