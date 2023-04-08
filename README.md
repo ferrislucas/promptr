@@ -18,31 +18,31 @@ Promptr is a CLI tool for operating on your codebase using GPT. Promptr dynamica
 - Refactor a single file (using `-o` to update a single file):
 
 ```bash
-$ promptr -m gpt3 index.js -o index.js -p "Cleanup the code in this file"
+$ promptr index.js -o index.js -p "Cleanup the code in this file"
 ```
 
-- Refactor multiple files (applies the changes to your codebase by piping output into `promptr -m execute`):
+- Refactor multiple files (using `-x` to apply changes anywhere in the current directory tree):
 
 ```bash
-$ promptr -m gpt3 index.js app.js -t refactor -p "Cleanup the code in these files" | promptr -m execute
+$ promptr -x index.js app.js -t refactor -p "Cleanup the code in these files"
 ```
 
 - Refactor all the javascript files in the codebase (use `git-tree`, `grep`, and `tr` to specify the paths to all .js files):
 
 ```bash
-$ promptr -m gpt4 -t refactor -p "Cleanup the code in these files" $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ') | promptr -m execute
+$ promptr -m gpt4 -t refactor -x -p "Cleanup the code in these files" $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ')
 ```
 <br />
 
 ### Use Cases
 
 1. __Refactor the codebase__ 
-This example sends GPT-4 the all the javascript files in the codebase and instructs the model to remove any unused methods: <br /> `promptr -m gpt4 -t refactor $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ') -p "Remove any unused methods" | promptr -m execute` <br />
+This example sends GPT-4 the all the javascript files in the codebase and instructs the model to remove any unused methods: <br /> `promptr -m gpt4 -x -t refactor $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ') -p "Remove any unused methods"` <br />
 - `-m gpt4` specifies the GPT4 model
+- `-x` tells Promptr to attempt to parse the model's response and apply the resulting operations to the current directory tree - this option is only valid when using the `refactor` template.
 - `-t refactor` tells Promptr to use the `refactor` template.
 - `$(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ')` gathers all the javascript files in the git repository and passes their paths to Promptr.
 - `-p` provides the prompt that is passed as instructions to GPT.
-- The ending `| promptr -m execute` pipes the model output from the first call to `promptr` into Promptr, this time using the `-m execute` option to tell Promptr to apply the changes to the working directory.
 
 2. __Cleanup a file__
 This example sends GPT-3 the contents of `index.js` with a prompt `"Cleanup the code in this file"`. The model's response replaces the contents of index.js: 
@@ -87,11 +87,12 @@ In addition to the main classes, there are several templates used for generating
 <br /><br />
 
 #### Options
-- `-m, --mode <mode>`: Optional flag to set the mode, defaults to gpt3. Supported values are: (gpt3|gpt4|execute)
+- `-m, --mode <mode>`: Optional flag to set the mode, defaults to gpt3. Supported values are: (gpt3|gpt4)
 - `-d, --dry-run`: Optional boolean flag that can be used to run the tool in dry-run mode where only a prompt is displayed and no changes are made.
 - `-i, --interactive`: Optional boolean flag that enables interactive mode where the user can provide input interactively. If this flag is not set, the tool runs in non-interactive mode.
 - `-p, --prompt <prompt>`: Optional string flag that specifies the prompt to use in non-interactive mode. If this flag is not set, the default prompt is used.
 - `-t, --template <templateName | templatePath | templateUrl>`: Optional string flag that specifies a built in template name, the absolute path to a  template file, or a url for a template file that will be used to generate the output. Default is the `empty` built in template. Built in templates are: `empty`, `refactor`, `swe`, and `test-first`.
+- `-x` Optional string flag. When specified, Promptr attempts to parse the model's response and apply the resulting operations to the current directory tree. This option is only valid when using the `refactor` template.
 - `-o, --output-path <outputPath>`: Optional string flag that specifies the path to the output file. If this flag is not set, the output will be printed to stdout.
 - `-v, --verbose`: Optional boolean flag that enables verbose output, providing more detailed information during execution.
 - `--version`: Display the version and exit
