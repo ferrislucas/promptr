@@ -9,7 +9,6 @@ Promptr is a CLI tool for operating on your codebase using GPT. Promptr dynamica
 4. [Options](#options)
 5. [Installation](#installation)
 6. [License](#license)
-7. [Cheesy Joke](#cheesy-joke)
 
 ## Introduction
 
