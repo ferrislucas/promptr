@@ -1,14 +1,24 @@
 # Promptr
 
-Promptr is a CLI tool for operating on your codebase using GPT. Promptr dynamically includes one or more files into your GPT prompts, and it can optionally parse and apply the changes that GPT suggests to your codebase. Several prompt templates are included for various purposes, and users can create their own templates. 
-<br />
+Promptr is a CLI tool for operating on your codebase using GPT. Promptr dynamically includes one or more files into your GPT prompts, and it can optionally parse and apply the changes that GPT suggests to your codebase. Several prompt templates are included for various purposes, and users can create their own templates.
 
-#### Some useful workflows that Promptr enables
+## Table of Contents
+1. [Introduction](#introduction)
+2. [Usage](#usage)
+3. [Use Cases](#use-cases)
+4. [Options](#options)
+5. [Installation](#installation)
+6. [License](#license)
+7. [Cheesy Joke](#cheesy-joke)
+
+## Introduction
+
+Promptr enables several useful workflows, such as:
+
 - __Ask GPT to refactor your code base:__ Promptr handles passing the codebase and your prompt to GPT. Promptr then parses the response and applies the changes recommended by GPT to your codebase. See the `refactor` template below.
-- __Ask GPT to update a class to pass some tests:__ given a set of unit tests and a class’s current implementation, Promptr will tell GPT to create or update an implementation of a class that makes the tests pass. Promptr handles parsing GPT’s response and updating your code. See the `test-first` example below. 
+- __Ask GPT to update a class to pass some tests:__ given a set of unit tests and a class’s current implementation, Promptr will tell GPT to create or update an implementation of a class that makes the tests pass. Promptr handles parsing GPT’s response and updating your code. See the `test-first` example below.
 - __Automate recursive prompts:__ by using Promptr to pipe model output into a file. Then use Promptr to pass the contents of that file to GPT as a prompt.
-- __Experimentation:__ Promptr was born as a tool for experimenting with LLM’s. There are interactive and dry run modes as well as a templating system that exposes the files you pass to Promptr. This allows  you to use those file names and file contents as you wish in your own prompts.
-<br /><br />
+- __Experimentation:__ Promptr was born as a tool for experimenting with LLM’s. There are interactive and dry run modes as well as a templating system that exposes the files you pass to Promptr. This allows you to use those file names and file contents as you wish in your own prompts.
 
 ## Usage
 
@@ -24,20 +34,19 @@ $ promptr index.js -o index.js -p "Cleanup the code in this file"
 - Refactor multiple files (using `-x` to apply changes anywhere in the current directory tree):
 
 ```bash
-$ promptr -x index.js app.js -t refactor -p "Cleanup the code in these files"
+$ promptr -m gpt4 -x -t refactor -p "Cleanup the code in these files" index.js app.js 
 ```
 
 - Refactor all the javascript files in the codebase (use `git-tree`, `grep`, and `tr` to specify the paths to all .js files):
 
 ```bash
-$ promptr -m gpt4 -t refactor -x -p "Cleanup the code in these files" $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ')
+$ promptr -m gpt4 -x -t refactor -p "Cleanup the code in these files" $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ')
 ```
-<br />
 
-### Use Cases
+## Use Cases
 
 1. __Refactor the codebase__ 
-This example sends GPT-4 the all the javascript files in the codebase and instructs the model to remove any unused methods: <br /> `promptr -m gpt4 -x -t refactor $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ') -p "Remove any unused methods"` <br />
+This example sends GPT-4 all of the javascript files in the codebase and instructs the model to remove any unused methods: <br /> `promptr -m gpt4 -x -t refactor $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ') -p "Remove any unused methods"` <br />
 - `-m gpt4` specifies the GPT4 model
 - `-x` tells Promptr to attempt to parse the model's response and apply the resulting operations to the current directory tree - this option is only valid when using the `refactor` template.
 - `-t refactor` tells Promptr to use the `refactor` template.
@@ -47,13 +56,14 @@ This example sends GPT-4 the all the javascript files in the codebase and instru
 2. __Cleanup a file__
 This example sends GPT-3 the contents of `index.js` with a prompt `"Cleanup the code in this file"`. The model's response replaces the contents of index.js: 
 `promptr -m gpt3 index.js -o index.js -p "Cleanup the code in this file"`
-<br /><br />
+
 
 3. __Test First: You supply the unit tests, GPT updates your implementation:__ We can use the `test-first` template to guide GPT into implemeting a class by supplying GPT with a set of unit tests that the implementation should pass:
 `
 promptr -m gpt4 -t test-first file1_spec.rb file2_spec.rb implementation.rb -o implementation.rb -p "use functional coding style"
 `
-<br />In this example, the LLM output will be written to `implementation.rb`. The prompt will include the contents of `implementation.rb`, `file1_spec.rb`, and `file2_spec.rb`. The `-t` options specifies the `test-first` template which is intended to help the model produce an implementation that passes the tests in `file1_spec.rb` and `file2_spec.rb`. The model output will be an updated implementation of the class defined in `implementation.rb`, and hopefully, the new implementation will pass the given tests. <br /><br />
+
+In this example, the LLM output will be written to `implementation.rb`. The prompt will include the contents of `implementation.rb`, `file1_spec.rb`, and `file2_spec.rb`. The `-t` options specifies the `test-first` template which is intended to help the model produce an implementation that passes the tests in `file1_spec.rb` and `file2_spec.rb`. The model output will be an updated implementation of the class defined in `implementation.rb`, and hopefully, the new implementation will pass the given tests.
 
 
 4. __Describe the codebase__
@@ -84,9 +94,8 @@ In addition to the main classes, there are several templates used for generating
 
 ```
 
-<br /><br />
 
-#### Options
+## Options
 - `-m, --mode <mode>`: Optional flag to set the mode, defaults to gpt3. Supported values are: (gpt3|gpt4)
 - `-d, --dry-run`: Optional boolean flag that can be used to run the tool in dry-run mode where only a prompt is displayed and no changes are made.
 - `-i, --interactive`: Optional boolean flag that enables interactive mode where the user can provide input interactively. If this flag is not set, the tool runs in non-interactive mode.
@@ -99,9 +108,7 @@ In addition to the main classes, there are several templates used for generating
 
 Additional parameters can specify the paths to files that will be included as context in the prompt. The parameters should be separated by a space.
 
-<br />
-
-#### Installation
+## Installation
 
 #### With yarn
 ```
@@ -126,9 +133,7 @@ npm run build:<platform win|macos|linux>
 ```
 npm run test-binary
 ```
-<br /><br />
-#### License
+
+## License
 
 Promptr is released under the [MIT License](https://opensource.org/licenses/MIT).
-
-
