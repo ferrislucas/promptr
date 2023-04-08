@@ -100,7 +100,7 @@ In addition to the main classes, there are several templates used for generating
 - `-i, --interactive`: Optional boolean flag that enables interactive mode where the user can provide input interactively. If this flag is not set, the tool runs in non-interactive mode.
 - `-p, --prompt <prompt>`: Optional string flag that specifies the prompt to use in non-interactive mode. If this flag is not set, the default prompt is used.
 - `-t, --template <templateName | templatePath | templateUrl>`: Optional string flag that specifies a built in template name, the absolute path to a  template file, or a url for a template file that will be used to generate the output. Default is the `empty` built in template. Built in templates are: `empty`, `refactor`, `swe`, and `test-first`.
-- `-x` Optional string flag. When specified, Promptr attempts to parse the model's response and apply the resulting operations to the current directory tree. This option is only valid when using the `refactor` template.
+- `-x` Optional boolean flag. When specified, Promptr attempts to parse the model's response and apply the resulting operations to the current directory tree. This option is only valid when using the `refactor` template.
 - `-o, --output-path <outputPath>`: Optional string flag that specifies the path to the output file. If this flag is not set, the output will be printed to stdout.
 - `-v, --verbose`: Optional boolean flag that enables verbose output, providing more detailed information during execution.
 - `--version`: Display the version and exit
