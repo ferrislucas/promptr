@@ -8,6 +8,7 @@ export default class CliState {
     this.program = new Command();
     this.program.option('-d, --dry-run', 'Dry run only: just display the prompt')
     this.program.option('-i, --interactive', 'Interactive mode');
+    this.program.option('-x, --execute', 'Execute: apply changes from gpt to local filesystem (refactor template only)');
     this.program.option('-p, --prompt <prompt>', 'Prompt to use in non-interactive mode');
     this.program.option('-t, --template <template>', 'Teplate name, template path, or a url for a template file')
     this.program.option('-o, --output-path <outputPath>', 'Path to output file. If no path is specified, output will be printed to stdout.')
@@ -39,6 +40,10 @@ Example call:
 
   static getMode() {
     return this.program.opts().mode
+  }
+
+  static getExecuteFlag() {
+    return this.program.opts().execute
   }
 
   static getOutputPath() {

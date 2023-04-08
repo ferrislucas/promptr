@@ -38,8 +38,23 @@ export default class PluginService {
     }
     
     const output = await this.executeMode(mode, prompt)
-    if (outputFile) await FileService.write(output, outputFile)
-    else console.log(output)
+    if (outputFile) {
+      await FileService.write(output, outputFile)
+      process.exit(0)
+    }
+
+    if (CliState.getExecuteFlag()) {
+      if (verbose) console.log(output)
+      const operations = JSON.parse(output)
+      if (CliState.isDryRun()) {
+        console.log(operations)
+        process.exit(0)
+      }
+      await RefactorResultProcessor.call(operations)
+      process.exit(0)
+    }
+
+    console.log(output)
   }
 
   static async processPipedInput() {
@@ -105,6 +120,8 @@ export default class PluginService {
 
   static async loadTemplateFromPath(templatePath) {
     if (!templatePath.startsWith("/")) {
+      const __filename = fileURLToPath(import.meta.url)
+      const __dirname = dirname(__filename)
       templatePath = path.join(__dirname, "templates", `${templatePath}.txt`)
     }
     if (!await FileService.fileExists(templatePath)) {
