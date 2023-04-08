@@ -87,7 +87,7 @@ In addition to the main classes, there are several templates used for generating
 <br /><br />
 
 #### Options
-- `-m, --mode <mode>`: Required flag to set the mode. Supported values are: (gpt3|gpt4|execute)
+- `-m, --mode <mode>`: Optional flag to set the mode, defaults to gpt3. Supported values are: (gpt3|gpt4|execute)
 - `-d, --dry-run`: Optional boolean flag that can be used to run the tool in dry-run mode where only a prompt is displayed and no changes are made.
 - `-i, --interactive`: Optional boolean flag that enables interactive mode where the user can provide input interactively. If this flag is not set, the tool runs in non-interactive mode.
 - `-p, --prompt <prompt>`: Optional string flag that specifies the prompt to use in non-interactive mode. If this flag is not set, the default prompt is used.
