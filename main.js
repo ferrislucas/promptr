@@ -4,10 +4,10 @@ import CliState from './cliState.js'
 
 export default class Main {
   
-  static async call() {
-    CliState.init(process.argv, await this.getVersion())
+  static async call(argv) {
+    CliState.init(argv, await this.getVersion())
 
-    if (process.argv.length <= 2) {
+    if (argv.length <= 2) {
       console.log("Usage: promptr -m (gpt3|gpt4) <input filepath(s)> -o <output filepath> -p \"Cleanup the code in this file\"");
       process.exit(-1);
     }

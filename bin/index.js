@@ -1,5 +1,5 @@
 #!/usr/bin/env node
 import MainService from '../main.js'
 (async () => {
-    await MainService.call();
+    await MainService.call(process.argv);
 })();
