@@ -33,7 +33,7 @@ export default class PluginService {
       if (CliState.isDryRun()) {
         console.log(prompt)
         console.log(`Prompt token count: ${encode(prompt).length}`)
-        process.exit(0)
+        return
       }
     }
     
