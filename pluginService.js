@@ -40,21 +40,22 @@ export default class PluginService {
     const output = await this.executeMode(mode, prompt)
     if (outputFile) {
       await FileService.write(output, outputFile)
-      process.exit(0)
+      return 0
     }
 
     if (CliState.getExecuteFlag()) {
-      if (verbose) console.log(output)
+      if (verbose) console.log(`Executing: \n${output}\n\n`)
       const operations = JSON.parse(output)
       if (CliState.isDryRun()) {
         console.log(operations)
-        process.exit(0)
+        return 0
       }
       await RefactorResultProcessor.call(operations)
-      process.exit(0)
+      return 0
     }
 
     console.log(output)
+    return 0
   }
 
   static async processPipedInput() {
