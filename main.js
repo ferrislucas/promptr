@@ -63,6 +63,6 @@ export default class Main {
   }
 
   static async getVersion() {
-    return "2.0.5"
+    return "3.0.0"
   }
 }

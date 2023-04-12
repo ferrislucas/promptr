@@ -15,12 +15,16 @@ export default class PluginService {
     const mode = CliState.getMode()
     const outputFile = CliState.getOutputPath()
     let prompt = null
+    if (CliState.getTemplatePath() === "refactor" && CliState.getOutputPath()) {
+      console.log("The \"refactor\" template cannot be used with the --output option.")
+      return 1
+    }
     if (CliState.getMode() != "execute") {
       let context = await this.buildContext(CliState.args)
       const __filename = fileURLToPath(import.meta.url)
       const __dirname = dirname(__filename)
 
-      let templatePath = path.join(__dirname, "templates", 'empty.txt')
+      let templatePath = path.join(__dirname, "templates", 'refactor.txt')
       const userTemplate = CliState.getTemplatePath()
       if (userTemplate) {
         templatePath = userTemplate
@@ -43,7 +47,7 @@ export default class PluginService {
       return 0
     }
 
-    if (CliState.getExecuteFlag()) {
+    if (CliState.getTemplatePath() === "refactor") {
       if (verbose) console.log(`Executing: \n${output}\n\n`)
       const operations = JSON.parse(output)
       if (CliState.isDryRun()) {

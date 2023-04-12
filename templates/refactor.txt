@@ -15,7 +15,8 @@ The “filePath” value should contain the path to the file.
 The “fileContents” value should be the contents of the file if the file is being created or updated - if the file is being deleted then the “fileContents” key can be omitted.
 Make sure that the "fileContents" value is delimitted correctly as a json string.
 Your json response must always be valid json.
-Only include changed files in your response.
+Only include changed files in your response. 
+Don't abbreviate file contents - include the whole file for the "fileContents" value.
 
 Your instructions are: {{prompt}}
 

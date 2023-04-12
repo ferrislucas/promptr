@@ -38,7 +38,7 @@ describe('Main', () => {
     const fetchMock = sinon.stub(global, 'fetch').withArgs(sinon.match(url)).resolves({ text: () => content })
     const pluginServiceSpy = sinon.spy(PluginService, 'call')
 
-    await Main.call(['node', 'main.js', '-p', url, '-d'])
+    await Main.call(['node', 'main.js', '-p', url, '-d', '-t', 'empty.txt'])
 
     assert.strictEqual(pluginServiceSpy.calledWith(content), true)
     pluginServiceSpy.restore()
@@ -53,7 +53,7 @@ describe('Main', () => {
 
     const pluginServiceSpy = sinon.spy(PluginService, 'call')
 
-    await Main.call(['node', 'main.js', '-p', filePath, '-d'])
+    await Main.call(['node', 'main.js', '-p', filePath, '-d', '-t', 'empty.txt'])
 
     assert.strictEqual(pluginServiceSpy.calledWith(content), true)
     pluginServiceSpy.restore()
@@ -69,7 +69,7 @@ describe('Main', () => {
     readFileSyncMock.withArgs(sinon.match(expectedPath)).returns(content)
     const pluginServiceSpy = sinon.spy(PluginService, 'call')
 
-    await Main.call(['node', 'main.js', '-p', filePath, "-d"])
+    await Main.call(['node', 'main.js', '-p', filePath, "-d", '-t', 'empty.txt'])
 
     assert.strictEqual(pluginServiceSpy.calledWith(content), true)    
     pluginServiceSpy.restore()
