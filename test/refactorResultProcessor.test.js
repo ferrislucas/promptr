@@ -114,7 +114,7 @@ describe('RefactorResultProcessor', () => {
       if (fs.existsSync(path.resolve('test/testDirNew'))) fs.rmdirSync(path.resolve('test/testDirNew'), { recursive: true });
     });
 
-    it.only('handles deleting nested folders', () => {
+    it('handles deleting nested folders', () => {
       const createOperations = {
         operations: [
           {
