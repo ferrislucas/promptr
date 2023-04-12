@@ -20,7 +20,7 @@ describe('PluginService', () => {
     gpt4ServiceStub.restore();
   });
 
-  it.only('should use refactor.txt as default template', async () => {
+  it('should use refactor.txt as default template', async () => {
     const loadTemplateStub = sinon.stub(PluginService, 'loadTemplate').resolves('Test content');
     const buildContextStub = sinon.stub(PluginService, 'buildContext').resolves({ files: [] });
     const executeModeStub = sinon.stub(PluginService, 'executeMode').resolves('Test output');
