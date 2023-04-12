@@ -6,8 +6,8 @@ import RefactorResultProcessor from '../refactorResultProcessor.js'
 describe('RefactorResultProcessor', () => {
   describe('.call()', () => {
     afterEach(() => {
-      fs.unlinkSync(path.resolve('test/testDir/testFile.txt'));
-      fs.rmdirSync(path.resolve('test/testDir'), { recursive: true });
+      if (fs.existsSync(path.resolve('test/testDir/testFile.txt'))) fs.unlinkSync(path.resolve('test/testDir/testFile.txt'));
+      if (fs.existsSync(path.resolve('test/testDir'))) fs.rmdirSync(path.resolve('test/testDir'), { recursive: true })
     });
 
     it('should create file at arbitrary directory tree depth', () => {
@@ -24,6 +24,62 @@ describe('RefactorResultProcessor', () => {
       RefactorResultProcessor.call(data);
 
       assert(fs.existsSync(path.resolve('test/testDir/testFile.txt')));
+    });
+
+    it('should update file contents', () => {
+      const createData = {
+        operations: [
+          {
+            crudOperation: 'create',
+            filePath: 'test/testDir/testFile.txt',
+            fileContents: 'This is a test file'
+          }
+        ]
+      };
+
+      RefactorResultProcessor.call(createData);
+
+      const updateData = {
+        operations: [
+          {
+            crudOperation: 'update',
+            filePath: 'test/testDir/testFile.txt',
+            fileContents: 'This is an updated test file'
+          }
+        ]
+      };
+
+      RefactorResultProcessor.call(updateData);
+
+      const fileContents = fs.readFileSync(path.resolve('test/testDir/testFile.txt'), 'utf-8');
+      assert.strictEqual(fileContents, 'This is an updated test file');
+    });
+
+    it('should delete file', () => {
+      const createData = {
+        operations: [
+          {
+            crudOperation: 'create',
+            filePath: 'test/testDir/testFile.txt',
+            fileContents: 'This is a test file'
+          }
+        ]
+      };
+
+      RefactorResultProcessor.call(createData);
+
+      const deleteData = {
+        operations: [
+          {
+            crudOperation: 'delete',
+            filePath: 'test/testDir/testFile.txt'
+          }
+        ]
+      };
+
+      RefactorResultProcessor.call(deleteData);
+
+      assert(!fs.existsSync(path.resolve('test/testDir/testFile.txt')));
     });
   });
 });

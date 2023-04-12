@@ -9,11 +9,17 @@ export default class RefactorResultProcessor {
       const absolutePath = path.resolve(filePath);
       const dirPath = path.dirname(absolutePath);
 
-      if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(dirPath, { recursive: true });
-      }
+      if (operation.crudOperation === 'create' || operation.crudOperation === 'update') {
+        if (!fs.existsSync(dirPath)) {
+          fs.mkdirSync(dirPath, { recursive: true });
+        }
 
-      fs.writeFileSync(absolutePath, fileContents, 'utf-8');
+        fs.writeFileSync(absolutePath, fileContents, 'utf-8');
+      } else if (operation.crudOperation === 'delete') {
+        if (fs.existsSync(absolutePath)) {
+          fs.unlinkSync(absolutePath);
+        }
+      }
     });
   }
 }
