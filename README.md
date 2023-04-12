@@ -5,11 +5,14 @@ Promptr is a CLI tool that makes it easy to apply GPT's code change recommendati
 
 
 ## How Does This Work?
-When you run `promptr`, you optionally specify a "context" to send along with your "prompt" to GPT. For example, if you want to remove all the unnecessary semicolons from a file called `index.js` then you might run something like this: `promptr -p "Remove all unnecessary semicolons" index.js`. 
+When you run `promptr`, you optionally specify a "context" to send along with your "prompt" to GPT. For example, if you want to remove all the unnecessary semicolons from a file called `index.js` then you might run something like this: 
+`promptr -p "Remove all unnecessary semicolons" index.js`. 
 
 In this example, your "prompt" is `"Remove all unnecessary semicolons"`, and the "context" is `index.js`. 
-
-If you wanted to expand the scope of your changes then might say: `promptr -p "Remove all unnecessary semicolons" index.js app.js test/app.test.js` - notice we've added more files to the command. Promptr will send the files you specify with along your "prompt" to GPT. When a response is received (it can take a while), Promptr parses the response and applies the suggested changes to your file system.
+<br />
+If you wanted to expand the scope of your changes then you might say: 
+`promptr -p "Remove all unnecessary semicolons" index.js app.js test/app.test.js`
+<br />Notice that we've added more files to the command. Promptr will send the files you specify with along your "prompt" to GPT. When a response is received (it can take a while), Promptr parses the response and applies the suggested changes to your file system.
 
 __IMPORTANT__ 
 Promptr can write and delete files as recommended by GPT, so it's critical that you commit any important work before using Promptr. 
