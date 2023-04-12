@@ -15,6 +15,10 @@ export default class PluginService {
     const mode = CliState.getMode()
     const outputFile = CliState.getOutputPath()
     let prompt = null
+    if (CliState.getTemplatePath() === "refactor" && CliState.getOutputPath()) {
+      console.log("The \"refactor\" template cannot be used with the --output option.")
+      return 1
+    }
     if (CliState.getMode() != "execute") {
       let context = await this.buildContext(CliState.args)
       const __filename = fileURLToPath(import.meta.url)
