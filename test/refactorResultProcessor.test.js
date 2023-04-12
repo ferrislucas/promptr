@@ -81,5 +81,37 @@ describe('RefactorResultProcessor', () => {
 
       assert(!fs.existsSync(path.resolve('test/testDir/testFile.txt')));
     });
+
+    it('should move file to another location', () => {
+      const createData = {
+        operations: [
+          {
+            crudOperation: 'create',
+            filePath: 'test/testDir/testFile.txt',
+            fileContents: 'This is a test file'
+          }
+        ]
+      };
+
+      RefactorResultProcessor.call(createData);
+
+      const moveData = {
+        operations: [
+          {
+            crudOperation: 'move',
+            filePath: 'test/testDir/testFile.txt',
+            destinationPath: 'test/testDirNew/testFile.txt'
+          }
+        ]
+      };
+
+      RefactorResultProcessor.call(moveData);
+
+      assert(!fs.existsSync(path.resolve('test/testDir/testFile.txt')));
+      assert(fs.existsSync(path.resolve('test/testDirNew/testFile.txt')));
+
+      if (fs.existsSync(path.resolve('test/testDirNew/testFile.txt'))) fs.unlinkSync(path.resolve('test/testDirNew/testFile.txt'));
+      if (fs.existsSync(path.resolve('test/testDirNew'))) fs.rmdirSync(path.resolve('test/testDirNew'), { recursive: true });
+    });
   });
 });

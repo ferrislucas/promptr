@@ -19,6 +19,16 @@ export default class RefactorResultProcessor {
         if (fs.existsSync(absolutePath)) {
           fs.unlinkSync(absolutePath);
         }
+      } else if (operation.crudOperation === 'move') {
+        const destinationPath = operation.destinationPath;
+        const absoluteDestinationPath = path.resolve(destinationPath);
+        const destinationDirPath = path.dirname(absoluteDestinationPath);
+
+        if (!fs.existsSync(destinationDirPath)) {
+          fs.mkdirSync(destinationDirPath, { recursive: true });
+        }
+
+        fs.renameSync(absolutePath, absoluteDestinationPath);
       }
     });
   }
