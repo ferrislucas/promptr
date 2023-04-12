@@ -16,7 +16,11 @@ export default class RefactorResultProcessor {
         fs.writeFileSync(absolutePath, fileContents, 'utf-8')
       } else if (operation.crudOperation === 'delete') {
         if (fs.existsSync(absolutePath)) {
-          fs.unlinkSync(absolutePath);
+          if (fs.lstatSync(absolutePath).isDirectory()) {
+            fs.rmdirSync(absolutePath, { recursive: true });
+          } else {
+            fs.unlinkSync(absolutePath);
+          }
         }
       } else if (operation.crudOperation === 'move') {
         const destinationPath = operation.destinationPath;

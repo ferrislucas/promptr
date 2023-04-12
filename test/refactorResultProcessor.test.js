@@ -113,5 +113,37 @@ describe('RefactorResultProcessor', () => {
       if (fs.existsSync(path.resolve('test/testDirNew/testFile.txt'))) fs.unlinkSync(path.resolve('test/testDirNew/testFile.txt'));
       if (fs.existsSync(path.resolve('test/testDirNew'))) fs.rmdirSync(path.resolve('test/testDirNew'), { recursive: true });
     });
+
+    it.only('handles deleting nested folders', () => {
+      const createOperations = {
+        operations: [
+          {
+            crudOperation: 'create',
+            filePath: 'test/testDir/nested/testFile.txt',
+            fileContents: 'This is a test file'
+          }
+        ]
+      }
+
+      // create a nested folder
+      RefactorResultProcessor.call(createOperations)
+      assert(fs.existsSync(path.resolve('test/testDir/nested')))
+
+      // delete the nested folder
+      const deleteOperations = {
+        operations: [
+          {
+            crudOperation: 'delete',
+            filePath: 'test/testDir/nested',
+          }
+        ]
+      }
+      RefactorResultProcessor.call(deleteOperations)
+
+      assert(!fs.existsSync(path.resolve('test/testDir/nested')))
+
+      if (fs.existsSync(path.resolve('test/testDirNew/testFile.txt'))) fs.unlinkSync(path.resolve('test/testDirNew/testFile.txt'))
+      if (fs.existsSync(path.resolve('test/testDirNew/nested'))) fs.rmdirSync(path.resolve('test/testDirNew'), { recursive: true })
+    });
   });
 });
