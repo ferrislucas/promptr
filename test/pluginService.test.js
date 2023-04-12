@@ -3,6 +3,7 @@ import sinon from 'sinon';
 import PluginService from '../pluginService.js';
 import Gpt3Service from '../gpt3Service.js';
 import Gpt4Service from '../gpt4Service.js';
+import CliState from '../cliState.js';
 
 describe('PluginService', () => {
   it('should call Gpt3Service when mode is gpt3', async () => {
@@ -17,5 +18,20 @@ describe('PluginService', () => {
     const result = await PluginService.executeMode('gpt4', 'Test prompt');
     assert.strictEqual(result, 'GPT4 result');
     gpt4ServiceStub.restore();
+  });
+
+  it.only('should use refactor.txt as default template', async () => {
+    const loadTemplateStub = sinon.stub(PluginService, 'loadTemplate').resolves('Test content');
+    const buildContextStub = sinon.stub(PluginService, 'buildContext').resolves({ files: [] });
+    const executeModeStub = sinon.stub(PluginService, 'executeMode').resolves('Test output');
+
+    CliState.init([], '')
+    await PluginService.call('Test input');
+
+    assert(loadTemplateStub.calledWith('Test input', { files: [] }, sinon.match(/refactor.txt$/)));
+
+    loadTemplateStub.restore();
+    buildContextStub.restore();
+    executeModeStub.restore();
   });
 });

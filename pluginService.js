@@ -20,7 +20,7 @@ export default class PluginService {
       const __filename = fileURLToPath(import.meta.url)
       const __dirname = dirname(__filename)
 
-      let templatePath = path.join(__dirname, "templates", 'empty.txt')
+      let templatePath = path.join(__dirname, "templates", 'refactor.txt')
       const userTemplate = CliState.getTemplatePath()
       if (userTemplate) {
         templatePath = userTemplate
