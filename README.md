@@ -21,12 +21,14 @@ __Don't worry.__
 Sit back... Relaaxxxxxx... let Promptr carry you on a gentle cruise through a little place I like to call... Productivity Town.
 
 ## Table of Contents
-1. [Introduction](#introduction)
-2. [Usage](#usage)
-3. [Use Cases](#use-cases)
-4. [Options](#options)
-5. [Installation](#installation)
-6. [License](#license)
+1. [Requirements](#requirements)
+2. [Introduction](#introduction)
+3. [Usage](#usage)
+4. [Examples](#examples)
+5. [Use Cases](#use-cases)
+6. [Options](#options)
+7. [Installation](#installation)
+8. [License](#license)
 
 ## Introduction
 
@@ -99,6 +101,9 @@ This example sends GPT-4 this codebase and instructs the model to describe the c
 - `--version`: Display the version and exit
 
 Additional parameters can specify the paths to files that will be included as context in the prompt. The parameters should be separated by a space.
+
+## Requirements
+Node 18 is required
 
 ## Installation
 
