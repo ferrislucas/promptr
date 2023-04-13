@@ -40,25 +40,30 @@ Promptr enables several useful workflows, such as:
 ## Usage
 
 `promptr  -m <mode> [options] <file1> <file2> <file3> ...`
+<br />
 
 
-- Refactor a single file:
-
+## Examples
+__Refactor a single file__
 ```bash
-$ promptr -p "Cleanup the code in this file index.js "
+$ promptr -p "Cleanup the code in this file" index.js
 ```
+<br />
 
-- This examples uses the gpt4 model. It refactors multiple files by passing multiple paths as arguments:
-
+__Refactor multiple files__
+Refactoring multiple files works best with GPT4 because GPT3 has a much smaller maximum context size. 
+The following example uses the gpt4 model. It refactors multiple files by passing multiple path arguments:
 ```bash
 $ promptr -m gpt4 -p "Cleanup the code in these files" index.js app.js 
 ```
+<br />
 
-- Again, using the GPT4 model - refactor all the javascript files in the codebase. This example uses `git-tree`, `grep`, and `tr` to provide a list of paths to all .js files in the git repository:
-
+__Refactor all the files__
+The following example uses the GPT4 model to refactor all the javascript files in the codebase. This example uses `git-tree`, `grep`, and `tr` to provide a list of paths to all .js files in the git repository:
 ```bash
 $ promptr -m gpt4 -p "Cleanup the code in these files" $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ')
 ```
+<br />
 
 ## Use Cases
 
