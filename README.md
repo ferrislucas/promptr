@@ -1,7 +1,7 @@
 # Promptr
 
 ## TLDR 
-Promptr is a CLI tool that makes it easy to apply GPT's code change recommendations with a single command. With Promptr, you can quickly refactor code, implement classes to pass tests, and experiment with LLMs. No more drudgery of copying code from the ChatGPT window into your editor - use Promptr and get the job done faster and better than ever before. With Promptr, you can take control of your codebase and be more successful in every aspect of your life.
+Promptr is a CLI tool that makes it easy to apply GPT's code change recommendations with a single command. With Promptr, you can quickly refactor code, implement classes to pass tests, and experiment with LLMs. No more copying code from the ChatGPT window into your editor. 
 
 
 ## How Does This Work?
