@@ -47,7 +47,7 @@ export default class PluginService {
       return 0
     }
 
-    if (CliState.getTemplatePath() === "refactor") {
+    if (CliState.getTemplatePath() === "refactor" || !CliState.getTemplatePath()) {
       if (verbose) console.log(`Executing: \n${output}\n\n`)
       const operations = JSON.parse(output)
       if (CliState.isDryRun()) {
