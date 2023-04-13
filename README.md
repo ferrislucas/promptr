@@ -12,7 +12,7 @@ In this example, your "prompt" is `"Remove all unnecessary semicolons"`, and the
 <br />
 If you wanted to expand the scope of your changes then you might say: 
 `promptr -p "Remove all unnecessary semicolons" index.js app.js test/app.test.js`
-<br />Notice that we've added more files to the command. Promptr will send the files you specify with along your "prompt" to GPT. When a response is received (it can take a while), Promptr parses the response and applies the suggested changes to your file system.
+<br />Notice that we've added more files to the command. Promptr will send the files you specify along with your "prompt" to GPT. When a response is received (it can take a while), Promptr parses the response and applies the suggested changes to your file system.
 
 __IMPORTANT__ 
 Promptr can write and delete files as recommended by GPT, so it's critical that you commit any important work before using Promptr. 
