@@ -4,6 +4,7 @@ import PluginService from '../pluginService.js';
 import Gpt3Service from '../gpt3Service.js';
 import Gpt4Service from '../gpt4Service.js';
 import CliState from '../cliState.js';
+import RefactorResultProcessor from '../refactorResultProcessor.js';
 
 describe('PluginService', () => {
   it('should call Gpt3Service when mode is gpt3', async () => {
@@ -23,13 +24,30 @@ describe('PluginService', () => {
   it('should use refactor.txt as default template', async () => {
     const loadTemplateStub = sinon.stub(PluginService, 'loadTemplate').resolves('Test content');
     const buildContextStub = sinon.stub(PluginService, 'buildContext').resolves({ files: [] });
-    const executeModeStub = sinon.stub(PluginService, 'executeMode').resolves('Test output');
+    const executeModeStub = sinon.stub(PluginService, 'executeMode').resolves('{ "operations": [] }');
 
     CliState.init([], '')
     await PluginService.call('Test input');
 
     assert(loadTemplateStub.calledWith('Test input', { files: [] }, sinon.match(/refactor.txt$/)));
 
+    loadTemplateStub.restore();
+    buildContextStub.restore();
+    executeModeStub.restore();
+  });
+
+  it('should pass RefactorResultProcessor.call the operations', async () => {
+    const loadTemplateStub = sinon.stub(PluginService, 'loadTemplate').resolves('Test content');
+    const buildContextStub = sinon.stub(PluginService, 'buildContext').resolves({ files: [] });
+    const executeModeStub = sinon.stub(PluginService, 'executeMode').resolves('{ "operations": [{ "thing": 1 }] }');
+    const refactorResultProcessorStub = sinon.stub(RefactorResultProcessor, 'call').resolves();
+
+    CliState.init([], '')
+    await PluginService.call('Test input');
+
+    assert(refactorResultProcessorStub.calledWith({ operations: [{ thing: 1 }] }))
+
+    refactorResultProcessorStub.restore();
     loadTemplateStub.restore();
     buildContextStub.restore();
     executeModeStub.restore();
