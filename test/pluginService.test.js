@@ -1,10 +1,10 @@
 import assert from 'assert';
 import sinon from 'sinon';
-import PluginService from '../pluginService.js';
-import Gpt3Service from '../gpt3Service.js';
-import Gpt4Service from '../gpt4Service.js';
-import CliState from '../cliState.js';
-import RefactorResultProcessor from '../refactorResultProcessor.js';
+import PluginService from '../src/services/pluginService.js';
+import Gpt3Service from '../src/services/gpt3Service.js';
+import Gpt4Service from '../src/services/gpt4Service.js';
+import CliState from '../src/cliState.js';
+import RefactorResultProcessor from '../src/services/refactorResultProcessor.js';
 
 describe('PluginService', () => {
   it('should call Gpt3Service when mode is gpt3', async () => {

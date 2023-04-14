@@ -1,5 +1,5 @@
 import assert from 'assert';
-import Gpt4Service from '../gpt4Service.js';
+import Gpt4Service from '../src/services/gpt4Service.js';
 
 describe('Gpt4Service', () => {
   it('should extract source code correctly', () => {

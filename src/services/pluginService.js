@@ -5,7 +5,7 @@ import { Liquid } from 'liquidjs'
 import { encode } from "gpt-3-encoder"
 import Gpt3Service from './gpt3Service.js'
 import { FileService } from './fileService.js'
-import CliState from './cliState.js'
+import CliState from '../cliState.js'
 import Gpt4Service from './gpt4Service.js'
 import RefactorResultProcessor from './refactorResultProcessor.js'
 
