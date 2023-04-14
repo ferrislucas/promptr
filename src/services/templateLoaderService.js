@@ -15,7 +15,7 @@ class TemplateLoader {
     } else if (template === 'swe') {
       templateText = await this.loadTemplateFromUrl('https://gist.githubusercontent.com/ferrislucas/a6a18fdafe32910c95829a700c0887ed/raw/50e533d2db8e7e138bfa925739e5e1f5c4498e95/promptr-swe-template-v3.0.2');
     } else if (template === 'test-first') {
-      templateText = await this.loadTemplateFromUrl('https://gist.githubusercontent.com/ferrislucas/a6a18fdafe32910c95829a700c0887ed/raw/50e533d2db8e7e138bfa925739e5e1f5c4498e95/promptr-swe-template-v3.0.2');
+      templateText = await this.loadTemplateFromUrl('https://gist.githubusercontent.com/ferrislucas/5d38034e1eefaec0a3d32bdbca3a9ac6/raw/48f1a47d179f568cf1d1fa9271d5ad13fbdc3c85/promptr-test-first-template-v3.0.2');
     } else {
       templateText = template.startsWith('http://') || template.startsWith('https://') ? 
         await this.loadTemplateFromUrl(template) : 

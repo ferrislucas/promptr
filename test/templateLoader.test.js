@@ -57,7 +57,7 @@ describe('TemplateLoader', () => {
       })
 
       it('should return correct content for the test-first template', async () => {
-        loadTemplateFromUrlStub.withArgs('https://gist.githubusercontent.com/ferrislucas/a6a18fdafe32910c95829a700c0887ed/raw/50e533d2db8e7e138bfa925739e5e1f5c4498e95/promptr-swe-template-v3.0.2').resolves('Test-First content');
+        loadTemplateFromUrlStub.withArgs('https://gist.githubusercontent.com/ferrislucas/5d38034e1eefaec0a3d32bdbca3a9ac6/raw/48f1a47d179f568cf1d1fa9271d5ad13fbdc3c85/promptr-test-first-template-v3.0.2').resolves('Test-First content');
 
         const testFirstContent = await TemplateLoader.loadTemplate('prompt', 'context', 'test-first');
 
