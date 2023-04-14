@@ -5,7 +5,7 @@ import Gpt3Service from '../src/services/gpt3Service.js';
 import Gpt4Service from '../src/services/gpt4Service.js';
 import CliState from '../src/cliState.js';
 import RefactorResultProcessor from '../src/services/refactorResultProcessor.js';
-import TemplateLoader from '../src/services/templateLoader.js';
+import TemplateLoader from '../src/services/templateLoaderService.js';
 
 describe('PluginService', () => {
 

@@ -6,7 +6,7 @@ import { FileService } from './fileService.js'
 import CliState from '../cliState.js'
 import Gpt4Service from './gpt4Service.js'
 import RefactorResultProcessor from './refactorResultProcessor.js'
-import TemplateLoader from './templateLoader.js'
+import TemplateLoader from './templateLoaderService.js'
 
 export default class PluginService {
   
