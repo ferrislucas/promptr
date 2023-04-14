@@ -3,91 +3,81 @@
 ## TLDR 
 Promptr is a CLI tool that makes it easy to apply GPT's code change recommendations with a single command. With Promptr, you can quickly refactor code, implement classes to pass tests, and experiment with LLMs. No more copying code from the ChatGPT window into your editor. 
 
-
-## How Does This Work?
-When you run `promptr`, you optionally specify a "context" to send along with your "prompt" to GPT. For example, if you want to remove all the unnecessary semicolons from a file called `index.js` then you might run something like this: 
-`promptr -p "Remove all unnecessary semicolons" index.js`. 
-
-In this example, your "prompt" is `"Remove all unnecessary semicolons"`, and the "context" is `index.js`. 
 <br />
-If you wanted to expand the scope of your changes then you might say: 
-`promptr -p "Remove all unnecessary semicolons" index.js app.js test/app.test.js`
-<br />Notice that we've added more files to the command. Promptr will send the files you specify along with your "prompt" to GPT. When a response is received (it can take a while), Promptr parses the response and applies the suggested changes to your file system.
 
-__IMPORTANT__ 
-Promptr can write and delete files as recommended by GPT, so it's critical that you commit any important work before using Promptr. 
-
-__Don't worry.__ 
-Sit back... Relaaxxxxxx... let Promptr carry you on a gentle cruise through a little place I like to call... Productivity Town.
-
-## Table of Contents
-1. [Requirements](#requirements)
-2. [Introduction](#introduction)
-3. [Usage](#usage)
-4. [Examples](#examples)
-5. [Use Cases](#use-cases)
-6. [Options](#options)
-7. [Installation](#installation)
-8. [License](#license)
 
 ## Introduction
-
-Promptr enables several useful workflows, such as:
-
-- __Ask GPT to refactor your code base:__ Promptr handles passing the codebase and your prompt to GPT. Promptr then parses the response and applies the changes recommended by GPT to your codebase. See the `refactor` template below.
-- __Ask GPT to update a class to pass some tests:__ given a set of unit tests and a class’s current implementation, Promptr will tell GPT to create or update an implementation of a class that makes the tests pass. Promptr handles parsing GPT’s response and updating your code. See the `test-first` example below.
-- __Automate recursive prompts:__ by using Promptr to pipe model output into a file. Then use Promptr to pass the contents of that file to GPT as a prompt.
-- __Experimentation:__ Promptr was born as a tool for experimenting with LLM’s. There are interactive and dry run modes as well as a templating system that exposes the files you pass to Promptr. This allows you to use those file names and file contents as you wish in your own prompts.
-
-## Usage
-
-`promptr  -m <mode> [options] <file1> <file2> <file3> ...`
+Promptr automates the process of providing ChatGPT with source code and a prompt, and then applying ChatGPT's response to the filesystem. This allows you to apply plain English instructions to your codebase. This is most effective with GPT4 because of its larger context window, but GPT3 is still useful for smaller scopes. 
 <br />
+
+I've found this to be good workflow:
+- Commit any changes, so you have a clean working area
+- Author your prompt in a text file. Work with the prompt in your favorite editor - mold it into clear instructions almost as if it's a task for an inexperienced co-worker. 
+- Use promptr to send your prompt __and the relevant files__ to GPT. It's critical to send the relevant files with your request. Think about what files your inexperienced co-worker would need to know about in order to fulfill the request.
+- Complex requests can take a while (or timeout). When the response is ready, promptr applies the changes to your filesystem. Use your favorite git UI to inspect the results. 
+
+<br /><br />
 
 
 ## Examples
-__Refactor a single file__
+__Cleanup the code in a file__
 ```bash
 $ promptr -p "Cleanup the code in this file" index.js
 ```
 <br />
 
-__Refactor multiple files__
-Refactoring multiple files works best with GPT4 because GPT3 has a much smaller maximum context size. 
-The following example uses the gpt4 model. It refactors multiple files by passing multiple path arguments:
+__Cleanup the code in two files__
+<br />
+The following example uses GPT4 to cleanup the code in two files by passing the file paths as arguments:
 ```bash
-$ promptr -m gpt4 -p "Cleanup the code in these files" index.js app.js 
+$ promptr -m gpt4 -p "Cleanup the code in these files" app/index.js app.js 
 ```
 <br />
 
-__Refactor all the files__
-The following example uses the GPT4 model to refactor all the javascript files in the codebase. This example uses `git-tree`, `grep`, and `tr` to provide a list of paths to all .js files in the git repository:
+__Alphabetize the methods in all of the javascript files__ 
+<br />
+This example uses `git-tree`, `grep`, and `tr` to pass a list of javascript file paths to promptr:
 ```bash
-$ promptr -m gpt4 -p "Cleanup the code in these files" $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ')
+$ promptr -m gpt4 -p "Alphabetize the method names in all of these files" $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ')
 ```
 <br />
 
-## Use Cases
+__Given some tests, ask the model for an implementation that makes the tests pass__ 
+<br />
+The following example asks GPT4 to modify app/models/model.rb so that the tests in spec/models/model_spec.rb will pass:
+```bash
+$ promptr -m gpt4 -t test-first spec/models/model_spec.rb app/models/model.rb -o app/models/model.rb
+```
+<br />
+<br />
 
-1. __Refactor the codebase__ 
-This example sends GPT-4 all of the javascript files in the codebase and instructs the model to remove any unused methods: <br /> `promptr -m gpt4 $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ') -p "Remove any unused methods"` <br />
-- `-m gpt4` specifies the GPT4 model
-- `$(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ')` gathers all the javascript files in the git repository and passes their paths to Promptr.
-- `-p` provides the prompt that is passed as instructions to GPT.
+## How Does This Work?
+When you run promptr, you specify a "context" to send along with your "prompt" to GPT. The "context" is one or more files that GPT needs to know about. The "prompt" is your instruction to GPT. <br /> For example, if you want to remove all the unnecessary semicolons from a file called index.js then you might run something like this: 
+<br />
+`promptr -p "Remove all unnecessary semicolons" index.js` 
+<br /><br />
+In the example above, your "prompt" is `"Remove all unnecessary semicolons"`, and the "context" is `index.js`.
+<br /><br /><br />
+If you wanted to expand the scope of your changes then you might say: <br />
+`promptr -p "Remove all unnecessary semicolons" index.js app.js test/app.test.js`
+<br />
+<br />Notice that we've added more files to the command. Promptr will send the files you specify along with your "prompt" to GPT. When a response is received (it can take a while), Promptr parses the response and applies the suggested changes to your file system.
+<br /><br /><br />
+__IMPORTANT__ 
+Promptr can write and delete files as recommended by GPT, so it's critical that you commit any important work before using Promptr. 
 
+__Don't worry.__ 
+Sit back... Relaaxxxxxx... let Promptr carry you on a gentle cruise through a little place I like to call... Productivity Town.
+<br /><br />
 
-2. __Test First: You supply the unit tests, GPT updates your implementation:__ 
-We can use the `test-first` template to guide GPT into implemeting a class by supplying GPT with a set of unit tests that the implementation should pass:
-`
-promptr -m gpt4 -t test-first file1_spec.rb file2_spec.rb implementation.rb -o implementation.rb -p "use functional coding style"
-`
-<br />In this example, the LLM output will be written to `implementation.rb`. GPT will see the contents of `implementation.rb`, `file1_spec.rb`, and `file2_spec.rb`. The `-t` options specifies the `test-first` template which is intended to help the model produce an implementation that passes the tests in `file1_spec.rb` and `file2_spec.rb`. The model output will be an updated implementation of the class defined in `implementation.rb`, and hopefully, the new implementation will pass the given tests. What could possibly go wrong?
+<br />
 
+## Usage
 
-3. __Describe the codebase__
-This example sends GPT-4 this codebase and instructs the model to describe the codebase - the `-t empty` option specifies the `empty` template which is useful for experimentation:
-`promptr -m gpt4 $(git ls-tree -r --name-only HEAD | tr '\n' ' ') -t empty -p "Describe this codebase. List each class and what the class is responsible for. Also, describe the main entry point and what technologies are used."`<br />
+`promptr  -m <mode> [options] <file1> <file2> <file3> ...`
 
+<br />
+<br />
 
 ## Options
 - `-m, --mode <mode>`: Optional flag to set the mode, defaults to gpt3. Supported values are: (gpt3|gpt4)
@@ -102,8 +92,13 @@ This example sends GPT-4 this codebase and instructs the model to describe the c
 
 Additional parameters can specify the paths to files that will be included as context in the prompt. The parameters should be separated by a space.
 
+<br />
+<br />
+
 ## Requirements
 Node 18 is required
+
+<br />
 
 ## Installation
 
