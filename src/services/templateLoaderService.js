@@ -44,8 +44,7 @@ class TemplateLoader {
       templatePath = path.join(__dirname, "../../templates", `${templatePath}.txt`)
     }
     if (!await FileService.fileExists(templatePath)) {
-      console.log(`Template file ${templatePath} does not exist`)
-      process.exit(1)
+      throw new Error(`Template file ${templatePath} does not exist`)
     }
     return await FileService.load(templatePath)
   }
