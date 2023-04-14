@@ -112,6 +112,9 @@ yarn global add @ifnotnowwhen/promptr
 npm install -g @ifnotnowwhen/promptr
 ```
 
+#### With the release binaries
+You can install Promptr by copying the binary for the current release to your path. Only MacOS is supported right now.
+
 #### Set OpenAI API Key
 An environment variable called `OPENAI_API_KEY` is expected to contain your OpenAI API secret key.
 
