@@ -1,15 +1,15 @@
-import path from 'path'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
-import { Liquid } from 'liquidjs'
 import { encode } from "gpt-3-encoder"
 import Gpt3Service from './gpt3Service.js'
 import { FileService } from './fileService.js'
-import CliState from './cliState.js'
+import CliState from '../cliState.js'
 import Gpt4Service from './gpt4Service.js'
 import RefactorResultProcessor from './refactorResultProcessor.js'
+import TemplateLoader from './templateLoaderService.js'
 
 export default class PluginService {
+  
   static async call(userInput) {
     const verbose = CliState.verbose()
     const mode = CliState.getMode()
@@ -24,14 +24,14 @@ export default class PluginService {
       const __filename = fileURLToPath(import.meta.url)
       const __dirname = dirname(__filename)
 
-      let templatePath = path.join(__dirname, "templates", 'refactor.txt')
+      let templatePath = "refactor"
       const userTemplate = CliState.getTemplatePath()
       if (userTemplate) {
         templatePath = userTemplate
       }
       if (verbose) console.log(`Template path is: ${templatePath}`)
       
-      prompt = await this.loadTemplate(userInput.toString().trim(), context, templatePath)
+      prompt = await TemplateLoader.loadTemplate(userInput.toString().trim(), context, templatePath)
       if (verbose) console.log(`Prompt: \n${prompt}\n\n`)
       
       if (CliState.isDryRun()) {
@@ -101,38 +101,5 @@ export default class PluginService {
       })
     }
     return context
-  }
-
-  static async loadTemplate(prompt, context, template) {
-    const templateText = template.startsWith("http://") || template.startsWith("https://") ? 
-      await this.loadTemplateFromUrl(template) : 
-      await this.loadTemplateFromPath(template)
-    const engine = new Liquid()
-    engine.registerFilter("jsonToObject", (json) => JSON.parse(json));
-    const tpl = engine.parse(templateText)    
-    const content = await engine.render(tpl, {
-      context: context,
-      prompt: prompt,
-    })
-    return content
-  }
-
-  static async loadTemplateFromUrl(templateUrl) {
-    const response = await fetch(templateUrl)
-    const body = await response.text()
-    return body
-  }
-
-  static async loadTemplateFromPath(templatePath) {
-    if (!templatePath.startsWith("/")) {
-      const __filename = fileURLToPath(import.meta.url)
-      const __dirname = dirname(__filename)
-      templatePath = path.join(__dirname, "templates", `${templatePath}.txt`)
-    }
-    if (!await FileService.fileExists(templatePath)) {
-      console.log(`Template file ${templatePath} does not exist`)
-      process.exit(1)
-    }
-    return await FileService.load(templatePath)
   }
 }

@@ -1,5 +1,5 @@
 import readline from 'readline'
-import PluginService from './pluginService.js'
+import PluginService from './services/pluginService.js'
 import CliState from './cliState.js'
 import fs from 'fs'
 import os from 'os'

@@ -1,5 +1,5 @@
 import { Configuration, OpenAIApi } from "openai"
-import CliState from "./cliState.js";
+import CliState from "../cliState.js";
 import ConfigService from "./configService.js"
 import { encode } from "gpt-3-encoder"
 
