@@ -1,10 +1,7 @@
-import { fileURLToPath } from 'url'
-import { dirname } from 'path'
 import { Liquid } from 'liquidjs'
 import path from 'path'
 import { FileService } from './fileService.js'
 import TemplateUrl from './templateUrl.js'
-
 
 class TemplateLoader {
   static async loadTemplate(prompt, context, template) {
@@ -39,10 +36,8 @@ class TemplateLoader {
   }
 
   static async loadTemplateFromPath(templatePath) {
-    if (!templatePath.startsWith("/")) {
-      const __filename = fileURLToPath(import.meta.url)
-      const __dirname = dirname(__filename)
-      templatePath = path.join(__dirname, "../../templates", `${templatePath}.txt`)
+    if (!templatePath.startsWith("/")) {        
+      templatePath = path.join(process.cwd(), `${templatePath}`)
     }
     if (!await FileService.fileExists(templatePath)) {
       throw new Error(`Template file ${templatePath} does not exist`)
