@@ -24,7 +24,7 @@ export default class PluginService {
       const __filename = fileURLToPath(import.meta.url)
       const __dirname = dirname(__filename)
 
-      let templatePath = path.join(__dirname, "templates", 'refactor.txt')
+      let templatePath = "refactor"
       const userTemplate = CliState.getTemplatePath()
       if (userTemplate) {
         templatePath = userTemplate
@@ -127,7 +127,7 @@ export default class PluginService {
     if (!templatePath.startsWith("/")) {
       const __filename = fileURLToPath(import.meta.url)
       const __dirname = dirname(__filename)
-      templatePath = path.join(__dirname, "templates", `${templatePath}.txt`)
+      templatePath = path.join(__dirname, "../../templates", `${templatePath}.txt`)
     }
     if (!await FileService.fileExists(templatePath)) {
       console.log(`Template file ${templatePath} does not exist`)
