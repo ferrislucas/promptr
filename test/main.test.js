@@ -35,12 +35,14 @@ describe('Main', () => {
     const url = 'https://example.com/test.txt'
     const content = 'This is a test content from URL.'
     fsExistsMock.withArgs(sinon.match(/empty.txt/)).returns(true)
-    const fetchMock = sinon.stub(global, 'fetch').withArgs(sinon.match(url)).resolves({ text: () => content })
+    const fetchMock = sinon.stub(global, 'fetch')
+    fetchMock.withArgs(sinon.match(url)).resolves({ text: () => content })
     const pluginServiceSpy = sinon.spy(PluginService, 'call')
 
     await Main.call(['node', 'main.js', '-p', url, '-d', '-t', 'empty'])
 
     assert.strictEqual(pluginServiceSpy.calledWith(content), true)
+    fetchMock.restore()
     pluginServiceSpy.restore()
   });
 

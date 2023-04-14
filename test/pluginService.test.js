@@ -5,7 +5,7 @@ import Gpt3Service from '../src/services/gpt3Service.js';
 import Gpt4Service from '../src/services/gpt4Service.js';
 import CliState from '../src/cliState.js';
 import RefactorResultProcessor from '../src/services/refactorResultProcessor.js';
-import { FileService } from '../src/services/fileService.js';
+import TemplateLoader from '../src/services/templateLoader.js';
 
 describe('PluginService', () => {
 
@@ -40,7 +40,7 @@ describe('PluginService', () => {
     let buildContextStub
     
     beforeEach(() => {
-      loadTemplateStub = sinon.stub(PluginService, 'loadTemplate')
+      loadTemplateStub = sinon.stub(TemplateLoader, 'loadTemplate')
       buildContextStub = sinon.stub(PluginService, 'buildContext')
     });
 
@@ -92,18 +92,6 @@ describe('PluginService', () => {
       await PluginService.call('Test input');
       
       assert(loadTemplateStub.calledWith(sinon.match.any, { files: [] }, "refactor"))
-    });
-  });
-
-  describe("loadTemplateFromPath", () => {
-    it('should call FileService.load with correct path when loadTemplateFromPath is passed the string "refactor"', async () => {
-      const fileServiceLoadStub = sinon.stub(FileService, 'load').resolves('Test content');
-
-      await PluginService.loadTemplateFromPath('refactor');
-
-      assert(fileServiceLoadStub.called);
-
-      fileServiceLoadStub.restore();
     });
   });
 
