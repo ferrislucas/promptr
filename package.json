@@ -9,6 +9,7 @@
   },
   "files": [
     "templates/**",
+    "services/**",
     "*.js"
   ],
   "dependencies": {
