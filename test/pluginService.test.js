@@ -6,6 +6,7 @@ import Gpt4Service from '../src/services/gpt4Service.js';
 import CliState from '../src/cliState.js';
 import RefactorResultProcessor from '../src/services/refactorResultProcessor.js';
 import TemplateLoader from '../src/services/templateLoaderService.js';
+import PromptContext from '../src/services/promptContext.js';
 
 describe('PluginService', () => {
 
@@ -41,7 +42,7 @@ describe('PluginService', () => {
     
     beforeEach(() => {
       loadTemplateStub = sinon.stub(TemplateLoader, 'loadTemplate')
-      buildContextStub = sinon.stub(PluginService, 'buildContext')
+      buildContextStub = sinon.stub(PromptContext, 'call')
     });
 
     afterEach(() => {
