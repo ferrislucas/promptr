@@ -25,18 +25,4 @@ export default class Gpt4Service {
     if (verbose) console.log(`--Response--\n${result}`)
     return result
   }
-
-  static extractSourceCode(input) {
-    const lines = input.split("\n")
-    if (lines.length > 0 && lines[0].startsWith("Updated source code:")) {
-      lines.shift()
-    }
-    if (lines.length > 0 && lines[0].startsWith("// Your code")) {
-      lines.shift()
-    }
-    if (lines.length > 0 && lines[0].startsWith("-------")) {
-      lines.shift()
-    }
-    return lines.join("\n")
-  }
 }

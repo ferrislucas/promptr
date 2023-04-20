@@ -35,6 +35,9 @@ export default class Gpt3Service {
 
   static extractSourceCode(input) {
     const lines = input.split("\n")
+    if (lines.length > 0 && lines[0].startsWith("The response should be:")) {
+      lines.shift()
+    }
     if (lines.length > 0 && lines[0].startsWith("Updated source code:")) {
       lines.shift()
     }

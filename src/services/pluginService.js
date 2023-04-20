@@ -7,6 +7,7 @@ import CliState from '../cliState.js'
 import Gpt4Service from './gpt4Service.js'
 import RefactorResultProcessor from './refactorResultProcessor.js'
 import TemplateLoader from './templateLoaderService.js'
+import PromptContext from './promptContext.js'
 
 export default class PluginService {
   
@@ -20,7 +21,7 @@ export default class PluginService {
       return 1
     }
     if (CliState.getMode() != "execute") {
-      let context = await this.buildContext(CliState.args)
+      let context = await PromptContext.call(CliState.args)
       const __filename = fileURLToPath(import.meta.url)
       const __dirname = dirname(__filename)
 
@@ -41,7 +42,11 @@ export default class PluginService {
       }
     }
     
+    const startTime = Date.now()
     const output = await this.executeMode(mode, prompt)
+    const endTime = Date.now()
+    console.log(`Execution time: ${endTime - startTime}ms`)
+    
     if (outputFile) {
       await FileService.write(output, outputFile)
       return 0
@@ -90,16 +95,4 @@ export default class PluginService {
     exit(1)
   }
 
-  static async buildContext(args) {
-    let context = { 
-      files: [],
-    }
-    for (let n = 0; n < args.length; n++) {
-      context.files.push({
-        filename: args[n],
-        content: await FileService.load(args[n]),
-      })
-    }
-    return context
-  }
 }
