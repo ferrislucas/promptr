@@ -8,8 +8,7 @@
     "promptr": "bin/index.js"
   },
   "files": [
-    "templates/**",
-    "services/**",
+    "src/**",
     "*.js"
   ],
   "dependencies": {
