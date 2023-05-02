@@ -8,6 +8,7 @@ import Gpt4Service from './gpt4Service.js'
 import RefactorResultProcessor from './refactorResultProcessor.js'
 import TemplateLoader from './templateLoaderService.js'
 import PromptContext from './promptContext.js'
+import { extractOperationsFromOutput } from './extractOperationsFromOutput.js'
 
 export default class PluginService {
   
@@ -54,7 +55,7 @@ export default class PluginService {
 
     if (CliState.getTemplatePath() === "refactor" || !CliState.getTemplatePath()) {
       if (verbose) console.log(`Executing: \n${output}\n\n`)
-      const operations = JSON.parse(output)
+      const operations = extractOperationsFromOutput(output)
       if (CliState.isDryRun()) {
         console.log(operations)
         return 0
