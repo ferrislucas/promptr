@@ -4,6 +4,15 @@ import assert from 'assert';
 import sinon from 'sinon';
 
 describe('FileService', () => {
+  beforeEach(async () => {
+    try {
+      await fs.mkdir('tmp', () => {});
+      console.log('Folder created successfully');
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
   afterEach(() => {
     sinon.restore();
   });
