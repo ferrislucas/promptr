@@ -2,8 +2,6 @@ import assert from 'assert';
 import sinon from 'sinon';
 import Gpt3Service from '../src/services/gpt3Service.js';
 import { Configuration, OpenAIApi } from 'openai';
-import ConfigService from '../src/services/configService.js';
-import { encode } from "gpt-3-encoder"
 import CliState from '../src/cliState.js'
 
 describe('Gpt3Service', () => {
@@ -12,26 +10,21 @@ describe('Gpt3Service', () => {
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY
     })
+    const expectedResult = 'This is my response'
     CliState.init([], '')
-    const config = await ConfigService.retrieveConfig();
-    const encoded = encode('This is my prompt');
-    const promptLength = encoded.length;
-    const apiConfig = {
-      ...config.api,
-      prompt: 'This is my prompt',
-      max_tokens: (4096 - promptLength),
-    }
-    const openaiStub = sinon.stub(OpenAIApi.prototype, 'createCompletion').returns({
+    const openaiStub = sinon.stub(OpenAIApi.prototype, 'createChatCompletion').resolves({
       data: {
         choices: [
-          { text: 'This is my response' }
+          { message: { content: expectedResult } }
         ]
       }
-    })
+    });
 
     const result = await Gpt3Service.call('This is my prompt');
+    
+    assert.equal(result, expectedResult);
+
     openaiStub.restore()
-    assert.equal(result, 'This is my response');
   });
 
 });

@@ -18,15 +18,16 @@ export default class Gpt3Service {
     const apiConfig = {
       ...config.api,
       prompt: prompt,
-      max_tokens: (4096 - promptLength),
     }
-    if (verbose) console.log(`GPT-3 apiConfig: ${JSON.stringify(apiConfig)}`)    
-    const response = await openai.createCompletion(apiConfig)
+    if (verbose) console.log(`GPT-3 apiConfig: ${JSON.stringify(apiConfig)}`)
+    const response = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      temperature: config.api.temperature,
+      messages: [{role: "user", content: prompt }],
+    })
 
     if (!response?.data?.choices) return null
-    let result = response.data.choices
-      .map((d) => d?.text?.trim())
-      .join()
+    let result = response.data.choices.map((d) => d?.message?.content?.trim()).join()
 
     if (verbose) console.log(`--Response--\n${result}`)
     return result
