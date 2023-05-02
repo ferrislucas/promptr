@@ -6,7 +6,7 @@ describe('CliState', () => {
     const args = ['node', 'test.js', '-m', 'gpt3', '-p', 'Test prompt', '-v'];
     CliState.init(args);
     const opts = CliState.opts();
-    assert.strictEqual(opts.mode, 'gpt3');
+    assert.strictEqual(opts.model, 'gpt3');
     assert.strictEqual(opts.prompt, 'Test prompt');
     assert.strictEqual(opts.verbose, true);
   });

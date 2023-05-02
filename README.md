@@ -74,13 +74,13 @@ Sit back... Relaaxxxxxx... let Promptr carry you on a gentle cruise through a li
 
 ## Usage
 
-`promptr  -m <mode> [options] <file1> <file2> <file3> ...`
+`promptr  -m <model> [options] <file1> <file2> <file3> ...`
 
 <br />
 <br />
 
 ## Options
-- `-m, --mode <mode>`: Optional flag to set the mode, defaults to gpt3. Supported values are: (gpt3|gpt4)
+- `-m, --model <model>`: Optional flag to set the model, defaults to gpt3. Supported values are: (gpt3|gpt4)
 - `-d, --dry-run`: Optional boolean flag that can be used to run the tool in dry-run mode where only the prompt that will be sent to the model is displayed. No changes are made to your filesystem when this option is used.
 - `-i, --interactive`: Optional boolean flag that enables interactive mode where the user can provide input interactively. If this flag is not set, the tool runs in non-interactive mode.
 - `-p, --prompt <prompt>`: Optional string flag that specifies the prompt to use in non-interactive mode. If this flag is not set then a blank prompt is used. A path or a url can also be specified - in this case the content at the specified path or url is used as the prompt. The prompt is combined with the tempate to form the payload sent to the model.

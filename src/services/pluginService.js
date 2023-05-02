@@ -13,14 +13,14 @@ export default class PluginService {
   
   static async call(userInput) {
     const verbose = CliState.verbose()
-    const mode = CliState.getMode()
+    const model = CliState.getModel()
     const outputFile = CliState.getOutputPath()
     let prompt = null
     if (CliState.getTemplatePath() === "refactor" && CliState.getOutputPath()) {
       console.log("The \"refactor\" template cannot be used with the --output option.")
       return 1
     }
-    if (CliState.getMode() != "execute") {
+    if (CliState.getModel() != "execute") {
       let context = await PromptContext.call(CliState.args)
       const __filename = fileURLToPath(import.meta.url)
       const __dirname = dirname(__filename)
@@ -43,7 +43,7 @@ export default class PluginService {
     }
     
     const startTime = Date.now()
-    const output = await this.executeMode(mode, prompt)
+    const output = await this.executeMode(model, prompt)
     const endTime = Date.now()
     console.log(`Execution time: ${endTime - startTime}ms`)
     
@@ -75,23 +75,23 @@ export default class PluginService {
     return await RefactorResultProcessor.call(operations)
   }
 
-  static async executeMode(mode, prompt) {
-    if (mode != "gpt3" && mode != "gpt4" && mode != "execute") {
-      console.log(`Mode ${mode} is not supported`)
+  static async executeMode(model, prompt) {
+    if (model != "gpt3" && model != "gpt4" && model != "execute") {
+      console.log(`model ${model} is not supported`)
       process.exit(1)
     }
-    if (mode === "execute") {
+    if (model === "execute") {
       process.stdin.setEncoding('utf8')
       await this.processPipedInput()
       return "Changes applied"
     }
-    if (mode === "gpt3") {
+    if (model === "gpt3") {
       return await Gpt3Service.call(prompt)
     }
-    if (mode === "gpt4") {
+    if (model === "gpt4") {
       return await Gpt4Service.call(prompt)
     }
-    console.log(`Mode ${mode} is not supported`)
+    console.log(`model ${model} is not supported`)
     exit(1)
   }
 
