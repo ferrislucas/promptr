@@ -7,7 +7,6 @@ export function extractOperationsFromOutput(input) {
     const match = input.match(jsonRegex);
 
     if (match && match[1]) {
-      console.log(`match: ${match[1]}`)
       try {
         const parsedJSON = JSON.parse(match[1]);
         return parsedJSON;

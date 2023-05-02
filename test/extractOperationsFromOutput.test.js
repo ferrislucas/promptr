@@ -1,6 +1,5 @@
-// test/extractOperationsFromOutput.test.js
-import assert from 'assert';
-import { extractOperationsFromOutput } from '../src/services/extractOperationsFromOutput.js';
+import assert from 'assert'
+import { extractOperationsFromOutput } from '../src/services/extractOperationsFromOutput.js'
 
 describe('extractOperationsFromOutput', () => {
   const testCases = [
