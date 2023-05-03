@@ -5,26 +5,26 @@ import TemplateUrl from './templateUrl.js'
 
 class TemplateLoader {
   static async loadTemplate(prompt, context, template) {
-    let templateText;
+    let templateText
     if (template === 'refactor') {
-      templateText = await this.loadTemplateFromUrl(TemplateUrl.refactor);
+      templateText = await this.loadTemplateFromUrl(TemplateUrl.refactor)
     } else if (template === 'empty') {
-      templateText = await this.loadTemplateFromUrl(TemplateUrl.empty);
+      templateText = await this.loadTemplateFromUrl(TemplateUrl.empty)
     } else if (template === 'swe') {
-      templateText = await this.loadTemplateFromUrl(TemplateUrl.swe);
+      templateText = await this.loadTemplateFromUrl(TemplateUrl.swe)
     } else if (template === 'test-first') {
-      templateText = await this.loadTemplateFromUrl(TemplateUrl.testFirst);
+      templateText = await this.loadTemplateFromUrl(TemplateUrl.testFirst)
     } else {
       templateText = template.startsWith('http://') || template.startsWith('https://') ? 
         await this.loadTemplateFromUrl(template) : 
-        await this.loadTemplateFromPath(template);
+        await this.loadTemplateFromPath(template)
     }
     const engine = new Liquid()
-    engine.registerFilter("jsonToObject", (json) => JSON.parse(json));
+    engine.registerFilter("jsonToObject", (json) => JSON.parse(json))
     const tpl = engine.parse(templateText)    
     const content = await engine.render(tpl, {
       context: context,
-      prompt: prompt,
+      prompt: prompt
     })
     return content
   }

@@ -96,7 +96,9 @@ Additional parameters can specify the paths to files that will be included as co
 <br />
 
 ## Requirements
-Node 18 is required
+- Node 18
+- [API key from OpenAI](https://beta.openai.com/account/api-keys)
+- [Billing setup in OpenAI](https://platform.openai.com/account/billing/overview)
 
 <br />
 

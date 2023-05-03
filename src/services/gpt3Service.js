@@ -18,35 +18,18 @@ export default class Gpt3Service {
     const apiConfig = {
       ...config.api,
       prompt: prompt,
-      max_tokens: (4096 - promptLength),
     }
-    if (verbose) console.log(`GPT-3 apiConfig: ${JSON.stringify(apiConfig)}`)    
-    const response = await openai.createCompletion(apiConfig)
+    if (verbose) console.log(`GPT-3 apiConfig: ${JSON.stringify(apiConfig)}`)
+    const response = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      temperature: config.api.temperature,
+      messages: [{role: "user", content: prompt }],
+    })
 
     if (!response?.data?.choices) return null
-    let result = response.data.choices
-      .map((d) => d?.text?.trim())
-      .join()
+    let result = response.data.choices.map((d) => d?.message?.content?.trim()).join()
 
     if (verbose) console.log(`--Response--\n${result}`)
-    const output = this.extractSourceCode(result)
-    return output
-  }
-
-  static extractSourceCode(input) {
-    const lines = input.split("\n")
-    if (lines.length > 0 && lines[0].startsWith("The response should be:")) {
-      lines.shift()
-    }
-    if (lines.length > 0 && lines[0].startsWith("Updated source code:")) {
-      lines.shift()
-    }
-    if (lines.length > 0 && lines[0].startsWith("// Your code")) {
-      lines.shift()
-    }
-    if (lines.length > 0 && lines[0].startsWith("-------")) {
-      lines.shift()
-    }
-    return lines.join("\n")
+    return result
   }
 }
