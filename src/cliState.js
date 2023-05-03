@@ -13,7 +13,7 @@ export default class CliState {
     this.program.option('-t, --template <template>', 'Teplate name, template path, or a url for a template file')
     this.program.option('-o, --output-path <outputPath>', 'Path to output file. If no path is specified, output will be printed to stdout.')
     this.program.option('-v, --verbose', 'Verbose output')
-    this.program.option('-m, --mode <mode>', 'Specify the mode: (gpt3|gpt4)', 'gpt3')
+    this.program.option('-m, --model <model>', 'Specify the model: (gpt3|gpt4)', 'gpt3')
     
     this.program.version(version, '--version', 'Display the current version')
     
@@ -38,8 +38,8 @@ Example call:
     return this.program.opts().version
   }
 
-  static getMode() {
-    return this.program.opts().mode
+  static getModel() {
+    return this.program.opts().model
   }
 
   static getExecuteFlag() {
