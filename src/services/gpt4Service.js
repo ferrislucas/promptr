@@ -23,8 +23,7 @@ export default class Gpt4Service {
 
     if (!response?.data?.choices) return null
     let result = response.data.choices.map((d) => d?.message?.content?.trim()).join()
-    if (verbose) console.log(`--Response--
-${result}`)
+    if (verbose) console.log(`--Response--\n${result}`)
     return result
   }
 

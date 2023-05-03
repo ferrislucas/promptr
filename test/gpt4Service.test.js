@@ -44,7 +44,7 @@ describe('Gpt4Service', () => {
     sinon.assert.calledOnce(openaiStub);
   });
 
-  it('should append system messages in the call', async () => {
+  it('should append system messages in the call to openai.createChatCompletion', async () => {
     const prompt = 'What is the capital of France?';
     const expectedResult = 'The capital of France is Paris.';
 
