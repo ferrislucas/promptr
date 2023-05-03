@@ -49,6 +49,7 @@ describe('Gpt4Service', () => {
     const expectedResult = 'The capital of France is Paris.';
 
     const configStub = sinon.stub(ConfigService, 'retrieveConfig').resolves({ api: { temperature: 0.5 } });
+    sinon.stub(Gpt4Service, 'systemMessages').returns([{ role: 'system', content: 'system message' }])
     const openaiStub = sinon.stub(OpenAIApi.prototype, 'createChatCompletion').resolves({
       data: {
         choices: [
@@ -63,7 +64,7 @@ describe('Gpt4Service', () => {
     sinon.assert.calledWith(openaiStub, sinon.match({
       messages: sinon.match.array.deepEquals([
         { role: 'user', content: prompt },
-        { role: 'system', content: 'system' }
+        { role: 'system', content: 'system message' }
       ])
     }));
   });
