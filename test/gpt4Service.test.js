@@ -43,4 +43,28 @@ describe('Gpt4Service', () => {
     sinon.assert.calledOnce(configStub);
     sinon.assert.calledOnce(openaiStub);
   });
+
+  it('should append system messages in the call', async () => {
+    const prompt = 'What is the capital of France?';
+    const expectedResult = 'The capital of France is Paris.';
+
+    const configStub = sinon.stub(ConfigService, 'retrieveConfig').resolves({ api: { temperature: 0.5 } });
+    const openaiStub = sinon.stub(OpenAIApi.prototype, 'createChatCompletion').resolves({
+      data: {
+        choices: [
+          { message: { content: expectedResult } }
+        ]
+      }
+    });
+
+    await Gpt4Service.call(prompt);
+
+    sinon.assert.calledOnce(configStub);
+    sinon.assert.calledWith(openaiStub, sinon.match({
+      messages: sinon.match.array.deepEquals([
+        { role: 'user', content: prompt },
+        { role: 'system', content: 'system' }
+      ])
+    }));
+  });
 });

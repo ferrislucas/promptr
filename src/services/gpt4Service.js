@@ -14,15 +14,21 @@ export default class Gpt4Service {
     const config = await ConfigService.retrieveConfig();
     const encoded = encode(prompt)
     if (verbose) console.log(`Prompt token count: ${encoded.length}`)
+    const systemMessages = Gpt4Service.systemMessages();
     const response = await openai.createChatCompletion({
       model: "gpt-4",
       temperature: config.api.temperature,
-      messages: [{role: "user", content: prompt }],
+      messages: [{role: "user", content: prompt }, ...systemMessages],
     });
 
     if (!response?.data?.choices) return null
     let result = response.data.choices.map((d) => d?.message?.content?.trim()).join()
-    if (verbose) console.log(`--Response--\n${result}`)
+    if (verbose) console.log(`--Response--
+${result}`)
     return result
+  }
+
+  static systemMessages() {
+    return [{ role: "system", content: "system" }];
   }
 }
