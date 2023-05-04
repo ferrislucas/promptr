@@ -1,10 +1,9 @@
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import { encode } from "gpt-3-encoder"
-import Gpt3Service from './gpt3Service.js'
 import { FileService } from './fileService.js'
 import CliState from '../cliState.js'
-import Gpt4Service from './gpt4Service.js'
+import OpenAiGptService from './OpenAiGptService.js'
 import RefactorResultProcessor from './refactorResultProcessor.js'
 import TemplateLoader from './templateLoaderService.js'
 import PromptContext from './promptContext.js'
@@ -87,7 +86,7 @@ export default class PluginService {
       return "Changes applied"
     }
     if (model === "gpt3" || model === "gpt4") {
-      return await Gpt4Service.call(prompt, model)
+      return await OpenAiGptService.call(prompt, model)
     }
     console.log(`model ${model} is not supported`)
     exit(1)

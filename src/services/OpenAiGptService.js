@@ -3,7 +3,7 @@ import CliState from "../cliState.js";
 import ConfigService from "./configService.js"
 import { encode } from "gpt-3-encoder"
 
-export default class Gpt4Service {
+export default class OpenAiGptService {
   static async call(prompt, model) {
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY
@@ -14,7 +14,7 @@ export default class Gpt4Service {
     const config = await ConfigService.retrieveConfig();
     const encoded = encode(prompt)
     if (verbose) console.log(`Prompt token count: ${encoded.length}`)
-    const systemMessages = Gpt4Service.systemMessages();
+    const systemMessages = OpenAiGptService.systemMessages();
     const response = await openai.createChatCompletion({
       model: model,
       temperature: config.api.temperature,

@@ -1,8 +1,7 @@
 import assert from 'assert';
 import sinon from 'sinon';
 import PluginService from '../src/services/pluginService.js';
-import Gpt3Service from '../src/services/gpt3Service.js';
-import Gpt4Service from '../src/services/gpt4Service.js';
+import OpenAiGptService from '../src/services/OpenAiGptService.js';
 import CliState from '../src/cliState.js';
 import RefactorResultProcessor from '../src/services/refactorResultProcessor.js';
 import TemplateLoader from '../src/services/templateLoaderService.js';
@@ -11,28 +10,28 @@ import PromptContext from '../src/services/promptContext.js';
 describe('PluginService', () => {
 
   describe('executeMode method', () => {
-    let gpt4ServiceStub
+    let OpenAiGptServiceStub
 
     beforeEach(() => {
-      gpt4ServiceStub = sinon.stub(Gpt4Service, 'call')
+      OpenAiGptServiceStub = sinon.stub(OpenAiGptService, 'call')
     });
   
     afterEach(() => {
-      if (gpt4ServiceStub) gpt4ServiceStub.restore()
+      if (OpenAiGptServiceStub) OpenAiGptServiceStub.restore()
     });
 
-    it('should call Gpt4Service when mode is gpt3', async () => {
-      gpt4ServiceStub.resolves('GPT3 result');
+    it('should call OpenAiGptService when mode is gpt3', async () => {
+      OpenAiGptServiceStub.resolves('GPT3 result');
       const result = await PluginService.executeMode('gpt3', 'Test prompt');
       assert.strictEqual(result, 'GPT3 result');
-      sinon.assert.calledWith(gpt4ServiceStub, 'Test prompt', 'gpt3');
+      sinon.assert.calledWith(OpenAiGptServiceStub, 'Test prompt', 'gpt3');
     });
 
-    it('should call Gpt4Service when mode is gpt4', async () => {
-      gpt4ServiceStub.resolves('GPT4 result');
+    it('should call OpenAiGptService when mode is gpt4', async () => {
+      OpenAiGptServiceStub.resolves('GPT4 result');
       const result = await PluginService.executeMode('gpt4', 'Test prompt');
       assert.strictEqual(result, 'GPT4 result');
-      sinon.assert.calledWith(gpt4ServiceStub, 'Test prompt', 'gpt4');
+      sinon.assert.calledWith(OpenAiGptServiceStub, 'Test prompt', 'gpt4');
     });
   });
 

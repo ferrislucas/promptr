@@ -1,10 +1,14 @@
 import assert from 'assert';
 import sinon from 'sinon';
-import Gpt4Service from '../src/services/gpt4Service.js';
+import OpenAiGptService from '../src/services/OpenAiGptService.js';
 import { Configuration, OpenAIApi } from 'openai';
 import ConfigService from '../src/services/configService.js';
+import CliState from '../src/cliState.js';
 
-describe('Gpt4Service', () => {
+describe('OpenAiGptService', () => {
+  beforeEach(() => {
+    CliState.init([], '')
+  });
   afterEach(() => {
     sinon.restore();
   });
@@ -23,7 +27,7 @@ describe('Gpt4Service', () => {
       }
     });
 
-    const result = await Gpt4Service.call(prompt, model);
+    const result = await OpenAiGptService.call(prompt, model);
 
     assert.strictEqual(result, expectedResult);
     sinon.assert.calledOnce(configStub);
@@ -39,7 +43,7 @@ describe('Gpt4Service', () => {
       data: {}
     });
 
-    const result = await Gpt4Service.call(prompt, model);
+    const result = await OpenAiGptService.call(prompt, model);
 
     assert.strictEqual(result, null);
     sinon.assert.calledOnce(configStub);
@@ -52,7 +56,7 @@ describe('Gpt4Service', () => {
     const model = 'gpt-4';
 
     const configStub = sinon.stub(ConfigService, 'retrieveConfig').resolves({ api: { temperature: 0.5 } });
-    sinon.stub(Gpt4Service, 'systemMessages').returns([{ role: 'system', content: 'system message' }])
+    sinon.stub(OpenAiGptService, 'systemMessages').returns([{ role: 'system', content: 'system message' }])
     const openaiStub = sinon.stub(OpenAIApi.prototype, 'createChatCompletion').resolves({
       data: {
         choices: [
@@ -61,7 +65,7 @@ describe('Gpt4Service', () => {
       }
     });
 
-    await Gpt4Service.call(prompt, model);
+    await OpenAiGptService.call(prompt, model);
 
     sinon.assert.calledOnce(configStub);
     sinon.assert.calledWith(openaiStub, sinon.match({
