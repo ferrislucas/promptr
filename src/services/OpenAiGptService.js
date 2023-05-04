@@ -5,6 +5,9 @@ import { encode } from "gpt-3-encoder"
 
 export default class OpenAiGptService {
   static async call(prompt, model) {
+    if (model == "gpt3") model = "gpt-3.5-turbo";
+    if (model == "gpt4") model = "gpt-4";
+
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY
     })

@@ -75,4 +75,27 @@ describe('OpenAiGptService', () => {
       ])
     }));
   });
+
+  it('should pass the correct model value to openai.createChatCompletion', async () => {
+    const prompt = 'What is the capital of France?';
+    const expectedResult = 'The capital of France is Paris.';
+    const models = ['gpt3', 'gpt4'];
+    const expectedModels = ['gpt-3.5-turbo', 'gpt-4'];
+
+    const configStub = sinon.stub(ConfigService, 'retrieveConfig').resolves({ api: { temperature: 0.5 } });
+    const openaiStub = sinon.stub(OpenAIApi.prototype, 'createChatCompletion').resolves({
+      data: {
+        choices: [
+          { message: { content: expectedResult } }
+        ]
+      }
+    });
+
+    for (let i = 0; i < models.length; i++) {
+      await OpenAiGptService.call(prompt, models[i]);
+      sinon.assert.calledWith(openaiStub.getCall(i), sinon.match({ model: expectedModels[i] }));
+    }
+
+    sinon.assert.callCount(openaiStub, models.length);
+  });
 });
