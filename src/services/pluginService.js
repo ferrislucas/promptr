@@ -86,11 +86,8 @@ export default class PluginService {
       await this.processPipedInput()
       return "Changes applied"
     }
-    if (model === "gpt3") {
-      return await Gpt3Service.call(prompt)
-    }
-    if (model === "gpt4") {
-      return await Gpt4Service.call(prompt)
+    if (model === "gpt3" || model === "gpt4") {
+      return await Gpt4Service.call(prompt, model)
     }
     console.log(`model ${model} is not supported`)
     exit(1)

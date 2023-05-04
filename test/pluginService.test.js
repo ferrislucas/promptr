@@ -21,17 +21,18 @@ describe('PluginService', () => {
       if (gpt4ServiceStub) gpt4ServiceStub.restore()
     });
 
-    it('should call Gpt3Service when mode is gpt3', async () => {
-      const gpt3ServiceStub = sinon.stub(Gpt3Service, 'call').resolves('GPT3 result');
+    it('should call Gpt4Service when mode is gpt3', async () => {
+      gpt4ServiceStub.resolves('GPT3 result');
       const result = await PluginService.executeMode('gpt3', 'Test prompt');
       assert.strictEqual(result, 'GPT3 result');
-      gpt3ServiceStub.restore();
+      sinon.assert.calledWith(gpt4ServiceStub, 'Test prompt', 'gpt3');
     });
 
     it('should call Gpt4Service when mode is gpt4', async () => {
       gpt4ServiceStub.resolves('GPT4 result');
       const result = await PluginService.executeMode('gpt4', 'Test prompt');
       assert.strictEqual(result, 'GPT4 result');
+      sinon.assert.calledWith(gpt4ServiceStub, 'Test prompt', 'gpt4');
     });
   });
 
