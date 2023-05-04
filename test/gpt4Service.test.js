@@ -12,6 +12,7 @@ describe('Gpt4Service', () => {
   it('should return the result from the model', async () => {
     const prompt = 'What is the capital of France?';
     const expectedResult = 'The capital of France is Paris.';
+    const model = 'gpt-4';
 
     const configStub = sinon.stub(ConfigService, 'retrieveConfig').resolves({ api: { temperature: 0.5 } });
     const openaiStub = sinon.stub(OpenAIApi.prototype, 'createChatCompletion').resolves({
@@ -22,7 +23,7 @@ describe('Gpt4Service', () => {
       }
     });
 
-    const result = await Gpt4Service.call(prompt);
+    const result = await Gpt4Service.call(prompt, model);
 
     assert.strictEqual(result, expectedResult);
     sinon.assert.calledOnce(configStub);
@@ -31,13 +32,14 @@ describe('Gpt4Service', () => {
 
   it('should return null when the response does not contain choices', async () => {
     const prompt = 'What is the capital of France?';
+    const model = 'gpt-4';
 
     const configStub = sinon.stub(ConfigService, 'retrieveConfig').resolves({ api: { temperature: 0.5 } });
     const openaiStub = sinon.stub(OpenAIApi.prototype, 'createChatCompletion').resolves({
       data: {}
     });
 
-    const result = await Gpt4Service.call(prompt);
+    const result = await Gpt4Service.call(prompt, model);
 
     assert.strictEqual(result, null);
     sinon.assert.calledOnce(configStub);
@@ -47,6 +49,7 @@ describe('Gpt4Service', () => {
   it('should append system messages in the call to openai.createChatCompletion', async () => {
     const prompt = 'What is the capital of France?';
     const expectedResult = 'The capital of France is Paris.';
+    const model = 'gpt-4';
 
     const configStub = sinon.stub(ConfigService, 'retrieveConfig').resolves({ api: { temperature: 0.5 } });
     sinon.stub(Gpt4Service, 'systemMessages').returns([{ role: 'system', content: 'system message' }])
@@ -58,7 +61,7 @@ describe('Gpt4Service', () => {
       }
     });
 
-    await Gpt4Service.call(prompt);
+    await Gpt4Service.call(prompt, model);
 
     sinon.assert.calledOnce(configStub);
     sinon.assert.calledWith(openaiStub, sinon.match({

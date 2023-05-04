@@ -4,7 +4,7 @@ import ConfigService from "./configService.js"
 import { encode } from "gpt-3-encoder"
 
 export default class Gpt4Service {
-  static async call(prompt) {
+  static async call(prompt, model) {
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY
     })
@@ -16,7 +16,7 @@ export default class Gpt4Service {
     if (verbose) console.log(`Prompt token count: ${encoded.length}`)
     const systemMessages = Gpt4Service.systemMessages();
     const response = await openai.createChatCompletion({
-      model: "gpt-4",
+      model: model,
       temperature: config.api.temperature,
       messages: [{role: "user", content: prompt }, ...systemMessages],
     });
