@@ -6,7 +6,7 @@ import SystemMessage from "./systemMessage.js";
 
 export default class OpenAiGptService {
 
-  static async call(prompt, model) {
+  static async call(prompt, model, requestJsonOutput = true) {
     if (model == "gpt3") model = "gpt-3.5-turbo";
     if (model == "gpt4") model = "gpt-4";
 
@@ -22,12 +22,13 @@ export default class OpenAiGptService {
     const response = await openai.createChatCompletion({
       model: model,
       temperature: config.api.temperature,
-      messages: [{role: "user", content: prompt }, ...SystemMessage.systemMessages()],
+      messages: requestJsonOutput ? [{role: "user", content: prompt }, ...SystemMessage.systemMessages()] : [{role: "user", content: prompt }],
     });
 
     if (!response?.data?.choices) return null
     let result = response.data.choices.map((d) => d?.message?.content?.trim()).join()
-    if (verbose) console.log(`--Response--\n${result}`)
+    if (verbose) console.log(`--Response--
+${result}`)
     return result
   }
 
