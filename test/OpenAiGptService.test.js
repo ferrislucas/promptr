@@ -4,6 +4,7 @@ import OpenAiGptService from '../src/services/OpenAiGptService.js';
 import { Configuration, OpenAIApi } from 'openai';
 import ConfigService from '../src/services/configService.js';
 import CliState from '../src/cliState.js';
+import SystemMessage from '../src/services/SystemMessage.js';
 
 describe('OpenAiGptService', () => {
   beforeEach(() => {
@@ -54,9 +55,7 @@ describe('OpenAiGptService', () => {
     const prompt = 'What is the capital of France?';
     const expectedResult = 'The capital of France is Paris.';
     const model = 'gpt-4';
-
-    const configStub = sinon.stub(ConfigService, 'retrieveConfig').resolves({ api: { temperature: 0.5 } });
-    sinon.stub(OpenAiGptService, 'systemMessages').returns([{ role: 'system', content: 'system message' }])
+    const configStub = sinon.stub(ConfigService, 'retrieveConfig').resolves({ api: { temperature: 0.5 } })
     const openaiStub = sinon.stub(OpenAIApi.prototype, 'createChatCompletion').resolves({
       data: {
         choices: [
@@ -71,7 +70,7 @@ describe('OpenAiGptService', () => {
     sinon.assert.calledWith(openaiStub, sinon.match({
       messages: sinon.match.array.deepEquals([
         { role: 'user', content: prompt },
-        { role: 'system', content: 'system message' }
+        ...SystemMessage.systemMessages()
       ])
     }));
   });
