@@ -84,12 +84,9 @@ export default class PluginService {
       await this.processPipedInput()
       return "Changes applied"
     }
-    if (model === "gpt3" || model === "gpt4") {
-      const shouldRefactor = this.shouldRefactor(CliState.getTemplatePath())
-      return await OpenAiGptService.call(prompt, model, shouldRefactor)
-    }
-    console.log(`model ${model} is not supported`)
-    exit(1)
+    
+    const shouldRefactor = this.shouldRefactor(CliState.getTemplatePath())
+    return await OpenAiGptService.call(prompt, model, shouldRefactor)
   }
 
   static shouldRefactor(templatePath) {
