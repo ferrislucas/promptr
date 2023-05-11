@@ -1,10 +1,9 @@
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import { encode } from "gpt-3-encoder"
-import Gpt3Service from './gpt3Service.js'
 import { FileService } from './fileService.js'
 import CliState from '../cliState.js'
-import Gpt4Service from './gpt4Service.js'
+import OpenAiGptService from './OpenAiGptService.js'
 import RefactorResultProcessor from './refactorResultProcessor.js'
 import TemplateLoader from './templateLoaderService.js'
 import PromptContext from './promptContext.js'
@@ -34,7 +33,6 @@ export default class PluginService {
       if (verbose) console.log(`Template path is: ${templatePath}`)
       
       prompt = await TemplateLoader.loadTemplate(userInput.toString().trim(), context, templatePath)
-      if (verbose) console.log(`Prompt: \n${prompt}\n\n`)
       
       if (CliState.isDryRun()) {
         console.log(prompt)
@@ -53,8 +51,8 @@ export default class PluginService {
       return 0
     }
 
-    if (CliState.getTemplatePath() === "refactor" || !CliState.getTemplatePath()) {
-      if (verbose) console.log(`Executing: \n${output}\n\n`)
+    if (this.shouldRefactor(CliState.getTemplatePath())) {
+      if (verbose) console.log(`Executing:\n${output}`)
       const operations = extractOperationsFromOutput(output)
       if (CliState.isDryRun()) {
         console.log(operations)
@@ -86,14 +84,12 @@ export default class PluginService {
       await this.processPipedInput()
       return "Changes applied"
     }
-    if (model === "gpt3") {
-      return await Gpt3Service.call(prompt)
-    }
-    if (model === "gpt4") {
-      return await Gpt4Service.call(prompt)
-    }
-    console.log(`model ${model} is not supported`)
-    exit(1)
+    
+    const shouldRefactor = this.shouldRefactor(CliState.getTemplatePath())
+    return await OpenAiGptService.call(prompt, model, shouldRefactor)
   }
 
+  static shouldRefactor(templatePath) {
+    return templatePath === "refactor" || !templatePath 
+  }
 }
