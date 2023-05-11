@@ -18,11 +18,12 @@ export default class OpenAiGptService {
     
     const config = await ConfigService.retrieveConfig();
     const encoded = encode(prompt)
-    if (verbose) console.log(`Prompt token count: ${encoded.length}`)
+    const messages = requestJsonOutput ? [{role: "user", content: prompt }, ...SystemMessage.systemMessages()] : [{role: "user", content: prompt }]
+    if (verbose) console.log(`Prompt token count: ${encoded.length}\n\nMessages: ${JSON.stringify(messages)}`)
     const response = await openai.createChatCompletion({
       model: model,
       temperature: config.api.temperature,
-      messages: requestJsonOutput ? [{role: "user", content: prompt }, ...SystemMessage.systemMessages()] : [{role: "user", content: prompt }],
+      messages: messages,
     });
 
     if (!response?.data?.choices) return null
