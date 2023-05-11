@@ -2,7 +2,7 @@ import { Configuration, OpenAIApi } from "openai"
 import CliState from "../cliState.js";
 import ConfigService from "./configService.js"
 import { encode } from "gpt-3-encoder"
-import SystemMessage from "./systemMessage.js";
+import SystemMessage from "./SystemMessage.js";
 
 export default class OpenAiGptService {
 
