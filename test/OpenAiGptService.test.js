@@ -4,7 +4,7 @@ import OpenAiGptService from '../src/services/OpenAiGptService.js';
 import { Configuration, OpenAIApi } from 'openai';
 import ConfigService from '../src/services/configService.js';
 import CliState from '../src/cliState.js';
-import SystemMessage from '../src/services/systemMessage.js';
+import SystemMessage from '../src/services/SystemMessage.js';
 
 describe('OpenAiGptService', () => {
   beforeEach(() => {
