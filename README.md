@@ -16,6 +16,11 @@ I've found this to be good workflow:
 - Use promptr to send your prompt __and the relevant files__ to GPT. It's critical to send the relevant files with your request. Think about what files your inexperienced co-worker would need to know about in order to fulfill the request.
 - Complex requests can take a while (or timeout). When the response is ready, promptr applies the changes to your filesystem. Use your favorite git UI to inspect the results. 
 
+<br />
+
+[This PR](https://github.com/ferrislucas/promptr/pull/38) has some good examples of what can be accomplished using Promptr. You can find links to the individual commits and the prompts that created them in the PR description.
+
+
 <br /><br />
 
 
