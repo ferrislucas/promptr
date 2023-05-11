@@ -51,11 +51,8 @@ export default class PluginService {
       return 0
     }
 
-    if (CliState.getTemplatePath() === "refactor" || !CliState.getTemplatePath()) {
-      if (verbose) console.log(`Executing: 
-${output}
-
-`)
+    if (this.shouldRefactor(CliState.getTemplatePath())) {
+      if (verbose) console.log(`Executing:\n${output}`)
       const operations = extractOperationsFromOutput(output)
       if (CliState.isDryRun()) {
         console.log(operations)
@@ -88,11 +85,14 @@ ${output}
       return "Changes applied"
     }
     if (model === "gpt3" || model === "gpt4") {
-      const shouldRefactor = CliState.getTemplatePath() === "refactor" || !CliState.getTemplatePath();
+      const shouldRefactor = this.shouldRefactor(CliState.getTemplatePath())
       return await OpenAiGptService.call(prompt, model, shouldRefactor)
     }
     console.log(`model ${model} is not supported`)
     exit(1)
   }
 
+  static shouldRefactor(templatePath) {
+    return templatePath === "refactor" || !templatePath 
+  }
 }
