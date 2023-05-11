@@ -19,7 +19,7 @@ export default class OpenAiGptService {
     const config = await ConfigService.retrieveConfig();
     const encoded = encode(prompt)
     const messages = requestJsonOutput ? [{role: "user", content: prompt }, ...SystemMessage.systemMessages()] : [{role: "user", content: prompt }]
-    if (verbose) console.log(`Prompt token count: ${encoded.length}\n\nMessages: ${messages.map(m => `\n${m.role}\n--------\n${m.content}`).join("\n================\n\n")}\n\n`)
+    if (verbose) console.log(`Prompt token count: ${encoded.length}\n\nMessages sent to the OpenAI API:\n${messages.map(m => `\n${m.role}\n--------\n${m.content}`).join("\n================\n\n")}\n\n`)
     const response = await openai.createChatCompletion({
       model: model,
       temperature: config.api.temperature,
@@ -28,8 +28,7 @@ export default class OpenAiGptService {
 
     if (!response?.data?.choices) return null
     let result = response.data.choices.map((d) => d?.message?.content?.trim()).join()
-    if (verbose) console.log(`--Response--
-${result}`)
+    if (verbose) console.log(`--Response--\n${result}`)
     return result
   }
 
