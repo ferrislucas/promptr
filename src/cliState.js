@@ -20,7 +20,7 @@ export default class CliState {
     this.program.addHelpText('after', `
 
 Example call:
-  $ promptr -m gpt3 index.js -o index.js -p "Cleanup the code in this file"`);
+  $ promptr index.js -p "Cleanup the code in this file"`);
 
     this.program.parse(_args);
     this.args = this.program.args
@@ -64,10 +64,6 @@ Example call:
 
   static isInteractive() {
     return this.program.opts().interactive
-  }
-
-  static getExecutePath() {
-    return this.program.opts().execute
   }
 
 }

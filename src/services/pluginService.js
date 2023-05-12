@@ -23,7 +23,6 @@ export default class PluginService {
     if (CliState.getModel() != "execute") {
       let context = await PromptContext.call(CliState.args)
       const __filename = fileURLToPath(import.meta.url)
-      const __dirname = dirname(__filename)
 
       let templatePath = "refactor"
       const userTemplate = CliState.getTemplatePath()
