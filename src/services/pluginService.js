@@ -89,6 +89,7 @@ export default class PluginService {
   }
 
   static shouldRefactor(templatePath) {
+    if (CliState.getExecuteFlag()) return true
     return templatePath === "refactor" || !templatePath 
   }
 }
