@@ -18,6 +18,7 @@ describe('Main', () => {
   after(function () {
     fsExistsMock.restore()
     readFileSyncMock.restore()
+    sinon.restore()
   })
 
 

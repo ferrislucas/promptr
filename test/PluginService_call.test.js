@@ -22,19 +22,14 @@ describe('PluginService', () => {
     beforeEach(() => {
       loadTemplateStub = sinon.stub(TemplateLoader, 'loadTemplate')
       buildContextStub = sinon.stub(PromptContext, 'call')
+      executeModeStub = sinon.stub(PluginService, 'executeMode')
     });
 
     afterEach(() => {
       if (loadTemplateStub) loadTemplateStub.restore()
       if (buildContextStub) buildContextStub.restore()
-    });
-
-    beforeEach(() => {    
-      executeModeStub = sinon.stub(PluginService, 'executeMode')
-    });
-  
-    afterEach(() => {
       if (executeModeStub) executeModeStub.restore()
+      sinon.restore()
     });
 
     it('should use refactor.txt as default template', async () => {
@@ -64,7 +59,7 @@ describe('PluginService', () => {
       loadTemplateStub.resolves('Test content');
       buildContextStub.resolves({ files: [] });
       executeModeStub.resolves('{ "operations": [] }');
-      CliState.getTemplatePath = sinon.stub().returns('');
+      sinon.stub(CliState, 'getExecuteFlag').returns('')
       
       await PluginService.call('Test input');
       

@@ -21,6 +21,7 @@ describe('PluginService', () => {
   
     afterEach(() => {
       if (OpenAiGptServiceStub) OpenAiGptServiceStub.restore()
+      sinon.restore()
     });
 
     it('should call OpenAiGptService when mode is gpt3', async () => {
