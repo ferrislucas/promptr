@@ -65,6 +65,19 @@ describe('PluginService', () => {
 
         assert(autoContextStub.calledWith(prompt))
       })
+
+      describe('when AutoContext is disabled', () => {
+        beforeEach(() => {
+          const args = ['node', 'index.js', '-m', 'gpt3', '-p', prompt, '--disable-auto-context']
+          CliState.init(args)
+        })
+
+        it('should not pass the paths from AutoContext.call into PromptContext.call', async () => {
+          await PluginService.call(prompt)
+  
+          assert(buildContextStub.calledWith([]))
+        })
+      })
     })
 
     it('should pass RefactorResultProcessor.call the operations', async () => {
