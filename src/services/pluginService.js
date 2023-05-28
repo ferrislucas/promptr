@@ -1,5 +1,4 @@
 import { fileURLToPath } from 'url'
-import { dirname } from 'path'
 import { encode } from "gpt-3-encoder"
 import { FileService } from './fileService.js'
 import CliState from '../cliState.js'
@@ -7,7 +6,7 @@ import OpenAiGptService from './OpenAiGptService.js'
 import RefactorResultProcessor from './refactorResultProcessor.js'
 import TemplateLoader from './templateLoaderService.js'
 import PromptContext from './promptContext.js'
-import { AutoContext } from './AutoContext.js'
+import AutoContext from './AutoContext.js'
 import { extractOperationsFromOutput } from './extractOperationsFromOutput.js'
 
 export default class PluginService {

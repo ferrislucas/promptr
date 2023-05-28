@@ -1,4 +1,4 @@
-export class AutoContext {
+export default class AutoContext {
   static call(prompt) {
     return []
   }
