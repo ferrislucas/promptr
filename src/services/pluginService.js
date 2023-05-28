@@ -22,7 +22,7 @@ export default class PluginService {
       return 1
     }
     if (CliState.getModel() != "execute") {
-      let context = await PromptContext.call(CliState.args.concat(AutoContext.call()))
+      let context = await PromptContext.call(CliState.args.concat(AutoContext.call(userInput)))
       const __filename = fileURLToPath(import.meta.url)
 
       let templatePath = "refactor"

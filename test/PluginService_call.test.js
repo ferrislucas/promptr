@@ -45,16 +45,25 @@ describe('PluginService', () => {
 
     describe('when AutoContext.call() returns some paths', () => {
       let autoContextPaths = ['test/path1', 'test/path2']
+      let autoContextStub
+      const prompt = "Test prompt"
       
       beforeEach(() => {
         executeModeStub.resolves('{ "operations": [] }')
-        sinon.stub(AutoContext, 'call').returns(autoContextPaths)
+        autoContextStub = sinon.stub(AutoContext, 'call')
+        autoContextStub.returns(autoContextPaths)
       })
 
       it('should pass the paths from AutoContext.call into PromptContext.call', async () => {
-        await PluginService.call('Test input')
+        await PluginService.call(prompt)
 
         assert(buildContextStub.calledWith(autoContextPaths))
+      })
+
+      it('passes the prompt to AutoContext.call', async () => {
+        await PluginService.call(prompt)
+
+        assert(autoContextStub.calledWith(prompt))
       })
     })
 

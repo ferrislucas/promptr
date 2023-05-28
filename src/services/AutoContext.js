@@ -1,5 +1,5 @@
 export class AutoContext {
-  static call() {
+  static call(prompt) {
     return []
   }
 }
