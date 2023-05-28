@@ -68,8 +68,6 @@ Example call:
   }
 
   static disableAutoContext() {
-    console.log(`options: ${JSON.stringify(this.program.opts())}`)
-    console.log(`result: ${!!this.program.opts().disableAutoContext}`)
     return !!this.program.opts().disableAutoContext
   }
 
