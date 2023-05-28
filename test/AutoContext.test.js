@@ -19,7 +19,7 @@ describe('AutoContext.call', () => {
     })
   })
 
-  describe('when the prompt mentions multiple paths', () => {
+  describe('when the prompt mentions multiple relative paths', () => {
     let prompt = 'add a new method to the class in src/services/AutoContext.js - also, do the same for the class in src/services/AnotherClass.js'
 
     it('returns an array of paths mentioned in the prompt', () => {
@@ -27,6 +27,18 @@ describe('AutoContext.call', () => {
       assert.deepStrictEqual([
         'src/services/AutoContext.js',
         'src/services/AnotherClass.js',
+    ], result)
+    })
+  })
+
+  describe('when the prompt mentions multiple absolute paths', () => {
+    let prompt = 'add a new method to the class in /src/services/AutoContext.js - also, do the same for the class in /src/services/AnotherClass.js'
+
+    it('returns an array of paths mentioned in the prompt', () => {
+      const result = AutoContext.call(prompt)
+      assert.deepStrictEqual([
+        '/src/services/AutoContext.js',
+        '/src/services/AnotherClass.js',
     ], result)
     })
   })
