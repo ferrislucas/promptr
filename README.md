@@ -91,6 +91,7 @@ Sit back... Relaaxxxxxx... let Promptr carry you on a gentle cruise through a li
 - `-x` Optional boolean flag. Promptr attempts to parse the model's response and apply the resulting operations to the current directory tree whe using the "refactor" template. You only need to pass the `-x` flag if you've created your own template, and you want Promptr to parse the output of your template in the same way that the built in "refactor" template is parsed.
 - `-o, --output-path <outputPath>`: Optional string flag that specifies the path to the output file. If this flag is not set, the output will be printed to stdout.
 - `-v, --verbose`: Optional boolean flag that enables verbose output, providing more detailed information during execution.
+- `-dac, --disable-auto-context`: Prevents files referenced in the prompt from being automatically included in the context sent to the model.
 - `--version`: Display the version and exit
 
 Additional parameters can specify the paths to files that will be included as context in the prompt. The parameters should be separated by a space.
