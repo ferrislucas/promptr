@@ -1,41 +1,33 @@
 # Promptr
 
-## TLDR 
-Promptr is a CLI tool that makes it easy to apply GPT's code change recommendations with a single command. With Promptr, you can quickly refactor code, implement classes to pass tests, and experiment with LLMs. No more copying code from the ChatGPT window into your editor. 
-
-<br />
-
-[This PR](https://github.com/ferrislucas/promptr/pull/38) has some good examples of what can be accomplished using Promptr. You can find links to the individual commits and the prompts that created them in the PR description.
-
+Promptr is a CLI tool that lets you use plain English to instruct GPT3 or GPT4 to make changes to your codebase. This is most effective with GPT4 because of its larger context window, but GPT3 is still useful for smaller scopes. 
 <br /><br />
 
-## Introduction
-Promptr automates the process of providing ChatGPT with source code and a prompt, and then applying ChatGPT's response to the filesystem. This allows you to apply plain English instructions to your codebase. This is most effective with GPT4 because of its larger context window, but GPT3 is still useful for smaller scopes. 
-<br />
+The PR's below are good examples of what can be accomplished using Promptr. You can find links to the individual commits and the prompts that created them in the PR descriptions.
+- https://github.com/ferrislucas/promptr/pull/38
+- https://github.com/ferrislucas/promptr/pull/41
+<br /><br />
 
-I've found this to be good workflow:
-- Commit any changes, so you have a clean working area
-- Author your prompt in a text file. Work with the prompt in your favorite editor - mold it into clear instructions almost as if it's a task for an inexperienced co-worker. 
-- Use promptr to send your prompt __and the relevant files__ to GPT. It's critical to send the relevant files with your request. Think about what files your inexperienced co-worker would need to know about in order to fulfill the request.
-- Complex requests can take a while (or timeout). When the response is ready, promptr applies the changes to your filesystem. Use your favorite git UI to inspect the results. 
+I've found this to be a good workflow:
+- Commit any changes, so you have a clean working area.
+- Author your prompt in a text file. The prompt should be specific clear instructions. 
+- Make sure your prompt contains the relative paths of any files that are relevant to your instructions. 
+- Use Promptr to execute your prompt. Provide the path to your prompt file using the `-p` option: 
+`promptr -p my_prompt.txt` 
+*If you have access to GPT4 then use the `-m gpt4` option to get the best results.*
+
+Complex requests can take a while. If a task is too complex then the request will timeout - try breaking the task down into smaller units of work when this happens. When the response is ready, promptr applies the changes to your filesystem. Use your favorite git UI to inspect the results. 
 
 <br /><br />
 
 
 ## Examples
 __Cleanup the code in a file__
+Promptr recognizes that the file `src/index.js` is referenced in the prompt, so the contents of `src/index.js` is automatically sent to the model along with the prompt.
 ```bash
-$ promptr -p "Cleanup the code in this file" index.js
+$ promptr -p "Cleanup the code in src/index.js"
 ```
-<br />
-
-__Cleanup the code in two files__
-<br />
-The following example uses GPT4 to cleanup the code in two files by passing the file paths as arguments:
-```bash
-$ promptr -m gpt4 -p "Cleanup the code in these files" app/index.js app.js 
-```
-<br />
+<br /><br />
 
 __Alphabetize the methods in all of the javascript files__ 
 <br />
