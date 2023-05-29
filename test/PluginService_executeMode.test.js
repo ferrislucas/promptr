@@ -4,7 +4,7 @@ import PromptrService from '../src/services/PromptrService.js';
 import OpenAiGptService from '../src/services/OpenAiGptService.js';
 import CliState from '../src/cliState.js';
 import RefactorResultProcessor from '../src/services/RefactorResultProcessor.js';
-import TemplateLoaderService from '../src/services/templateLoaderService.js'
+import TemplateLoaderService from '../src/services/TemplateLoader.js'
 
 describe('PromptrService', () => {
 
