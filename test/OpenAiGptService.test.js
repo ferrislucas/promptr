@@ -1,8 +1,8 @@
 import assert from 'assert';
 import sinon from 'sinon';
 import OpenAiGptService from '../src/services/OpenAiGptService.js';
-import { Configuration, OpenAIApi } from 'openai';
-import ConfigService from '../src/services/configService.js';
+import { OpenAIApi } from 'openai';
+import ConfigService from '../src/services/ConfigService.js';
 import CliState from '../src/cliState.js';
 import SystemMessage from '../src/services/SystemMessage.js';
 
