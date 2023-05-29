@@ -1,0 +1,1 @@
+export function extractOperationsFromOutput(input: string): any | null;

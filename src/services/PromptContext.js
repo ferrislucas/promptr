@@ -1,4 +1,4 @@
-import { FileService } from './fileService.js'
+import { FileService } from './FileService.js'
 
 export default class PromptContext {
   static async call(args) {

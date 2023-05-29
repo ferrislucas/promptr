@@ -1,7 +1,7 @@
 import assert from 'assert';
 import sinon from 'sinon';
-import TemplateLoader from '../src/services/templateLoaderService.js';
-import TemplateUrl from '../src/services/templateUrl.js';
+import TemplateLoader from '../src/services/TemplateLoader.js';
+import TemplateUrl from '../src/services/TemplateUrl.js';
 
 
 describe('TemplateLoader', () => {

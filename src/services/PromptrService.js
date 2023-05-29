@@ -1,15 +1,15 @@
 import { fileURLToPath } from 'url'
 import { encode } from "gpt-3-encoder"
-import { FileService } from './fileService.js'
-import CliState from '../cliState.js'
+import { FileService } from './FileService.js'
+import CliState from '../CliState.js'
 import OpenAiGptService from './OpenAiGptService.js'
-import RefactorResultProcessor from './refactorResultProcessor.js'
-import TemplateLoader from './templateLoaderService.js'
-import PromptContext from './promptContext.js'
+import RefactorResultProcessor from './RefactorResultProcessor.js'
+import TemplateLoader from './TemplateLoader.js'
+import PromptContext from './PromptContext.js'
 import AutoContext from './AutoContext.js'
-import { extractOperationsFromOutput } from './extractOperationsFromOutput.js'
+import { extractOperationsFromOutput } from './ExtractOperationsFromOutput.js'
 
-export default class PluginService {
+export default class PromptrService {
   
   static async call(userInput) {
     const verbose = CliState.verbose()

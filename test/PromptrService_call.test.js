@@ -1,13 +1,13 @@
 import assert from 'assert';
 import sinon from 'sinon';
-import PluginService from '../src/services/pluginService.js';
-import CliState from '../src/cliState.js';
-import RefactorResultProcessor from '../src/services/refactorResultProcessor.js';
-import TemplateLoader from '../src/services/templateLoaderService.js';
-import PromptContext from '../src/services/promptContext.js';
+import PromptrService from '../src/services/PromptrService.js';
+import CliState from '../src/CliState.js';
+import RefactorResultProcessor from '../src/services/RefactorResultProcessor.js';
+import TemplateLoader from '../src/services/TemplateLoader.js';
+import PromptContext from '../src/services/PromptContext.js';
 import AutoContext from '../src/services/AutoContext.js';
 
-describe('PluginService', () => {
+describe('PromptrService', () => {
 
   beforeEach(() => {
     CliState.init([], '')
@@ -21,7 +21,7 @@ describe('PluginService', () => {
     beforeEach(() => {
       loadTemplateStub = sinon.stub(TemplateLoader, 'loadTemplate')
       buildContextStub = sinon.stub(PromptContext, 'call')
-      executeModeStub = sinon.stub(PluginService, 'executeMode')
+      executeModeStub = sinon.stub(PromptrService, 'executeMode')
     });
 
     afterEach(() => {
@@ -36,7 +36,7 @@ describe('PluginService', () => {
       buildContextStub.resolves({ files: [] });
       executeModeStub.resolves('{ "operations": [] }');
 
-      await PluginService.call('Test input');
+      await PromptrService.call('Test input');
 
       assert(loadTemplateStub.calledWith('Test input', { files: [] }, sinon.match(/refactor$/)));
     });
@@ -53,13 +53,13 @@ describe('PluginService', () => {
       })
 
       it('should pass the paths from AutoContext.call into PromptContext.call', async () => {
-        await PluginService.call(prompt)
+        await PromptrService.call(prompt)
 
         assert(buildContextStub.calledWith(autoContextPaths))
       })
 
       it('passes the prompt to AutoContext.call', async () => {
-        await PluginService.call(prompt)
+        await PromptrService.call(prompt)
 
         assert(autoContextStub.calledWith(prompt))
       })
@@ -71,7 +71,7 @@ describe('PluginService', () => {
         })
 
         it('should not pass the paths from AutoContext.call into PromptContext.call', async () => {
-          await PluginService.call(prompt)
+          await PromptrService.call(prompt)
   
           assert(buildContextStub.calledWith([]))
         })
@@ -84,7 +84,7 @@ describe('PluginService', () => {
       executeModeStub.resolves('{ "operations": [{ "thing": 1 }] }');
       const refactorResultProcessorStub = sinon.stub(RefactorResultProcessor, 'call').resolves();
 
-      await PluginService.call('Test input');
+      await PromptrService.call('Test input');
 
       assert(refactorResultProcessorStub.calledWith({ operations: [{ thing: 1 }] }))
 
@@ -97,7 +97,7 @@ describe('PluginService', () => {
       executeModeStub.resolves('{ "operations": [] }');
       sinon.stub(CliState, 'getExecuteFlag').returns('')
       
-      await PluginService.call('Test input');
+      await PromptrService.call('Test input');
       
       assert(loadTemplateStub.calledWith(sinon.match.any, { files: [] }, "refactor"))
     });

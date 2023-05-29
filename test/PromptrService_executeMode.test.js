@@ -1,12 +1,12 @@
 import assert from 'assert';
 import sinon from 'sinon';
-import PluginService from '../src/services/pluginService.js';
+import PromptrService from '../src/services/PromptrService.js';
 import OpenAiGptService from '../src/services/OpenAiGptService.js';
-import CliState from '../src/cliState.js';
-import RefactorResultProcessor from '../src/services/refactorResultProcessor.js';
-import TemplateLoaderService from '../src/services/templateLoaderService.js'
+import CliState from '../src/CliState.js';
+import RefactorResultProcessor from '../src/services/RefactorResultProcessor.js';
+import TemplateLoaderService from '../src/services/TemplateLoader.js'
 
-describe('PluginService', () => {
+describe('PromptrService', () => {
 
   beforeEach(() => {
     CliState.init([], '')
@@ -26,14 +26,14 @@ describe('PluginService', () => {
 
     it('should call OpenAiGptService when mode is gpt3', async () => {
       OpenAiGptServiceStub.resolves('GPT3 result');
-      const result = await PluginService.executeMode('gpt3', 'Test prompt');
+      const result = await PromptrService.executeMode('gpt3', 'Test prompt');
       assert.strictEqual(result, 'GPT3 result');
       sinon.assert.calledWith(OpenAiGptServiceStub, 'Test prompt', 'gpt3');
     });
 
     it('should call OpenAiGptService when mode is gpt4', async () => {
       OpenAiGptServiceStub.resolves('GPT4 result');
-      const result = await PluginService.executeMode('gpt4', 'Test prompt');
+      const result = await PromptrService.executeMode('gpt4', 'Test prompt');
       assert.strictEqual(result, 'GPT4 result');
       sinon.assert.calledWith(OpenAiGptServiceStub, 'Test prompt', 'gpt4');
     });
@@ -52,7 +52,7 @@ describe('PluginService', () => {
         sinon.stub(CliState, 'getTemplatePath').returns('refactor')
         OpenAiGptServiceStub.resolves('output')
     
-        await PluginService.executeMode('gpt4', 'Test prompt')
+        await PromptrService.executeMode('gpt4', 'Test prompt')
     
         assert(OpenAiGptService.call.calledWith(sinon.match.any, sinon.match.any, true))
       })
@@ -61,7 +61,7 @@ describe('PluginService', () => {
         sinon.stub(CliState, 'getTemplatePath').returns(null)
         OpenAiGptServiceStub.resolves('output')
     
-        await PluginService.executeMode('gpt4', 'Test prompt')
+        await PromptrService.executeMode('gpt4', 'Test prompt')
     
         assert(OpenAiGptService.call.calledWith(sinon.match.any, sinon.match.any, true))
       })
@@ -70,7 +70,7 @@ describe('PluginService', () => {
         sinon.stub(CliState, 'getTemplatePath').returns(undefined)
         OpenAiGptServiceStub.resolves('output')
     
-        await PluginService.executeMode('gpt4', 'Test prompt')
+        await PromptrService.executeMode('gpt4', 'Test prompt')
     
         assert(OpenAiGptService.call.calledWith(sinon.match.any, sinon.match.any, true))
       })
@@ -80,7 +80,7 @@ describe('PluginService', () => {
         OpenAiGptServiceStub.resolves('output')
         sinon.stub(TemplateLoaderService, 'loadTemplate').resolves('')
     
-        await PluginService.executeMode('gpt4', 'Test prompt')
+        await PromptrService.executeMode('gpt4', 'Test prompt')
     
         assert(OpenAiGptService.call.calledWith(sinon.match.any, sinon.match.any, false))
       })
