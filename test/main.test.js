@@ -1,5 +1,5 @@
 import assert from 'assert'
-import Main from '../src/main.js'
+import Main from '../src/Main.js'
 import PromptrService from '../src/services/PromptrService.js'
 import sinon from 'sinon'
 import fs from 'fs'
@@ -42,7 +42,7 @@ describe('Main', () => {
     fetchMock.withArgs(sinon.match(templateUrl)).resolves({ text: () => "stub template content" })
     const PromptrServiceSpy = sinon.spy(PromptrService, 'call')
 
-    await Main.call(['node', 'main.js', '-p', url, '-d', '-t', templateUrl])
+    await Main.call(['node', 'Main.js', '-p', url, '-d', '-t', templateUrl])
 
     assert.strictEqual(PromptrServiceSpy.calledWith(content), true)
     fetchMock.restore()
@@ -58,7 +58,7 @@ describe('Main', () => {
 
     const PromptrServiceSpy = sinon.spy(PromptrService, 'call')
 
-    await Main.call(['node', 'main.js', '-p', filePath, '-d', '-t', 'empty'])
+    await Main.call(['node', 'Main.js', '-p', filePath, '-d', '-t', 'empty'])
 
     assert.strictEqual(PromptrServiceSpy.calledWith(content), true)
     PromptrServiceSpy.restore()
@@ -74,7 +74,7 @@ describe('Main', () => {
     readFileSyncMock.withArgs(sinon.match(expectedPath)).returns(content)
     const PromptrServiceSpy = sinon.spy(PromptrService, 'call')
 
-    await Main.call(['node', 'main.js', '-p', filePath, "-d", '-t', 'empty'])
+    await Main.call(['node', 'Main.js', '-p', filePath, "-d", '-t', 'empty'])
 
     assert.strictEqual(PromptrServiceSpy.calledWith(content), true)    
     PromptrServiceSpy.restore()
