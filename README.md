@@ -43,29 +43,7 @@ The following example asks GPT4 to modify app/models/model.rb so that the tests 
 ```bash
 $ promptr -m gpt4 -t test-first spec/models/model_spec.rb app/models/model.rb -o app/models/model.rb
 ```
-<br />
-<br />
-
-## How Does This Work?
-When you run promptr, you specify a "context" to send along with your "prompt" to GPT. The "context" is one or more files that GPT needs to know about. The "prompt" is your instruction to GPT. <br /> For example, if you want to remove all the unnecessary semicolons from a file called index.js then you might run something like this: 
-<br />
-`promptr -p "Remove all unnecessary semicolons" index.js` 
 <br /><br />
-In the example above, your "prompt" is `"Remove all unnecessary semicolons"`, and the "context" is `index.js`.
-<br /><br /><br />
-If you wanted to expand the scope of your changes then you might say: <br />
-`promptr -p "Remove all unnecessary semicolons" index.js app.js test/app.test.js`
-<br />
-<br />Notice that we've added more files to the command. Promptr will send the files you specify along with your "prompt" to GPT. When a response is received (it can take a while), Promptr parses the response and applies the suggested changes to your file system.
-<br /><br /><br />
-__IMPORTANT__ 
-Promptr can write and delete files as recommended by GPT, so it's critical that you commit any important work before using Promptr. 
-
-__Don't worry.__ 
-Sit back... Relaaxxxxxx... let Promptr carry you on a gentle cruise through a little place I like to call... Productivity Town.
-<br /><br />
-
-<br />
 
 ## Usage
 
@@ -80,7 +58,7 @@ Sit back... Relaaxxxxxx... let Promptr carry you on a gentle cruise through a li
 - `-i, --interactive`: Optional boolean flag that enables interactive mode where the user can provide input interactively. If this flag is not set, the tool runs in non-interactive mode.
 - `-p, --prompt <prompt>`: Optional string flag that specifies the prompt to use in non-interactive mode. If this flag is not set then a blank prompt is used. A path or a url can also be specified - in this case the content at the specified path or url is used as the prompt. The prompt is combined with the tempate to form the payload sent to the model.
 - `-t, --template <templateName | templatePath | templateUrl>`: Optional string flag that specifies a built in template name, the absolute path to a template file, or a url for a template file that will be used to generate the output. The default is the  built in `refactor` template. The available built in templates are: `empty`, `refactor`, `swe`, and `test-first`. The prompt is interpolated with the template to form the payload sent to the model.
-- `-x` Optional boolean flag. Promptr attempts to parse the model's response and apply the resulting operations to the current directory tree whe using the "refactor" template. You only need to pass the `-x` flag if you've created your own template, and you want Promptr to parse the output of your template in the same way that the built in "refactor" template is parsed.
+- `-x` Optional boolean flag. Promptr parses the model's response and applies the resulting operations to your file system when using the default template. You only need to pass the `-x` flag if you've created your own template, and you want Promptr to parse and apply the output in the same way that the built in "refactor" template output is parsed and applied to your file system. 
 - `-o, --output-path <outputPath>`: Optional string flag that specifies the path to the output file. If this flag is not set, the output will be printed to stdout.
 - `-v, --verbose`: Optional boolean flag that enables verbose output, providing more detailed information during execution.
 - `-dac, --disable-auto-context`: Prevents files referenced in the prompt from being automatically included in the context sent to the model.
