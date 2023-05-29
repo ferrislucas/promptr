@@ -1,7 +1,7 @@
 import { Liquid } from 'liquidjs'
 import path from 'path'
 import { FileService } from './FileService.js'
-import TemplateUrl from './templateUrl.js'
+import TemplateUrl from './TemplateUrl.js'
 
 class TemplateLoader {
   static async loadTemplate(prompt, context, template) {
