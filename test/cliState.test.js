@@ -1,5 +1,5 @@
 import assert from 'assert';
-import CliState from '../src/cliState.js';
+import CliState from '../src/CliState.js';
 
 describe('CliState', () => {
   it('should initialize and parse options correctly', () => {

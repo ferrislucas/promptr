@@ -1,7 +1,7 @@
 import assert from 'assert';
 import sinon from 'sinon';
 import PromptrService from '../src/services/PromptrService.js';
-import CliState from '../src/cliState.js';
+import CliState from '../src/CliState.js';
 
 describe('PromptrService', () => {
 

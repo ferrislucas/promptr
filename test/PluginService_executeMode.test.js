@@ -2,7 +2,7 @@ import assert from 'assert';
 import sinon from 'sinon';
 import PromptrService from '../src/services/PromptrService.js';
 import OpenAiGptService from '../src/services/OpenAiGptService.js';
-import CliState from '../src/cliState.js';
+import CliState from '../src/CliState.js';
 import RefactorResultProcessor from '../src/services/RefactorResultProcessor.js';
 import TemplateLoaderService from '../src/services/TemplateLoader.js'
 

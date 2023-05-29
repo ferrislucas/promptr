@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'url'
 import { encode } from "gpt-3-encoder"
 import { FileService } from './FileService.js'
-import CliState from '../cliState.js'
+import CliState from '../CliState.js'
 import OpenAiGptService from './OpenAiGptService.js'
 import RefactorResultProcessor from './RefactorResultProcessor.js'
 import TemplateLoader from './TemplateLoader.js'

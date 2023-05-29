@@ -1,6 +1,6 @@
 import readline from 'readline'
 import PromptrService from './services/PromptrService.js'
-import CliState from './cliState.js'
+import CliState from './CliState.js'
 import fs from 'fs'
 import os from 'os'
 import path from 'path'

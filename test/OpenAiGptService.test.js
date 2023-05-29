@@ -3,7 +3,7 @@ import sinon from 'sinon';
 import OpenAiGptService from '../src/services/OpenAiGptService.js';
 import { OpenAIApi } from 'openai';
 import ConfigService from '../src/services/ConfigService.js';
-import CliState from '../src/cliState.js';
+import CliState from '../src/CliState.js';
 import SystemMessage from '../src/services/SystemMessage.js';
 
 describe('OpenAiGptService', () => {
