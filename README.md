@@ -27,7 +27,7 @@ Promptr recognizes that the file `src/index.js` is referenced in the prompt, so 
 ```bash
 $ promptr -p "Cleanup the code in src/index.js"
 ```
-<br /><br />
+<br />
 
 __Alphabetize the methods in all of the javascript files__ 
 <br />
