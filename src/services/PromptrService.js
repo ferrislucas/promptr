@@ -7,7 +7,7 @@ import RefactorResultProcessor from './refactorResultProcessor.js'
 import TemplateLoader from './templateLoaderService.js'
 import PromptContext from './PromptContext.js'
 import AutoContext from './AutoContext.js'
-import { extractOperationsFromOutput } from './extractOperationsFromOutput.js'
+import { extractOperationsFromOutput } from './ExtractOperationsFromOutput.js'
 
 export default class PromptrService {
   
