@@ -36,10 +36,10 @@ describe('FileService', () => {
       assert.strictEqual(fileContents, data);
     });
 
-    it('should return an empty string if the file does not exist', async () => {
+    it('should return null if the file does not exist', async () => {
       const filePath = 'tmp/nonexistent-file.txt';
       const fileContents = await FileService.load(filePath);
-      assert.strictEqual(fileContents, '');
+      assert.strictEqual(fileContents, null);
     });
   });
 
