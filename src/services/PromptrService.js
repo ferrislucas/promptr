@@ -5,7 +5,7 @@ import CliState from '../cliState.js'
 import OpenAiGptService from './OpenAiGptService.js'
 import RefactorResultProcessor from './refactorResultProcessor.js'
 import TemplateLoader from './templateLoaderService.js'
-import PromptContext from './promptContext.js'
+import PromptContext from './PromptContext.js'
 import AutoContext from './AutoContext.js'
 import { extractOperationsFromOutput } from './extractOperationsFromOutput.js'
 
