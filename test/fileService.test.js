@@ -1,4 +1,4 @@
-import { FileService } from '../src/services/fileService.js';
+import { FileService } from '../src/services/FileService.js';
 import fs from 'fs';
 import assert from 'assert';
 import sinon from 'sinon';

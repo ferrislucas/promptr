@@ -1,4 +1,4 @@
-import { FileService } from "./fileService.js";
+import { FileService } from "./FileService.js";
 import fs from 'fs'
 
 export default class ConfigService {

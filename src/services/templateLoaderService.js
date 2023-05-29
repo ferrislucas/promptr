@@ -1,6 +1,6 @@
 import { Liquid } from 'liquidjs'
 import path from 'path'
-import { FileService } from './fileService.js'
+import { FileService } from './FileService.js'
 import TemplateUrl from './templateUrl.js'
 
 class TemplateLoader {

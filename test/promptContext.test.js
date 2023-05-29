@@ -1,7 +1,7 @@
 import assert from 'assert';
 import sinon from 'sinon';
 import PromptContext from '../src/services/PromptContext.js';
-import { FileService } from '../src/services/fileService.js';
+import { FileService } from '../src/services/FileService.js';
 
 describe('PromptContext', () => {
 
