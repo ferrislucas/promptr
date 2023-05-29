@@ -9,7 +9,8 @@
   },
   "files": [
     "src/**",
-    "*.js"
+    "*.js",
+    "*.ts"
   ],
   "dependencies": {
     "commander": "^10.0.0",
