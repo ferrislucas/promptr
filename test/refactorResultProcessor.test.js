@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import assert from 'assert';
-import RefactorResultProcessor from '../src/services/refactorResultProcessor.js'
+import RefactorResultProcessor from '../src/services/RefactorResultProcessor.js'
 
 describe('RefactorResultProcessor', () => {
   describe('.call()', () => {

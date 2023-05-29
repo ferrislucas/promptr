@@ -2,7 +2,7 @@ import assert from 'assert';
 import sinon from 'sinon';
 import PromptrService from '../src/services/PromptrService.js';
 import CliState from '../src/cliState.js';
-import RefactorResultProcessor from '../src/services/refactorResultProcessor.js';
+import RefactorResultProcessor from '../src/services/RefactorResultProcessor.js';
 import TemplateLoader from '../src/services/templateLoaderService.js';
 import PromptContext from '../src/services/PromptContext.js';
 import AutoContext from '../src/services/AutoContext.js';

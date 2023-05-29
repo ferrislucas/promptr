@@ -3,7 +3,7 @@ import sinon from 'sinon';
 import PromptrService from '../src/services/PromptrService.js';
 import OpenAiGptService from '../src/services/OpenAiGptService.js';
 import CliState from '../src/cliState.js';
-import RefactorResultProcessor from '../src/services/refactorResultProcessor.js';
+import RefactorResultProcessor from '../src/services/RefactorResultProcessor.js';
 import TemplateLoaderService from '../src/services/templateLoaderService.js'
 
 describe('PromptrService', () => {

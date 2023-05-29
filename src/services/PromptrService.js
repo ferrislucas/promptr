@@ -3,7 +3,7 @@ import { encode } from "gpt-3-encoder"
 import { FileService } from './FileService.js'
 import CliState from '../cliState.js'
 import OpenAiGptService from './OpenAiGptService.js'
-import RefactorResultProcessor from './refactorResultProcessor.js'
+import RefactorResultProcessor from './RefactorResultProcessor.js'
 import TemplateLoader from './templateLoaderService.js'
 import PromptContext from './PromptContext.js'
 import AutoContext from './AutoContext.js'
