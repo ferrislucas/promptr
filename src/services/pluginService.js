@@ -1,5 +1,4 @@
 import { fileURLToPath } from 'url'
-import { dirname } from 'path'
 import { encode } from "gpt-3-encoder"
 import { FileService } from './fileService.js'
 import CliState from '../cliState.js'
@@ -7,6 +6,7 @@ import OpenAiGptService from './OpenAiGptService.js'
 import RefactorResultProcessor from './refactorResultProcessor.js'
 import TemplateLoader from './templateLoaderService.js'
 import PromptContext from './promptContext.js'
+import AutoContext from './AutoContext.js'
 import { extractOperationsFromOutput } from './extractOperationsFromOutput.js'
 
 export default class PluginService {
@@ -21,7 +21,9 @@ export default class PluginService {
       return 1
     }
     if (CliState.getModel() != "execute") {
-      let context = await PromptContext.call(CliState.args)
+      let args = CliState.args      
+      if (!CliState.disableAutoContext()) args = args.concat(AutoContext.call(userInput))      
+      let context = await PromptContext.call(args)
       const __filename = fileURLToPath(import.meta.url)
 
       let templatePath = "refactor"

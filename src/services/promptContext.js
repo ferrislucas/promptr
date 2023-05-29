@@ -6,10 +6,13 @@ export default class PromptContext {
       files: [],
     }
     for (let n = 0; n < args.length; n++) {
-      context.files.push({
-        filename: args[n],
-        content: await FileService.load(args[n]),
-      })
+      const fileContent = await FileService.load(args[n]);
+      if (fileContent !== null) {
+        context.files.push({
+          filename: args[n],
+          content: fileContent,
+        })
+      }
     }
     return context
   }

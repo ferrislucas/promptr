@@ -29,6 +29,20 @@ describe('PromptContext', () => {
         ]
       });
     });
+
+    it('should not add files with null content to context', async () => {
+      fileServiceStub.onCall(0).resolves('File content');
+      fileServiceStub.onCall(1).resolves(null);
+
+      const args = ['file1.js', 'file2.js'];
+      const context = await PromptContext.call(args);
+
+      assert.deepEqual(context, {
+        files: [
+          { filename: 'file1.js', content: 'File content' }
+        ]
+      });
+    });
   });
 
 });

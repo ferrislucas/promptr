@@ -7,14 +7,14 @@ export class FileService {
 
   static async load(filePath) {
     const fileDoesNotExist = !await this.fileExists(filePath)
-    if (fileDoesNotExist) return("")
+    if (fileDoesNotExist) return null
     try {
       // Use the fs module to read the file
       const data = await fs.promises.readFile(filePath, "utf-8")
       return data
     } catch (err) {
       this.log(err)
-      return("")
+      return null
     }
   }
 
