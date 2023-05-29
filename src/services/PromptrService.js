@@ -9,7 +9,7 @@ import PromptContext from './promptContext.js'
 import AutoContext from './AutoContext.js'
 import { extractOperationsFromOutput } from './extractOperationsFromOutput.js'
 
-export default class PluginService {
+export default class PromptrService {
   
   static async call(userInput) {
     const verbose = CliState.verbose()

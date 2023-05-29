@@ -1,5 +1,5 @@
 import readline from 'readline'
-import PluginService from './services/pluginService.js'
+import PromptrService from './services/PromptrService.js'
 import CliState from './cliState.js'
 import fs from 'fs'
 import os from 'os'
@@ -35,7 +35,7 @@ export default class Main {
         prompt = fs.readFileSync(filePath, 'utf-8')
       }
     }
-    return await PluginService.call(prompt)
+    return await PromptrService.call(prompt)
   }
 
   static async loopUntilUserExit() {
@@ -49,7 +49,7 @@ export default class Main {
       if (!userInput) continue
       if (userInput == 'exit' || userInput == "\q") break
 
-      await PluginService.call(userInput)
+      await PromptrService.call(userInput)
     }
     rl.close()
   }
