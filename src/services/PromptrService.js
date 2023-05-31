@@ -22,7 +22,7 @@ export default class PromptrService {
     }
     if (CliState.getModel() != "execute") {
       let args = CliState.args      
-      if (!CliState.disableAutoContext()) args = args.concat(AutoContext.call(userInput))      
+      if (!CliState.disableAutoContext()) args = args.concat(AutoContext.call(userInput))
       let context = await PromptContext.call(args)
       const __filename = fileURLToPath(import.meta.url)
 

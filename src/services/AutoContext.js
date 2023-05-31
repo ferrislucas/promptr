@@ -11,7 +11,9 @@ export default class AutoContext {
     let match;
 
     while ((match = regex.exec(prompt)) !== null) {
-      filePaths.push(match[1]);
+      if (!filePaths.includes(match[1])) {
+        filePaths.push(match[1]);
+      }
     }
 
     return filePaths;

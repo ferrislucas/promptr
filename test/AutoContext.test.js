@@ -42,4 +42,15 @@ describe('AutoContext.call', () => {
     ], result)
     })
   })
+
+  describe('when the prompt mentions duplicate paths', () => {
+    let prompt = 'modify the class in /src/services/AutoContext.js and also make changes in /src/services/AutoContext.js'
+
+    it('returns an array of unique paths mentioned in the prompt', () => {
+      const result = AutoContext.call(prompt)
+      assert.deepStrictEqual([
+        '/src/services/AutoContext.js'
+    ], result)
+    })
+  })
 })
