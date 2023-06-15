@@ -1,8 +1,6 @@
-import assert from 'assert';
-import sinon from 'sinon';
-import TemplateLoader from '../src/services/TemplateLoader.js';
-import TemplateUrl from '../src/services/TemplateUrl.js';
-
+import assert from 'assert'
+import sinon from 'sinon'
+import TemplateLoader from '../src/services/TemplateLoader.js'
 
 describe('TemplateLoader', () => {
   describe('loadTemplate', () => {

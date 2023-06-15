@@ -1,7 +1,6 @@
 import { Liquid } from 'liquidjs'
 import path from 'path'
 import { FileService } from './FileService.js'
-import TemplateUrl from './TemplateUrl.js'
 
 class TemplateLoader {
   static async loadTemplate(prompt, context, template) {
@@ -19,6 +18,22 @@ class TemplateLoader {
       prompt: prompt
     })
     return content
+  }
+
+  static async loadTemplateFromUrl(templateUrl) {
+    const response = await fetch(templateUrl)
+    const body = await response.text()
+    return body
+  }
+
+  static async loadTemplateFromPath(templatePath) {
+    if (!templatePath.startsWith("/")) {        
+      templatePath = path.join(process.cwd(), `${templatePath}`)
+    }
+    if (!await FileService.fileExists(templatePath)) {
+      throw new Error(`Template file ${templatePath} does not exist`)
+    }
+    return await FileService.load(templatePath)
   }
 
   static getTemplateText(template) {
@@ -96,22 +111,6 @@ Produce an implementation of the class described in the first file that will pas
 {% endfor %}`
     }
     return null
-  }
-
-  static async loadTemplateFromUrl(templateUrl) {
-    const response = await fetch(templateUrl)
-    const body = await response.text()
-    return body
-  }
-
-  static async loadTemplateFromPath(templatePath) {
-    if (!templatePath.startsWith("/")) {        
-      templatePath = path.join(process.cwd(), `${templatePath}`)
-    }
-    if (!await FileService.fileExists(templatePath)) {
-      throw new Error(`Template file ${templatePath} does not exist`)
-    }
-    return await FileService.load(templatePath)
   }
 }
 
