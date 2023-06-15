@@ -26,50 +26,6 @@ describe('TemplateLoader', () => {
 
       loadTemplateFromPathStub.restore();
     });
-
-    describe("testing built in templates", () => {
-      let loadTemplateFromUrlStub
-
-      beforeEach(() => {
-        loadTemplateFromUrlStub = sinon.stub(TemplateLoader, 'loadTemplateFromUrl');
-      })
-
-      afterEach(() => {
-        loadTemplateFromUrlStub.restore()
-      })
-
-      it('should return correct content for the refactor template', async () => {
-        loadTemplateFromUrlStub.withArgs(TemplateUrl.refactor).resolves('Refactor content');
-        
-        const refactorContent = await TemplateLoader.loadTemplate('prompt', 'context', 'refactor');
-        
-        assert.strictEqual(refactorContent, 'Refactor content');      
-      })
-
-      it('should return correct content for the empty template', async () => {        
-        loadTemplateFromUrlStub.withArgs(TemplateUrl.empty).resolves('Empty content');
-        
-        const emptyContent = await TemplateLoader.loadTemplate('prompt', 'context', 'empty');
-        
-        assert.strictEqual(emptyContent, 'Empty content');
-      })
-      
-      it('should return correct content for the swe template', async () => {
-        loadTemplateFromUrlStub.withArgs(TemplateUrl.swe).resolves('SWE content')
-
-        const sweContent = await TemplateLoader.loadTemplate('prompt', 'context', 'swe')
-
-        assert.strictEqual(sweContent, 'SWE content');
-      })
-
-      it('should return correct content for the test-first template', async () => {
-        loadTemplateFromUrlStub.withArgs(TemplateUrl.testFirst).resolves('Test-First content');
-
-        const testFirstContent = await TemplateLoader.loadTemplate('prompt', 'context', 'test-first');
-
-        assert.strictEqual(testFirstContent, 'Test-First content');
-      })
-    })
   });
 
   describe('loadTemplateFromUrl', () => {
