@@ -11,7 +11,7 @@ export default class Main {
     CliState.init(argv, await this.getVersion())
 
     if (argv.length <= 2) {
-      console.log("Usage: promptr -m (gpt3|gpt4) <input filepath(s)> -o <output filepath> -p \"Cleanup the code in this file\"");
+      console.log("Usage: promptr -m <model> <input filepath(s)> -o <output filepath> -p \"Cleanup the code in this file\"");
       return -1
     }
 
