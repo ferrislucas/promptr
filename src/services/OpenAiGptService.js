@@ -7,8 +7,8 @@ import SystemMessage from "./SystemMessage.js";
 export default class OpenAiGptService {
 
   static async call(prompt, model, requestJsonOutput = true) {
-    if (model == "gpt3") model = "gpt-3.5-turbo";
-    if (model == "gpt4") model = "gpt-4";
+    if (model == "gpt3") model = "gpt-3.5-turbo-0613";
+    if (model == "gpt4") model = "gpt-4-0613";
 
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY
@@ -24,12 +24,41 @@ export default class OpenAiGptService {
       model: model,
       temperature: config.api.temperature,
       messages: messages,
+      functions: [{
+        name: "crud_operations",
+        description: "Create, update, or delete one or more files",
+        parameters: {
+          "type": "object",
+          "properties": {
+            "operations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "crudOperation": {
+                    "type": "string",
+                    "enum": ["create", "read", "update", "delete"]
+                  },
+                  "filePath": {
+                    "type": "string"
+                  },
+                  "fileContents": {
+                    "type": "string"
+                  }
+                },
+                "required": ["crudOperation", "filePath", "fileContents"]
+              }
+            }
+          }
+        }
+      }],
+      function_call: { "name": "crud_operations" }
     });
 
     if (!response?.data?.choices) return null
-    let result = response.data.choices.map((d) => d?.message?.content?.trim()).join()
-    if (verbose) console.log(`--Response--\n${result}`)
-    return result
+    const responseBody = response.data.choices[0].message.function_call.arguments
+    if (verbose) console.log(responseBody)
+    return responseBody
   }
 
 }

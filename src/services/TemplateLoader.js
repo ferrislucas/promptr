@@ -38,7 +38,7 @@ class TemplateLoader {
 
   static getTemplateText(template) {
     if (template === 'refactor') {
-      return `{{prompt}}
+      return `The user's request is: {{prompt}}
 {% if context.files.size > 0 %}
 ###
 The following are file paths and content related to this request.
