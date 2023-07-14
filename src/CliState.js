@@ -13,7 +13,7 @@ export default class CliState {
     this.program.option('-t, --template <template>', 'Teplate name, template path, or a url for a template file')
     this.program.option('-o, --output-path <outputPath>', 'Path to output file. If no path is specified, output will be printed to stdout.')
     this.program.option('-v, --verbose', 'Verbose output')
-    this.program.option('-m, --model <model>', 'Specify the model to use', 'gpt3')
+    this.program.option('-m, --model <model>', 'Specify the model to use', 'gpt4')
     this.program.option('-dac, --disable-auto-context', 'Prevents files referenced in the prompt from being automatically included in the context sent to the model.');
     
     this.program.version(version, '--version', 'Display the current version')
