@@ -1,6 +1,6 @@
 {
   "name": "promptr",
-  "version": "5.0.3",
+  "version": "6.0.0",
   "main": "index.js",
   "bin": "index.js",
   "dependencies": {

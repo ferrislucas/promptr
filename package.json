@@ -1,6 +1,6 @@
 {
   "name": "@ifnotnowwhen/promptr",
-  "version": "5.0.3",
+  "version": "6.0.0",
   "main": "Main.js",
   "type": "module",
   "license": "MIT",
@@ -19,7 +19,7 @@
     "openai": "^3.3.0",
     "prompt-sync": "^4.2.0"
   },
-  "description": "Promptr is a command-line interface (CLI) tool that writes the output of GPT3  model prompts to a specified file. Promptr can also accept additional arguments that specify one or more files to include in the prompt.",
+  "description": "Promptr is a CLI tool that lets you use plain English to instruct GPT3 or GPT4 to make changes to your codebase.",
   "devDependencies": {
     "@babel/cli": "^7.21.0",
     "@babel/core": "^7.21.4",
