@@ -76,10 +76,6 @@ export default class PromptrService {
   }
 
   static async executeMode(model, prompt) {
-    if (model != "gpt3" && model != "gpt4" && model != "execute") {
-      console.log(`model ${model} is not supported`)
-      process.exit(1)
-    }
     if (model === "execute") {
       process.stdin.setEncoding('utf8')
       await this.processPipedInput()
