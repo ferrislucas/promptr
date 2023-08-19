@@ -35,21 +35,23 @@ describe('OpenAiGptService', () => {
     sinon.assert.calledOnce(openaiStub);
   });
 
-  it('should return null when the response does not contain choices', async () => {
-    const prompt = 'What is the capital of France?';
-    const model = 'gpt-4';
+  describe('edge cases around OpenAI API responses', () => {
+    it('should return null when the response does not contain choices', async () => {
+      const prompt = 'What is the capital of France?';
+      const model = 'gpt-4';
 
-    const configStub = sinon.stub(ConfigService, 'retrieveConfig').resolves({ api: { temperature: 0.5 } });
-    const openaiStub = sinon.stub(OpenAIApi.prototype, 'createChatCompletion').resolves({
-      data: {}
-    });
+      const configStub = sinon.stub(ConfigService, 'retrieveConfig').resolves({ api: { temperature: 0.5 } });
+      const openaiStub = sinon.stub(OpenAIApi.prototype, 'createChatCompletion').resolves({
+        data: {}
+      });
 
-    const result = await OpenAiGptService.call(prompt, model);
+      const result = await OpenAiGptService.call(prompt, model);
 
-    assert.strictEqual(result, null);
-    sinon.assert.calledOnce(configStub);
-    sinon.assert.calledOnce(openaiStub);
-  });
+      assert.strictEqual(result, null);
+      sinon.assert.calledOnce(configStub);
+      sinon.assert.calledOnce(openaiStub);
+    })
+  })
 
   it('should append system messages in the call to openai.createChatCompletion when requestJsonOutput is true', async () => {
     const prompt = 'What is the capital of France?';
