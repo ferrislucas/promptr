@@ -53,7 +53,7 @@ $ promptr -m gpt4 -t test-first spec/models/model_spec.rb app/models/model.rb -o
 <br />
 
 ## Options
-- `-m, --model <model>`: Optional flag to set the model, defaults to `gpt-3.5-turbo-0613`. Using the value "gpt4" will use the `gpt-4-0613` model.
+- `-m, --model <model>`: Optional flag to set the model, defaults to `gpt-4-0613`. Using the value "gpt3" will use the `gpt-3.5-turbo-0613` model.
 - `-d, --dry-run`: Optional boolean flag that can be used to run the tool in dry-run mode where only the prompt that will be sent to the model is displayed. No changes are made to your filesystem when this option is used.
 - `-i, --interactive`: Optional boolean flag that enables interactive mode where the user can provide input interactively. If this flag is not set, the tool runs in non-interactive mode.
 - `-p, --prompt <prompt>`: Optional string flag that specifies the prompt to use in non-interactive mode. If this flag is not set then a blank prompt is used. A path or a url can also be specified - in this case the content at the specified path or url is used as the prompt. The prompt is combined with the tempate to form the payload sent to the model.
