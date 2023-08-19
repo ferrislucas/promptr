@@ -37,7 +37,7 @@
     "build:win": "cd dist && pkg -t node18-win . && cd ..",
     "build:macos": "cd dist && pkg -t node18-macos . && cd ..",
     "build:linux": "cd dist && pkg -t node18-linux . && cd ..",
-    "test-binary": "cd dist && ./promptr -d -t empty -p \"This is a test.\" && cd .."
+    "test-binary": "cd dist && ./promptr -p \"Create a new javascript class called AwesomeClass in AwesomeClass.js\" && cat AwesomeClass.js && rm AwesomeClass.js && cd .."
   },
   "repository": {
     "type": "git",
