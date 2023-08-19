@@ -1,7 +1,7 @@
 import assert from 'assert'
-import { extractOperationsFromOutput } from '../src/services/ExtractOperationsFromOutput.js'
+import { ExtractOperationsService } from '../src/services/ExtractOperationsService.js'
 
-describe('extractOperationsFromOutput', () => {
+describe('ExtractOperationsService', () => {
   const testCases = [
     {
       input: '{"key": "value"}',
@@ -37,7 +37,7 @@ describe('extractOperationsFromOutput', () => {
 
   testCases.forEach((testCase) => {
     it(testCase.description, () => {
-      const result = extractOperationsFromOutput(testCase.input)
+      const result = ExtractOperationsService.call(testCase.input)
       assert.deepStrictEqual(result, testCase.expectedOutput)
     })
   })

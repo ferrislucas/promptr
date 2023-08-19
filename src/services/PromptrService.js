@@ -7,7 +7,7 @@ import RefactorResultProcessor from './RefactorResultProcessor.js'
 import TemplateLoader from './TemplateLoader.js'
 import PromptContext from './PromptContext.js'
 import AutoContext from './AutoContext.js'
-import { extractOperationsFromOutput } from './ExtractOperationsFromOutput.js'
+import { ExtractOperationsService } from './ExtractOperationsService.js'
 
 export default class PromptrService {
   
@@ -54,7 +54,7 @@ export default class PromptrService {
 
     if (this.shouldRefactor(CliState.getTemplatePath())) {
       if (verbose) console.log(`Executing:\n${output}`)
-      const operations = extractOperationsFromOutput(output)
+      const operations = ExtractOperationsService.call(output)
       if (CliState.isDryRun()) {
         console.log(operations)
         return 0
