@@ -1,4 +1,5 @@
 export class ExtractOperationsService {
+
   static call(input) {
     try {
       const parsedJSON = JSON.parse(input);
@@ -11,7 +12,7 @@ export class ExtractOperationsService {
   static tryAgain(input) {
     try {
       // Replace triple double quotes with single double quotes
-      const correctedString = input.replace(/"{3}|'{3}/g, "\"")
+      const correctedString = input.replace(/(\r?\n)"""/g, '"').replace(/"{3}(?:\r?\n)?/g, '"')
       return JSON.parse(correctedString)
     } catch (error) {
       const jsonRegex = /({.*}|\[.*\])/s; // Regular expression to match a JSON object or array
@@ -33,4 +34,5 @@ export class ExtractOperationsService {
       }
     }
   }
+
 }

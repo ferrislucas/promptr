@@ -66,5 +66,57 @@ describe('ExtractOperationsService', () => {
       const result = ExtractOperationsService.call(invalidJson)
       assert.deepStrictEqual(result, expectedOutput)
     })
+
+    it('corrects issue where ending tripple quote fileContents delimeter is preceded by a line break', () => {
+      const invalidJson = `{
+        "operations": [
+            {
+                "crudOperation": "update",
+                "filePath": "my-script.py",
+                "fileContents": """file content
+"""
+            }
+        ]
+    }
+    `
+      const expectedOutput = {
+        "operations": [
+          {
+            "crudOperation": "update",
+            "filePath": "my-script.py",
+            "fileContents": "file content"
+          }
+        ]
+      }
+      const result = ExtractOperationsService.call(invalidJson)
+      console.log(`do it: ${JSON.stringify(result)}`)
+      assert.deepStrictEqual(result, expectedOutput)
+    })
+
+    it('corrects issue where starting tripple quote fileContents delimeter is followed by a line break', () => {
+      const invalidJson = `{
+        "operations": [
+            {
+                "crudOperation": "update",
+                "filePath": "my-script.py",
+                "fileContents": """
+file content"""
+            }
+        ]
+    }
+    `
+      const expectedOutput = {
+        "operations": [
+          {
+            "crudOperation": "update",
+            "filePath": "my-script.py",
+            "fileContents": "file content"
+          }
+        ]
+      }
+      const result = ExtractOperationsService.call(invalidJson)
+      console.log(`do it: ${JSON.stringify(result)}`)
+      assert.deepStrictEqual(result, expectedOutput)
+    })
   })
 })
