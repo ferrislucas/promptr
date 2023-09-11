@@ -43,7 +43,7 @@ describe('ExtractOperationsService', () => {
       })
     })
 
-    it('corrects the tripple quote fileContents delimeter issue', () => {
+    it('corrects the triple quote fileContents delimeter issue', () => {
       const invalidJson = `{
         "operations": [
             {
@@ -66,5 +66,92 @@ describe('ExtractOperationsService', () => {
       const result = ExtractOperationsService.call(invalidJson)
       assert.deepStrictEqual(result, expectedOutput)
     })
+
+    it('corrects issue where ending triple quote fileContents delimeter is preceded by a line break', () => {
+      const invalidJson = `{
+        "operations": [
+            {
+                "crudOperation": "update",
+                "filePath": "my-script.py",
+                "fileContents": """file content
+"""
+            }
+        ]
+    }
+    `
+      const expectedOutput = {
+        "operations": [
+          {
+            "crudOperation": "update",
+            "filePath": "my-script.py",
+            "fileContents": "file content\n"
+          }
+        ]
+      }
+      const result = ExtractOperationsService.call(invalidJson)
+      assert.deepStrictEqual(result, expectedOutput)
+    })
+
+    it('corrects issue where starting triple quote fileContents delimeter is followed by a line break', () => {
+      const invalidJson = `{
+        "operations": [
+            {
+                "crudOperation": "update",
+                "filePath": "my-script.py",
+                "fileContents": """
+file content"""
+            }
+          ]
+      }
+      `
+      const expectedOutput = {
+        "operations": [
+          {
+            "crudOperation": "update",
+            "filePath": "my-script.py",
+            "fileContents": "\nfile content"
+          }
+        ]
+      }
+      const result = ExtractOperationsService.call(invalidJson)
+      assert.deepStrictEqual(result, expectedOutput)
+    })
+
+    it('corrects issue where fileContents delimeter is triple quotes and content does not have line breaks escaped', () => {
+      const invalidJson = `{
+        "operations": [
+            {
+                "crudOperation": "update",
+                "filePath": "my-script-A.py",
+                "fileContents": """file content line 1
+file content line 2"""
+            },
+            {
+              "crudOperation": "update",
+              "filePath": "my-script-B.py",
+              "fileContents": """file content line A
+file content line B"""
+          }
+          ]
+      }
+      `
+      const expectedOutput = {
+        "operations": [
+          {
+            "crudOperation": "update",
+            "filePath": "my-script-A.py",
+            "fileContents": "file content line 1\nfile content line 2"
+          },
+          {
+            "crudOperation": "update",
+            "filePath": "my-script-B.py",
+            "fileContents": "file content line A\nfile content line B"
+          }
+        ]
+      }
+      const result = ExtractOperationsService.call(invalidJson)
+      assert.deepStrictEqual(result, expectedOutput)
+    })
+
   })
 })
