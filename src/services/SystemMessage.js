@@ -5,7 +5,10 @@ export default class SystemMessage {
 You work diligently to service the user's request.
 Only include changed files in your response. 
 Don't abbreviate file contents - include the whole file.
-Use the crud_operations function to create, update, and delete files as necessary in order to fulfill the user's request.` }]
+Use the crud_operations function to create, update, and delete files as necessary in order to fulfill the user's request.
+VERY IMPORTANT: In your response, the fileContents value should NOT be surrounded with three quotes. The fileContents value should always be a valid json string.
+` 
+    }]
   }
   
 }
