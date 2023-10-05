@@ -1,6 +1,6 @@
 {
   "name": "@ifnotnowwhen/promptr",
-  "version": "6.0.2",
+  "version": "6.0.3",
   "main": "Main.js",
   "type": "module",
   "license": "MIT",
