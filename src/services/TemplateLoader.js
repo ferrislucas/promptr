@@ -10,12 +10,24 @@ class TemplateLoader {
         await this.loadTemplateFromUrl(template) : 
         await this.loadTemplateFromPath(template)
     }
+    const expandedPrompt = await this.parseTemplate(prompt, context)
     const engine = new Liquid()
     engine.registerFilter("jsonToObject", (json) => JSON.parse(json))
-    const tpl = engine.parse(templateText)    
+    const tpl = engine.parse(templateText)
     const content = await engine.render(tpl, {
       context: context,
-      prompt: prompt
+      prompt: expandedPrompt
+    })
+    return content
+  }
+
+  static async parseTemplate(text, context) {
+    const engine = new Liquid()
+    engine.registerFilter("jsonToObject", (json) => JSON.parse(json))
+    const tpl = engine.parse(text)    
+    const content = await engine.render(tpl, {
+      context: context,
+      prompt: text
     })
     return content
   }
@@ -38,7 +50,7 @@ class TemplateLoader {
 
   static getTemplateText(template) {
     if (template === 'refactor') {
-      return `The user's request is: {{prompt}}
+      return `{{prompt}}
 {% if context.files.size > 0 %}
 ###
 The following are file paths and content related to this request.
@@ -54,9 +66,9 @@ File: {{ item.filename }} """
     if (template === 'empty') {
       return `{% if context.files.size > 0 %}You will be provided the contents of some files.
 The contents of each file begin with "--BEGIN-FILE:" followed by the file path.
-The contents of each file end with "--END-FILE--".{% endif %}
-
-Your instructions are: {{prompt}}
+The contents of each file end with "--END-FILE--".
+{% endif %}
+{{prompt}}
 {% if context.files.size > 0 %}The file contents are below:{% endif %}
 {% for item in context.files %}
 --BEGIN-FILE: {{ item.filename }}
