@@ -24,6 +24,11 @@ describe('TemplateLoader', () => {
 
       loadTemplateFromPathStub.restore();
     });
+
+    it('should expand liduidjs templating tags in the prompt', async () => {
+      const result = await TemplateLoader.loadTemplate('prompt: {{context.test}}', { test: 42 }, 'empty')
+      assert.strictEqual(result.trim(), 'prompt: 42')
+    })
   });
 
   describe('loadTemplateFromUrl', () => {
