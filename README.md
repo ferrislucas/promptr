@@ -33,7 +33,7 @@ __Alphabetize the methods in all of the javascript files__
 <br />
 This example uses `git-tree`, `grep`, and `tr` to pass a list of javascript file paths to promptr:
 ```bash
-$ promptr -m gpt4 -p "Alphabetize the method names in all of these files" $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ')
+$ promptr -p "Alphabetize the method names in all of these files" $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ')
 ```
 <br />
 
@@ -41,7 +41,7 @@ __Given some tests, ask the model for an implementation that makes the tests pas
 <br />
 The following example asks GPT4 to modify app/models/model.rb so that the tests in spec/models/model_spec.rb will pass:
 ```bash
-$ promptr -m gpt4 -t test-first spec/models/model_spec.rb app/models/model.rb -o app/models/model.rb
+$ promptr -t test-first spec/models/model_spec.rb app/models/model.rb -o app/models/model.rb
 ```
 <br /><br />
 
@@ -53,7 +53,7 @@ $ promptr -m gpt4 -t test-first spec/models/model_spec.rb app/models/model.rb -o
 <br />
 
 ## Options
-- `-m, --model <model>`: Optional flag to set the model, defaults to `gpt-4-0613`. Using the value "gpt3" will use the `gpt-3.5-turbo-0613` model.
+- `-m, --model <model>`: Optional flag to set the model, defaults to `gpt-4`. Using the value "gpt3" will use the `gpt-3.5-turbo` model.
 - `-d, --dry-run`: Optional boolean flag that can be used to run the tool in dry-run mode where only the prompt that will be sent to the model is displayed. No changes are made to your filesystem when this option is used.
 - `-i, --interactive`: Optional boolean flag that enables interactive mode where the user can provide input interactively. If this flag is not set, the tool runs in non-interactive mode.
 - `-p, --prompt <prompt>`: Optional string flag that specifies the prompt to use in non-interactive mode. If this flag is not set then a blank prompt is used. A path or a url can also be specified - in this case the content at the specified path or url is used as the prompt. The prompt is combined with the tempate to form the payload sent to the model.
