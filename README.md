@@ -1,20 +1,43 @@
 # Promptr
 
-Promptr is a CLI tool that lets you use plain English to instruct GPT3 or GPT4 to make changes to your codebase. This is most effective with GPT4 because of its larger context window, but GPT3 is still useful for smaller scopes. 
+Promptr is a CLI tool that lets you use plain English to instruct OpenAI LLM models to make changes to your codebase. <br /><br />
+## Usage
+
+`promptr [options] -p "your instructions" <file1> <file2> <file3> ...`
+
+<br />
+<br />
+
+## Examples
+__Cleanup the code in a file__
+```bash
+$ promptr -p "Cleanup the code in src/index.js"
+```
+Promptr recognizes that the file `src/index.js` is referenced in the prompt, so the content of `src/index.js` is sent to the model along with the user's prompt. 
+<br />The model's response is automatically applied to the relevant files.
+<br />
+
+__Alphabetize the methods in all of the javascript files__ 
+```bash
+$ promptr -p "Alphabetize the method names in all of these files" $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ')
+```
+The command above uses `git-tree`, `grep`, and `tr` to pass a list of javascript file paths to promptr.
+
 <br /><br />
+
 The PR's below are good examples of what can be accomplished using Promptr. You can find links to the individual commits and the prompts that created them in the PR descriptions.
 - https://github.com/ferrislucas/promptr/pull/38
 - https://github.com/ferrislucas/promptr/pull/41
 <br /><br />
+
 I've found this to be a good workflow:
 - Commit any changes, so you have a clean working area.
-- Author your prompt in a text file. The prompt should be specific clear instructions. 
+- Author your prompt in a file. The prompt should be specific clear instructions. 
 - Make sure your prompt contains the relative paths of any files that are relevant to your instructions. 
 - Use Promptr to execute your prompt. Provide the path to your prompt file using the `-p` option: 
 `promptr -p my_prompt.txt` 
-*If you have access to GPT4 then use the `-m gpt4` option to get the best results.*
 
-Complex requests can take a while. If a task is too complex then the request will timeout - try breaking the task down into smaller units of work when this happens. When the response is ready, promptr applies the changes to your filesystem. Use your favorite git UI to inspect the results. 
+Promptr applies the model's response to your files. Use your favorite git UI to inspect the results. 
 
 <br /><br />
 ## Templating 
@@ -55,33 +78,6 @@ This approach allows for the development of reusable include files that can be s
 By leveraging the templating feature, prompt engineers can significantly reduce redundancy and ensure consistency in prompt creation, leading to more efficient and standardized modifications to the codebase.
 
 <br /><br />
-## Examples
-__Cleanup the code in a file__
-Promptr recognizes that the file `src/index.js` is referenced in the prompt, so the contents of `src/index.js` is automatically sent to the model along with the prompt.
-```bash
-$ promptr -p "Cleanup the code in src/index.js"
-```
-<br />
-__Alphabetize the methods in all of the javascript files__ 
-<br />
-This example uses `git-tree`, `grep`, and `tr` to pass a list of javascript file paths to promptr:
-```bash
-$ promptr -p "Alphabetize the method names in all of these files" $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ')
-```
-<br />
-__Given some tests, ask the model for an implementation that makes the tests pass__ 
-<br />
-The following example asks GPT4 to modify app/models/model.rb so that the tests in spec/models/model_spec.rb will pass:
-```bash
-$ promptr -t test-first spec/models/model_spec.rb app/models/model.rb -o app/models/model.rb
-```
-<br /><br />
-## Usage
-
-`promptr [options] -p "your instructions" <file1> <file2> <file3> ...`
-
-<br />
-<br />
 
 ## Options
 
