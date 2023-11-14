@@ -7,8 +7,8 @@ import SystemMessage from "./SystemMessage.js";
 export default class OpenAiGptService {
 
   static async call(prompt, model, requestJsonOutput = true) {
-    if (model == "gpt3") model = "gpt-3.5-turbo-0613";
-    if (model == "gpt4") model = "gpt-4-0613";
+    if (model == "gpt3") model = "gpt-3.5-turbo";
+    if (model == "gpt4") model = "gpt-4-1106-preview";
 
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY

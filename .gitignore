@@ -20,3 +20,4 @@ dist/
 .DS_Store
 Thumbs.db
 tmp
+prompts
