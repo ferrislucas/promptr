@@ -16,6 +16,7 @@ $ promptr -p "Cleanup the code in src/index.js"
 Promptr recognizes that the file `src/index.js` is referenced in the prompt, so the content of `src/index.js` is sent to the model along with the user's prompt. 
 <br />The model's response is automatically applied to the relevant files.
 <br /><br />
+<br />
 
 __Alphabetize the methods in all of the javascript files__ 
 ```bash
