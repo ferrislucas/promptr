@@ -104,7 +104,7 @@ describe('OpenAiGptService', () => {
     const prompt = 'What is the capital of France?';
     const expectedResult = 'The capital of France is Paris.';
     const models = ['gpt3', 'gpt4'];
-    const expectedModels = ['gpt-3.5-turbo', 'gpt-4-1106-preview'];
+    const expectedModels = ['gpt-3.5-turbo', 'gpt-4-turbo-preview'];
 
     const openaiStub = sinon.stub(OpenAIApi.prototype, 'createChatCompletion').resolves({
       data: {
