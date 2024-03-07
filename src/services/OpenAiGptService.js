@@ -11,7 +11,8 @@ export default class OpenAiGptService {
     if (model == "gpt4") model = "gpt-4o";
 
     const configuration = new Configuration({
-      apiKey: process.env.OPENAI_API_KEY
+      apiKey: process.env.OPENAI_API_KEY,
+      basePath: process.env.OPENAI_API_BASE || "https://api.openai.com/v1"
     })
     const verbose = CliState.verbose()
     const openai = new OpenAIApi(configuration)
