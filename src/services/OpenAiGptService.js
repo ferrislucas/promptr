@@ -8,7 +8,7 @@ export default class OpenAiGptService {
 
   static async call(prompt, model, requestJsonOutput = true) {
     if (model == "gpt3") model = "gpt-3.5-turbo";
-    if (model == "gpt4") model = "gpt-4-turbo-preview";
+    if (model == "gpt4") model = "gpt-4o";
 
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY
