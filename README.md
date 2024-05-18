@@ -72,7 +72,7 @@ By leveraging the templating feature, prompt engineers can significantly reduce 
 | Option | Description |
 | ------ | ----------- |
 | `-p, --prompt <prompt>` | Specifies the prompt to use in non-interactive mode. A path or a url can also be specified - in this case the content at the specified path or url is used as the prompt. The prompt can leverage the liquidjs templating system. |
-| `-m, --model <model>` | Optional flag to set the model, defaults to `gpt-4-turbo-preview`. Using the value "gpt3" will use the `gpt-3.5-turbo` model. |
+| `-m, --model <model>` | Optional flag to set the model, defaults to `gpt-4o`. Using the value "gpt3" will use the `gpt-3.5-turbo` model. |
 | `-d, --dry-run` | Optional boolean flag that can be used to run the tool in dry-run mode where only the prompt that will be sent to the model is displayed. No changes are made to your filesystem when this option is used. |
 | `-i, --interactive` | Optional boolean flag that enables interactive mode where the user can provide input interactively. If this flag is not set, the tool runs in non-interactive mode. |
 | `-t, --template <templateName | templatePath | templateUrl>` | Optional string flag that specifies a built in template name, the absolute path to a template file, or a url for a template file that will be used to generate the output. The default is the  built in `refactor` template. The available built in templates are: `empty`, `refactor`, `swe`, and `test-first`. The prompt is interpolated with the template to form the payload sent to the model. |
