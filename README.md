@@ -1,35 +1,10 @@
 # Promptr
 
-Promptr is a CLI tool that lets you use plain English to instruct OpenAI LLM models to make changes to your codebase. <br /><br />
+Promptr is a CLI tool that lets you use plain English to instruct OpenAI LLM models to make changes to your codebase. Changes are applied directly to the files that you reference from your prompt.<br /><br />
 ## Usage
 
 `promptr [options] -p "your instructions" <file1> <file2> <file3> ...`
-
 <br />
-<br />
-
-## Examples
-__Cleanup the code in a file__
-```bash
-$ promptr -p "Cleanup the code in src/index.js"
-```
-Promptr recognizes that the file `src/index.js` is referenced in the prompt, so the content of `src/index.js` is sent to the model along with the user's prompt. 
-<br />The model's response is automatically applied to the relevant files.
-<br /><br />
-<br />
-
-__Alphabetize the methods in all of the javascript files__ 
-```bash
-$ promptr -p "Alphabetize the method names in all of these files" $(git ls-tree -r --name-only HEAD | grep ".js" | tr '\n' ' ')
-```
-The command above uses `git-tree`, `grep`, and `tr` to pass a list of javascript file paths to promptr.
-
-<br /><br />
-
-The PR's below are good examples of what can be accomplished using Promptr. You can find links to the individual commits and the prompts that created them in the PR descriptions.
-- https://github.com/ferrislucas/promptr/pull/38
-- https://github.com/ferrislucas/promptr/pull/41
-<br /><br />
 
 I've found this to be a good workflow:
 - Commit any changes, so you have a clean working area.
@@ -38,9 +13,21 @@ I've found this to be a good workflow:
 - Use Promptr to execute your prompt. Provide the path to your prompt file using the `-p` option: 
 `promptr -p my_prompt.txt` 
 
-Promptr applies the model's response to your files. Use your favorite git UI to inspect the results. 
+Promptr will apply the model's code directly to your files. Use your favorite git UI to inspect the results. 
 
 <br /><br />
+
+<br />
+<br />
+
+## Examples
+
+The PR's below are good examples of what can be accomplished using Promptr. You can find links to the individual commits and the prompts that created them in the PR descriptions.
+- https://github.com/ferrislucas/promptr/pull/38
+- https://github.com/ferrislucas/promptr/pull/41
+<br /><br />
+
+
 ## Templating 
 
 Promptr supports templating using [liquidjs](https://liquidjs.com/), which allows users to incorporate templating commands within their prompt files. This feature enhances the flexibility and reusability of prompts, especially when working on larger projects with repetitive patterns or standards.
