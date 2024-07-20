@@ -6,6 +6,7 @@ export default class CliState {
 
   static init(_args, version) {
     this.program = new Command();
+    this.program.option('-plan, --plan <planPath>', 'Path to a plan file')
     this.program.option('-d, --dry-run', 'Dry run only: just display the prompt')
     this.program.option('-i, --interactive', 'Interactive mode')
     this.program.option('-x, --execute', 'Apply changes suggested by GPT to the local filesystem. The "refactor" template auotmatically applies the changes. You would only use this option if you create your own templates.')
@@ -57,6 +58,10 @@ Example call:
 
   static getPrompt() {
     return this.program.opts().prompt
+  }
+
+  static planPath() {
+    return this.program.opts().plan
   }
 
   static isDryRun() {
