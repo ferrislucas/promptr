@@ -21,7 +21,7 @@ class TemplateLoader {
     return content
   }
 
-  static async parseTemplate(text, context) {
+  static async parseTemplate(text, context = {}) {
     const engine = new Liquid()
     engine.registerFilter("jsonToObject", (json) => JSON.parse(json))
     const tpl = engine.parse(text)    
