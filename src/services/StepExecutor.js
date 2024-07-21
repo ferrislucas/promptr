@@ -6,9 +6,10 @@ import child_process from 'child_process'
 
 export default class StepExecutor {
   constructor(plan, step) {    
-    this.messages = [StepExecutor.systemMessage()]
+    this.messages = [StepExecutor.actionRetrievalSystemMessage()]
     this.plan = plan
     this.step = step
+    this.stepPlan = null
   }
 
   async call() {
@@ -29,23 +30,28 @@ Verification: ${this.step.verification}`
       output: process.stdout
     })
 
+    let stepPlan = await this.buildStepPlan(prompt)
+    this.messages.push({ role: "assistant", content: `My thoughts for moving forward on this step: ${stepPlan}` })
+
     // loop until the model calls the step_verified function
     do {
       console.log(this.messages)
-      let result = await this.callModel()
-      console.log(`model response:`)
-      console.log(result)
+      let result = await this.retrieveActionFromModel()
       let functionArgs = JSON.parse(result.arguments)
       if (result.name == "step_verified") {
         console.log(`Step ${functionArgs.step_name} verified as complete. \n\nReasoining: ${functionArgs.reasoning}`)
         break
       }
-      this.messages.push({ role: "system", content: `Is it ok to run the following command: \`${functionArgs.command}\`? Reasoning: ${functionArgs.reasoning}` })
-      console.log(`Ok to run \`${functionArgs.command}\`? \n\nReasoning: ${functionArgs.reasoning}`)
+      if (result.name == "take_note_of_something_important") {
+        this.messages.push({ role: "system", content: `I will remember the following information: ${functionArgs.informationToRemember} \n\nReasoning: ${functionArgs.reasoning}` })
+        continue
+      }
+      //this.messages.push({ role: "system", content: `Is it ok to run the following command: \`${functionArgs.command}\`? Reasoning: ${functionArgs.reasoning}` })
+      console.log(`Is it Ok to run \`${functionArgs.command}\`? \n\nReasoning: ${functionArgs.reasoning}`)
       let userInput = await this.getUserInput(rl)
       if (userInput == 'n' || userInput == "N") break
       if (userInput) {
-        this.messages.push({ role: "system", content: "The command was not run because the user interupted with a message." })
+        this.messages.push({ role: "system", content: `You requested the following command, but the user interupted before the command you requested could be run: ${functionArgs.command}` })
         this.messages.push({ role: "user", content: userInput })
         continue
       } 
@@ -56,18 +62,74 @@ Verification: ${this.step.verification}`
       let error = false
       // use child_process to execute the command and capture the output
       try {
+        console.log(`Executing command: ${functionArgs.command}`)
         commandOutput = child_process.execSync(functionArgs.command).toString()
       } catch (error) {
         error = true
         commandOutput = error.message
       }
 
-      this.messages.push({ role: "system", content: `${error ? "The command did not run successfully": "The command executed succesfully."} Command output: ${commandOutput}` })
+      this.messages.push({ role: "assistant", content: `${error ? "The command did not run successfully": "The command executed succesfully."} Command output: \n${commandOutput}` })
+
+      let comment = await this.commentOnStep()
+      this.messages.push({ role: "assistant", content: `My thoughts are now: ${comment}` })
     } while (true)
     rl.close()
   }
 
-  async callModel() {
+  async commentOnStep() {
+    const configuration = new Configuration({
+      apiKey: process.env.OPENAI_API_KEY,
+      basePath: process.env.OPENAI_API_BASE || "https://api.openai.com/v1"
+    })
+    const openai = new OpenAIApi(configuration)
+    let payload  = [...this.messages, { role: "user", content: "What are your thoughts on how to move forward?" }]
+    console.log(`comment step:`)
+    console.log(payload)
+    const response = await openai.createChatCompletion({
+      model: "gpt-4o",
+      temperature: 0.7,
+      messages: payload
+    })
+    // get the plan from the response
+    if (!response?.data?.choices) return null
+    const responseBody = response.data.choices[0].message['content']
+    if (CliState.verbose()) console.log(responseBody)
+    return responseBody
+  }
+
+  async buildStepPlan(prompt) {
+    // call the model to get the plan
+    const configuration = new Configuration({
+      apiKey: process.env.OPENAI_API_KEY,
+      basePath: process.env.OPENAI_API_BASE || "https://api.openai.com/v1"
+    })
+    const openai = new OpenAIApi(configuration)
+    let messages = [{ role: "system", content: `You are a helpful assistant. You will perform any action for the user in order to help them achieve their goal. 
+You will be given a goal and the summary of a plan to achieve that goal. 
+
+You have two capabilities that you can use to complete the step:
+- executing shell commands
+- creating, modifying, and configuring source code and systems using the promptr CLI tool.
+
+Every command you run and its output will be logged and available to you for reference.
+Your response should be your thoughts on how to move forward with the current step.` }]
+    messages.push({ role: "user", content: `${prompt} \n\nCreate a plan to move forward on the step. Talk through the plan step by step without leaving out any details. Be extremely through and verbose when describing the plan.` })
+    console.log(`plan step:`)
+    console.log(messages)
+    const response = await openai.createChatCompletion({
+      model: "gpt-4o",
+      temperature: 0.7,
+      messages: messages,
+    })
+    // get the plan from the response
+    if (!response?.data?.choices) return null
+    const responseBody = response.data.choices[0].message['content']
+    if (CliState.verbose()) console.log(responseBody)
+    return responseBody
+  }
+
+  async retrieveActionFromModel() {
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY,
       basePath: process.env.OPENAI_API_BASE || "https://api.openai.com/v1"
@@ -79,6 +141,22 @@ Verification: ${this.step.verification}`
       response_format: { "type": "json_object" },
       messages: this.messages,
       functions: [
+        {
+          name: "take_note_of_something_important",
+          description: "Commit some information to memory for later use.",
+          parameters: {
+            'type': 'object',
+            'properties': {
+              'informationToRemember': {
+                'type': 'string',
+                'description': 'The information to commit to memory.'
+              }, 'reasoning': {
+                'type': 'string',
+                'description': 'Your reasoning for remembering this information.'
+              }
+            }
+          }
+        },
         {
           name: "execute_shell_command",
           description: "Execute a shell command on the user's system. The output of the command will be made available to you.",
@@ -118,7 +196,7 @@ Verification: ${this.step.verification}`
     return responseBody
   }
 
-  static systemMessage() {
+  static actionRetrievalSystemMessage() {
     let currentShell = process.env.SHELL
     let currentDirectory = process.cwd()
 
@@ -127,7 +205,7 @@ Verification: ${this.step.verification}`
       content: `You are a helpful assistant. You will perform any action for the user in order to help them achieve their goal. 
 You will be given a goal and the summary of a plan to achieve that goal. 
 Your job is to complete a step in the plan in order to achieve the goal. 
-The step will have a verification that you must complete in order to confirm that the step is complete.
+If the step has a verification then you must verify that the step is complete.
 
 You have two capabilities that you can use to complete the step:
 - executing shell commands
@@ -151,8 +229,11 @@ Instructions for using promptr in to create, modify, and configure source code:
 The current shell is ${currentShell}
 The current directory is ${currentDirectory}
 
-Always respond with json. 
-Call the execute_shell_command function to execute command, or call the step_verified function when the step is complete.
+Always respond with json.
+You should execute one of these functions as your response:
+- The execute_shell_command function executes a command on the user's system
+- The take_note_of_something_important function stores information in your membory. Any information you store will always be available to you.
+- The step_verified function is used when the step is complete. Call this function when you've verified that the step is complete.
 Never omit your reasoning when calling the functions.
 Every command you run and its output will be logged and available to you for reference.`
     }
