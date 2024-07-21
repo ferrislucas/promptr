@@ -25,14 +25,16 @@ export default class OpenAiExtractPlanService {
     if (!response?.data?.choices) return null
     const responseBody = response.data.choices[0].message['content']
     if (verbose) console.log(responseBody)
-    return responseBody
+    return JSON.parse(responseBody)
   }
 
   static systemMessage() {
     return {
       role: "system",
-      content: `You will be presented with a set of steps. Each step should have a description and a verification. Steps may have names or ID's to identify them. Your response should be a json object that represents the steps. The object should look like this: 
+      content: `You will be presented with a set of steps. Each step should have a description and a verification. Steps may have names or ID's to identify them. Your response should be a json object that represents the steps and goal. Don't omit any details when specifying the goal. It's extremely important to capture everything the user said when specifying the goal. The object should look like this: 
       {
+        "goal": "Goal description",
+        "summary": "Summary of the plan steps. List the steps by name and briefly summarize each step.",
         "steps": [
           {
             "name": "Step 1",

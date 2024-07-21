@@ -6,18 +6,28 @@ import os from 'os'
 import path from 'path'
 import TemplateLoader from './services/TemplateLoader.js'
 import OpenAiExtractPlanService from './services/OpenAiExtractPlanService.js'
+import StepExecutor from './services/StepExecutor.js'
 
 export default class Main {
   
   static async call(argv) {
     CliState.init(argv, await this.getVersion())
 
-    const plan = await this.plan()
-    if (plan) {
-      const expandedPlan = await TemplateLoader.parseTemplate(plan)
-      let output = await OpenAiExtractPlanService.call(expandedPlan)
-      const o = JSON.parse(output)
-      console.log(o)
+    const userPlan = await this.plan()
+    if (userPlan) {
+      const expandedPlan = await TemplateLoader.parseTemplate(userPlan)
+      let plan = await OpenAiExtractPlanService.call(expandedPlan)
+      const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+      })
+      console.log(plan)
+      console.log("Enter 'exit' to quit or 'q' to quit")
+      let userInput = await this.getUserInput(rl)
+      rl.close()
+      if (userInput == 'exit' || userInput == "\q") return 
+      let executor = new StepExecutor(plan, plan.steps[0])
+      await executor.call()
       return
     }
 
