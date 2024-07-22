@@ -36,10 +36,9 @@ Verification: ${this.step.verification}`
     // loop until the model calls the step_verified function
     do {
       console.log(this.messages)
-      let result = await this.retrieveActionFromModel()      
-      console.log(`result:`)
-      console.log(result)
+      let result = await this.retrieveActionFromModel()
       let functionArgs = JSON.parse(result.arguments)
+      console.log(`Function: ${result.name}`)
       console.log(functionArgs)
       if (result.name == "step_verified") {
         console.log(`Step ${functionArgs.step_name} verified as complete. \n\nReasoning: ${functionArgs.reasoning}`)
@@ -79,20 +78,22 @@ Verification: ${this.step.verification}`
 
       // execute the command on the user's system
       let commandOutput = ""
-      let error = false
+      let isError = false
       // use child_process to execute the command and capture the output
       try {
         console.log(`Executing command: ${functionArgs.command}`)
         commandOutput = child_process.execSync(functionArgs.command).toString()
+        console.log(`Command output: ${commandOutput}`)
       } catch (error) {
-        error = true
+        isError = true
         commandOutput = error.message
       }
 
       this.messages.push({ role: "assistant", content: `I ran the following command: \`${functionArgs.command}\`
 Reasoning: ${functionArgs.reasoning} 
-${error ? "The command did not run successfully": "The command executed succesfully."} 
-Command output: \n${commandOutput}` })
+${(isError ? "The command did not run successfully": "The command executed succesfully.")} 
+Command output:
+${commandOutput}` })
 
       let comment = await this.commentOnStep()
       this.messages.push({ role: "assistant", content: comment })
@@ -159,68 +160,89 @@ You have two capabilities that you can use to complete the tasks necessary to co
       model: "gpt-4o",
       temperature: 0.7,
       response_format: { "type": "json_object" },
+      tool_choice: "required",
       messages: this.messages,
-      functions: [
+      parallel_tool_calls: false,
+      tools: [
         {
-          name: "respond_to_user",
-          description: "Respond to a user question",
-          parameters: {
-            'type': 'object',
-            'properties': {
-              'response': {
-                'type': 'string',
-                'description': 'The response to the user.'
+          type: "function",
+          function: {
+            name: "respond_to_user",
+            description: "Respond to a user question",
+            parameters: {
+              'type': 'object',
+              'properties': {
+                'response': {
+                  'type': 'string',
+                  'description': 'The response to the user.'
+                }
               }
             }
           }
         },
         {
-          name: "take_note_of_something_important",
-          description: "Commit some information to memory for later use.",
-          parameters: {
-            'type': 'object',
-            'properties': {
-              'informationToRemember': {
-                'type': 'string',
-                'description': 'The information to commit to memory.'
-              }, 'reasoning': {
-                'type': 'string',
-                'description': 'Your reasoning for remembering this information.'
+          type: "function",
+          function: {
+            name: "take_note_of_something_important",
+            description: "Commit some information to memory for later use.",
+            parameters: {
+              'type': 'object',
+              'properties': {
+                'informationToRemember': {
+                  'type': 'string',
+                  'description': 'The information to commit to memory.'
+                }, 'reasoning': {
+                  'type': 'string',
+                  'description': 'Your reasoning for remembering this information.'
+                }
               }
             }
           }
         },
         {
-          name: "execute_shell_command",
-          description: "Execute a shell command on the user's system. The output of the command will be made available to you.",
-          parameters: {
-            'type': 'object',
-            'properties': {
-              'command': {
-                'type': 'string',
-                'description': 'The shell command to execute.'
-              }, 'reasoning': {
-                'type': 'string',
-                'description': 'Your reasoning for executing this command in the context of the current step. Describe why the command is necessary and what you expect to achieve by running it.'
+          type: "function",
+          function: {
+            name: "step_verified",
+            description: "Declare that the current step is complete",
+            parameters: {
+              'type': 'object',
+              'properties': {
+                'step_name': {
+                  'type': 'string',
+                  'description': 'The name of the step that has been verified as complete.'
+                },
               }
             }
           }
         },
         {
-          name: "step_verified",
-          description: "Declare that the current step is complete",
-          parameters: {
-            'type': 'object',
-            'properties': {
-              'step_name': {
-                'type': 'string',
-                'description': 'The name of the step that has been verified as complete.'
-              },
+          type: "function",
+          function: {
+            name: "execute_shell_command",
+            description: "Execute a shell command on the user's system. The output of the command will be made available to you.",
+            parameters: {
+              'type': 'object',
+              'properties': {
+                'command': {
+                  'type': 'string',
+                  'description': 'The shell command to execute.'
+                }, 'reasoning': {
+                  'type': 'string',
+                  'description': 'Your reasoning for executing this command in the context of the current step. Describe why the command is necessary and what you expect to achieve by running it.'
+                }
+              }
             }
-          },
-        }
+          }
+        },
       ],
     })
+    console.log(`action response:`)
+    console.log(response.data)
+    console.log(response.data?.choices)
+    console.log(response.data?.choices[0]?.message)
+    console.log(response.data?.choices[0]?.message?.tool_calls)
+
+    return response.data?.choices[0]?.message?.tool_calls[0].function
 
     if (!response?.data?.choices) return null
     const responseBody = response.data.choices[0].message.function_call

@@ -23,11 +23,14 @@ export default class Main {
       })
       console.log(plan)
       console.log("Enter 'exit' to quit or 'q' to quit")
-      let userInput = await this.getUserInput(rl)
+      let userInput = "" //await this.getUserInput(rl)
       rl.close()
       if (userInput == 'exit' || userInput == "\q") return 
-      let executor = new StepExecutor(plan, plan.steps[0])
-      await executor.call()
+      for (let i = 0; i < plan.steps.length; i++) {
+        console.log(`Executing step ${i + 1} of ${plan.steps.length}. Step name: ${plan.steps[i].name}\n=================`)
+        let executor = new StepExecutor(plan, plan.steps[i])
+        await executor.call()
+      }
       return
     }
 
