@@ -31,31 +31,51 @@ Verification: ${this.step.verification}`
     })
 
     let stepPlan = await this.buildStepPlan(prompt)
-    this.messages.push({ role: "assistant", content: `My thoughts for moving forward on this step: ${stepPlan}` })
+    this.messages.push({ role: "assistant", content: `${stepPlan}` })
 
     // loop until the model calls the step_verified function
     do {
       console.log(this.messages)
-      let result = await this.retrieveActionFromModel()
+      let result = await this.retrieveActionFromModel()      
+      console.log(`result:`)
+      console.log(result)
       let functionArgs = JSON.parse(result.arguments)
+      console.log(functionArgs)
       if (result.name == "step_verified") {
-        console.log(`Step ${functionArgs.step_name} verified as complete. \n\nReasoining: ${functionArgs.reasoning}`)
+        console.log(`Step ${functionArgs.step_name} verified as complete. \n\nReasoning: ${functionArgs.reasoning}`)
         break
       }
       if (result.name == "take_note_of_something_important") {
-        this.messages.push({ role: "system", content: `I will remember the following information: ${functionArgs.informationToRemember} \n\nReasoning: ${functionArgs.reasoning}` })
+        this.messages.push({ role: "system", content: `The following information has been committed to memory: ${functionArgs.informationToRemember} \n\nReasoning: ${functionArgs.reasoning}` })
+        // comment on step in order to suggest a next action
+        let comment = await this.commentOnStep()
+        this.messages.push({ role: "assistant", content: comment })
         continue
       }
-      //this.messages.push({ role: "system", content: `Is it ok to run the following command: \`${functionArgs.command}\`? Reasoning: ${functionArgs.reasoning}` })
+      if (result.name == "respond_to_user") {
+        this.messages.push({ role: "assistant", content: functionArgs.response })
+        continue
+      }
+      
+      if (
+        result.name == "functions:execute_shell_command"
+        || result.name == "functions"
+      ) result.name = "execute_shell_command"
+
+      if (result.name != "execute_shell_command") {
+        console.log(`Unknown function: ${result.name}`)
+        break
+      }
+      
       console.log(`Is it Ok to run \`${functionArgs.command}\`? \n\nReasoning: ${functionArgs.reasoning}`)
       let userInput = await this.getUserInput(rl)
       if (userInput == 'n' || userInput == "N") break
       if (userInput) {
-        this.messages.push({ role: "system", content: `You requested the following command, but the user interupted before the command you requested could be run: ${functionArgs.command}` })
+        this.messages.push({ role: "system", content: `You requested the following command, but the user interupted before the command you requested could be run: ${functionArgs.command}\n\nRespond to the user, or follow the user's instructions. The user's instructions take precedence over the plan.` })
         this.messages.push({ role: "user", content: userInput })
         continue
       } 
-      this.messages.push({ role: "assistant", content: `Run the following command: \`${functionArgs.command}\`\nReasoning: ${functionArgs.reasoning}` })
+      //this.messages.push({ role: "assistant", content: `Run the following command: \`${functionArgs.command}\`\nReasoning: ${functionArgs.reasoning}` })
 
       // execute the command on the user's system
       let commandOutput = ""
@@ -69,10 +89,13 @@ Verification: ${this.step.verification}`
         commandOutput = error.message
       }
 
-      this.messages.push({ role: "assistant", content: `${error ? "The command did not run successfully": "The command executed succesfully."} Command output: \n${commandOutput}` })
+      this.messages.push({ role: "assistant", content: `I ran the following command: \`${functionArgs.command}\`
+Reasoning: ${functionArgs.reasoning} 
+${error ? "The command did not run successfully": "The command executed succesfully."} 
+Command output: \n${commandOutput}` })
 
       let comment = await this.commentOnStep()
-      this.messages.push({ role: "assistant", content: `My thoughts are now: ${comment}` })
+      this.messages.push({ role: "assistant", content: comment })
     } while (true)
     rl.close()
   }
@@ -83,9 +106,7 @@ Verification: ${this.step.verification}`
       basePath: process.env.OPENAI_API_BASE || "https://api.openai.com/v1"
     })
     const openai = new OpenAIApi(configuration)
-    let payload  = [...this.messages, { role: "user", content: "What are your thoughts on how to move forward?" }]
-    console.log(`comment step:`)
-    console.log(payload)
+    let payload  = [...this.messages, { role: "user", content: "Summarize the result of the last action taken. If the tasks for the current step need to change then list the new tasks. Then describe the next action that will help us move forward on the current step of the plan. " }]
     const response = await openai.createChatCompletion({
       model: "gpt-4o",
       temperature: 0.7,
@@ -105,16 +126,15 @@ Verification: ${this.step.verification}`
       basePath: process.env.OPENAI_API_BASE || "https://api.openai.com/v1"
     })
     const openai = new OpenAIApi(configuration)
-    let messages = [{ role: "system", content: `You are a helpful assistant. You will perform any action for the user in order to help them achieve their goal. 
+    let messages = [{ role: "system", content: `You are a helpful assistant. 
+Your job is to help the user achieve a goal by completing the current step in the user's plan to achieve the goal.
 You will be given a goal and the summary of a plan to achieve that goal. 
 
-You have two capabilities that you can use to complete the step:
+You have two capabilities that you can use to complete the tasks necessary to complete the current step:
 - executing shell commands
-- creating, modifying, and configuring source code and systems using the promptr CLI tool.
-
-Every command you run and its output will be logged and available to you for reference.
-Your response should be your thoughts on how to move forward with the current step.` }]
-    messages.push({ role: "user", content: `${prompt} \n\nCreate a plan to move forward on the step. Talk through the plan step by step without leaving out any details. Be extremely through and verbose when describing the plan.` })
+- creating, modifying, and configuring source code and systems
+` }]
+    messages.push({ role: "user", content: `${prompt} \n\nCreate a list of tasks that will help us move forward on the current step of the plan. Talk through the tasks. Be extremely through and verbose when describing the tasks and how they relate to the current step and the larger plan to reach the user's goal.` })
     console.log(`plan step:`)
     console.log(messages)
     const response = await openai.createChatCompletion({
@@ -141,6 +161,19 @@ Your response should be your thoughts on how to move forward with the current st
       response_format: { "type": "json_object" },
       messages: this.messages,
       functions: [
+        {
+          name: "respond_to_user",
+          description: "Respond to a user question",
+          parameters: {
+            'type': 'object',
+            'properties': {
+              'response': {
+                'type': 'string',
+                'description': 'The response to the user.'
+              }
+            }
+          }
+        },
         {
           name: "take_note_of_something_important",
           description: "Commit some information to memory for later use.",
@@ -175,7 +208,7 @@ Your response should be your thoughts on how to move forward with the current st
         },
         {
           name: "step_verified",
-          description: "Call this method when the step is verified complete",
+          description: "Declare that the current step is complete",
           parameters: {
             'type': 'object',
             'properties': {
@@ -184,10 +217,9 @@ Your response should be your thoughts on how to move forward with the current st
                 'description': 'The name of the step that has been verified as complete.'
               },
             }
-          }
+          },
         }
       ],
-      function_call: { "name": "execute_shell_command" }
     })
 
     if (!response?.data?.choices) return null
@@ -202,17 +234,17 @@ Your response should be your thoughts on how to move forward with the current st
 
     return {
       role: "system",
-      content: `You are a helpful assistant. You will perform any action for the user in order to help them achieve their goal. 
-You will be given a goal and the summary of a plan to achieve that goal. 
-Your job is to complete a step in the plan in order to achieve the goal. 
+      content: `You are a helpful assistant. 
+Your job is to help the user achieve a goal by completing a step in the user's plan to achieve the goal. 
+You will be given the user's goal and a summary of the user's plan to achieve the goal. 
+Your job is to complete the current step of the plan. 
 If the step has a verification then you must verify that the step is complete.
 
-You have two capabilities that you can use to complete the step:
+You have some special capabilities that you can use to complete the step:
 - executing shell commands
 - creating, modifying, and configuring source code and systems using the promptr CLI tool.
 
-Use shell for directory navigation.
-Use shell or promptr for all tasks - assume all calls to promptr are successful.
+Use shell for directory navigation, but only do so when necessary.
 The promptr CLI tool is extremely useful for modifying source code.
 You can instruct promptr with conceptual instructions in order to create and modify source code.
 It's important to use promptr when creating, modifying, or configuring source code.
@@ -234,8 +266,12 @@ You should execute one of these functions as your response:
 - The execute_shell_command function executes a command on the user's system
 - The take_note_of_something_important function stores information in your membory. Any information you store will always be available to you.
 - The step_verified function is used when the step is complete. Call this function when you've verified that the step is complete.
-Never omit your reasoning when calling the functions.
-Every command you run and its output will be logged and available to you for reference.`
+- The respond_to_user function is used to respond to a user's question.
+Only call one function at a time.
+Never omit your reasoning when calling the functions when the function has a reasoning parameter.
+Every command you run and its output will be logged and available to you for reference.
+Don't ask for the contents of a file if you already asked unless you think the contents have changed.
+Don't forget to call the step_verified function once you've verified that the current step is complete.`
     }
   }
 
