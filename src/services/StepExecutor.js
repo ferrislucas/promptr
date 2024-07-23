@@ -35,11 +35,11 @@ Verification: ${this.step.verification}`
 
     // loop until the model calls the step_verified function
     do {
-      console.log(this.messages)
+      if (CliState.verbose()) console.log(this.messages)
       let result = await this.retrieveActionFromModel()
       let functionArgs = JSON.parse(result.arguments)
-      console.log(`Function: ${result.name}`)
-      console.log(functionArgs)
+      if (CliState.verbose()) console.log(`Function: ${result.name}`)
+      if (CliState.verbose()) console.log(functionArgs)
       if (result.name == "step_verified") {
         console.log(`Step ${functionArgs.step_name} verified as complete. \n\nReasoning: ${functionArgs.reasoning}`)
         break
@@ -81,9 +81,9 @@ Verification: ${this.step.verification}`
       let isError = false
       // use child_process to execute the command and capture the output
       try {
-        console.log(`Executing command: ${functionArgs.command}`)
-        commandOutput = child_process.execSync(functionArgs.command).toString()
-        console.log(`Command output: ${commandOutput}`)
+        if (CliState.verbose()) console.log(`Executing command: ${functionArgs.command}`)
+        if (CliState.verbose()) commandOutput = child_process.execSync(functionArgs.command).toString()
+        if (CliState.verbose()) console.log(`Command output: ${commandOutput}`)
       } catch (error) {
         isError = true
         commandOutput = error.message
@@ -136,8 +136,8 @@ You have two capabilities that you can use to complete the tasks necessary to co
 - creating, modifying, and configuring source code and systems
 ` }]
     messages.push({ role: "user", content: `${prompt} \n\nCreate a list of tasks that will help us move forward on the current step of the plan. Talk through the tasks. Be extremely through and verbose when describing the tasks and how they relate to the current step and the larger plan to reach the user's goal.` })
-    console.log(`plan step:`)
-    console.log(messages)
+    if (CliState.verbose()) console.log(`plan step:`)
+    if (CliState.verbose()) console.log(messages)
     const response = await openai.createChatCompletion({
       model: "gpt-4o",
       temperature: 0.7,
@@ -236,12 +236,14 @@ You have two capabilities that you can use to complete the tasks necessary to co
         },
       ],
     })
-    console.log(`action response:`)
-    console.log(response.data)
-    console.log(response.data?.choices)
-    console.log(response.data?.choices[0]?.message)
-    console.log(response.data?.choices[0]?.message?.tool_calls)
-
+    if (CliState.verbose()) {
+      console.log(`action response:`)
+      console.log(response.data)
+      console.log(response.data?.choices)
+      console.log(response.data?.choices[0]?.message)
+      console.log(response.data?.choices[0]?.message?.tool_calls)
+    }
+    
     return response.data?.choices[0]?.message?.tool_calls[0].function
 
     if (!response?.data?.choices) return null
