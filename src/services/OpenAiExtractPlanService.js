@@ -14,7 +14,8 @@ export default class OpenAiExtractPlanService {
     const openai = new OpenAIApi(configuration)
     
     let messages = [this.systemMessage()]
-    messages.push({ role: "user", content: `Here are the steps: \n${stepDescription}` })
+    messages.push({ role: "user", content: `Here is the plan: \n${stepDescription}` })
+    if (verbose) console.log(messages)
     const response = await openai.createChatCompletion({
       model: model,
       temperature: 0.7,
@@ -31,10 +32,14 @@ export default class OpenAiExtractPlanService {
   static systemMessage() {
     return {
       role: "system",
-      content: `You will be presented with a set of steps. Each step should have a description and a verification. Steps may have names or ID's to identify them. Your response should be a json object that represents the steps and goal. Don't omit any details when specifying the goal. It's extremely important to capture everything the user said when specifying the goal. The object should look like this: 
+      content: `You will be presented with a plan. 
+Each step should have a description and a verification. Steps may have names or ID's to identify them. 
+Your response should be a json object that represents the steps and goal. Don't omit any details when specifying the goal. 
+It's extremely important to capture everything the user said when specifying the goal. 
+The object should look like this: 
       {
         "goal": "Goal description",
-        "summary": "Summary of the plan steps. List the steps by name and briefly summarize each step.",
+        "summary": "Summary of the plan. List the steps by name and briefly summarize each step.",
         "steps": [
           {
             "name": "Step 1",
@@ -49,7 +54,8 @@ export default class OpenAiExtractPlanService {
         ]
       }
 
-      If there's an ID or identifier of any kind for a step then the identifier should be used as the value of the "name" key. If there's no identifier then the value of the "name" key should be the step number.`
+If there's an ID or identifier of any kind for a step then the identifier should be used as the value of the "name" key. 
+If there's no identifier then the value of the "name" key should be the step number.`
     }
   }
 

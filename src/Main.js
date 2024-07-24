@@ -17,6 +17,7 @@ export default class Main {
     if (userPlan) {
       const expandedPlan = await TemplateLoader.parseTemplate(userPlan)
       let plan = await OpenAiExtractPlanService.call(expandedPlan)
+      /*
       const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
@@ -26,6 +27,7 @@ export default class Main {
       let userInput = "" //await this.getUserInput(rl)
       rl.close()
       if (userInput == 'exit' || userInput == "q" || userInput == "\\q") return 
+      */
       for (let i = 0; i < plan.steps.length; i++) {
         console.log(`Executing step ${i + 1} of ${plan.steps.length}. Step name: ${plan.steps[i].name}\n=================`)
         let executor = new StepExecutor(plan, plan.steps[i])
