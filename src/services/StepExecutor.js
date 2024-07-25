@@ -31,6 +31,12 @@ Verification: ${this.step.verification}`
     })
 
     let stepPlan = await this.buildStepPlan(prompt)
+    if (CliState.verbose()) {
+      console.log(`Step plan:`)
+      console.log(stepPlan)
+      console.log(`-- End step plan --`)
+    }
+
     this.messages.push({ role: "assistant", content: `${stepPlan}` })
 
     let loopCount = 0
@@ -39,17 +45,6 @@ Verification: ${this.step.verification}`
       loopCount++
       //if (CliState.verbose()) console.log(this.messages)
       
-      
-      if (loopCount > 1 && this.messages[this.messages.length - 1].role == "assistant") {
-        console.log(this.messages[this.messages.length - 1].content)
-        let userInput = await this.getUserInput(rl)
-        if (userInput == 'q' || userInput == "Q") break
-        if (userInput) {
-          this.messages.push({ role: "user", content: userInput })
-        }
-        continue
-      }
-
       let result = await this.retrieveActionFromModel()
       let functionArgs = JSON.parse(result.arguments)
       
@@ -69,10 +64,19 @@ Verification: ${this.step.verification}`
       }
       if (result.name == "interact_with_user") {
         this.messages.push({ role: "assistant", content: functionArgs.response })
+        console.log(this.messages[this.messages.length - 1].content)
+        let userInput = await this.getUserInput(rl)
+        if (userInput == 'q' || userInput == "Q") break
+        if (userInput) {
+          this.messages.push({ role: "user", content: userInput })
+        }  
         continue
       }
       
-      if (result.name == "functions:execute_shell_command") result.name = "execute_shell_command"
+      if (
+        (result.name == "functions:execute_shell_command") || 
+        (result.name == "functionsexecute_shell_command")
+      ) result.name = "execute_shell_command"
 
       if (result.name != "execute_shell_command") {
         console.log(`Unknown function: ${result.name}`)
@@ -293,7 +297,12 @@ The promptr CLI tool is extremely useful for modifying source code.
 You can instruct promptr with conceptual instructions in order to create and modify source code.
 It's important to use promptr when creating, modifying, or configuring source code.
 
-Instructions for using promptr: 
+Promptr usage: 
+promptr [options] -p "refactoring inctructions" <file1> <file2> <file3> ...
+
+You can include as many files as you want in the context sent to promptr. Always include relevant files in the context. 
+For exmaple, if the instructions mention a file, include any related code in other files by adding those files to the context as well.
+
 - Promptr can only create and modify source code files. 
 - provide a prompt with the -p argument, for example: \`promptr -p "write tests for the controller at path x/y/z and place tests at path a/b/c"\`
 - The promptr cli tool reports time elapsed on success. It does not display file contents.
@@ -302,6 +311,17 @@ Instructions for using promptr:
 - very often, you will need to provide promptr with multiple files - for example, when creating tests provide the test path as well as any relevant production code file paths
 - promptr can only operate on files in the current directory, so you will need to cd into the project's root folder before each command.
 - always give promptr conceptual instructions, not actual source code. For example, instead of "write a test for the controller", say "write tests for the controller at path x/y/z and place tests at path a/b/c".
+
+Promptr examples:
+# create a class named Cat in cat.js - the class shoudl have a method named meow that returns 'meow'. Include cat_data.json in the context:
+promptr -p "create a class named Cat with a method named meow that returns 'meow' in cat.js" cat_data.json
+
+# refactor the Cat class to be named Dog add a method named bark that returns 'ruff' and include cat_data.json and dog_data.json in the context:
+promptr -p "refactor the Cat class in cat.js to be named Dog. add a method named bark that returns 'ruff'" cat_data.json dog_data.json
+
+# fix the failing test in cat_test.js and include cat.js in the context:
+promptr -p "fix the failing test in cat_test.js" cat.js
+
 
 General information about the system:
 The current shell is ${currentShell}
@@ -314,11 +334,12 @@ You should execute one of these functions as your response:
 - The interact_with_user function is used to respond to a user's question.
 
 Only call one function at a time.
+All json should be valid.
 Never omit your reasoning when calling the functions when the function has a reasoning parameter.
 Every command you run and its output will be logged and available to you for reference.
 Don't ask for the contents of a file more than once.
 Don't forget to call the step_verified function once you've verified that the current step is complete.
-Always respond with json.`
+Always call a function for your response.`
     }
   }
 
