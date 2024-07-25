@@ -83,7 +83,7 @@ Verification: ${this.step.verification}`
         break
       }
       
-      console.log(`Is it Ok to run \`${functionArgs.command}\`? \n\nReasoning: ${functionArgs.reasoning}`)
+      console.log(`\nIs it Ok to run \`${functionArgs.command}\`? \n\nReasoning: ${functionArgs.reasoning}`)
       let userInput = await this.getUserInput(rl)
       if (userInput == 'q' || userInput == "Q") break
       if (userInput) {
@@ -97,14 +97,15 @@ Verification: ${this.step.verification}`
       let commandOutput = ""
       let isError = false
       // use child_process to execute the command and capture the output
+      if (CliState.verbose()) console.log(`Executing command: ${functionArgs.command}`)
+      console.log(functionArgs.command)
       try {
-        if (CliState.verbose()) console.log(`Executing command: ${functionArgs.command}`)
-        if (CliState.verbose()) commandOutput = child_process.execSync(functionArgs.command).toString()
-        if (CliState.verbose()) console.log(`Command output: ${commandOutput}`)
+        commandOutput = child_process.execSync(functionArgs.command).toString()
       } catch (error) {
         isError = true
         commandOutput = error.message
       }
+      console.log(commandOutput)
 
       this.messages.push({ role: "assistant", content: `I ran the following command: \`${functionArgs.command}\`
 Reasoning: ${functionArgs.reasoning} 
@@ -119,6 +120,7 @@ ${commandOutput}` })
   }
 
   async commentOnStep() {
+    console.log("Reviewing the current step and planning the next action...")
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY,
       basePath: process.env.OPENAI_API_BASE || "https://api.openai.com/v1"
@@ -138,6 +140,7 @@ ${commandOutput}` })
   }
 
   async buildStepPlan(prompt) {
+    console.log("Building a plan for the current step...")
     // call the model to get the plan
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY,
@@ -167,6 +170,7 @@ ${prompt}` })
   }
 
   async retrieveActionFromModel() {
+    console.log("Retrieving the next action from the model...")
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY,
       basePath: process.env.OPENAI_API_BASE || "https://api.openai.com/v1"
@@ -263,13 +267,7 @@ ${prompt}` })
       console.log(response.data?.choices[0]?.message)
       console.log(response.data?.choices[0]?.message?.tool_calls)
     }
-    
     return response.data?.choices[0]?.message?.tool_calls[0].function
-
-    if (!response?.data?.choices) return null
-    const responseBody = response.data.choices[0].message.function_call
-    if (CliState.verbose()) console.log(responseBody)
-    return responseBody
   }
 
   static actionRetrievalSystemMessage() {
