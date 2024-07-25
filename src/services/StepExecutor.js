@@ -33,15 +33,31 @@ Verification: ${this.step.verification}`
     let stepPlan = await this.buildStepPlan(prompt)
     this.messages.push({ role: "assistant", content: `${stepPlan}` })
 
+    let loopCount = 0
     // loop until the model calls the step_verified function
     do {
-      if (CliState.verbose()) console.log(this.messages)
+      loopCount++
+      //if (CliState.verbose()) console.log(this.messages)
+      
+      
+      if (loopCount > 1 && this.messages[this.messages.length - 1].role == "assistant") {
+        console.log(this.messages[this.messages.length - 1].content)
+        let userInput = await this.getUserInput(rl)
+        if (userInput == 'q' || userInput == "Q") break
+        if (userInput) {
+          this.messages.push({ role: "user", content: userInput })
+        }
+        continue
+      }
+
       let result = await this.retrieveActionFromModel()
       let functionArgs = JSON.parse(result.arguments)
+      
       if (CliState.verbose()) console.log(`Function: ${result.name}`)
       if (CliState.verbose()) console.log(functionArgs)
+      
       if (result.name == "step_verified") {
-        console.log(`Step ${functionArgs.step_name} verified as complete. \n\nReasoning: ${functionArgs.reasoning}`)
+        console.log(`${functionArgs.step_name} verified as complete. \n\nReasoning: ${functionArgs.reasoning}`)
         break
       }
       if (result.name == "take_note_of_something_important") {
@@ -56,10 +72,7 @@ Verification: ${this.step.verification}`
         continue
       }
       
-      if (
-        result.name == "functions:execute_shell_command"
-        || result.name == "functions"
-      ) result.name = "execute_shell_command"
+      if (result.name == "functions:execute_shell_command") result.name = "execute_shell_command"
 
       if (result.name != "execute_shell_command") {
         console.log(`Unknown function: ${result.name}`)
@@ -68,7 +81,7 @@ Verification: ${this.step.verification}`
       
       console.log(`Is it Ok to run \`${functionArgs.command}\`? \n\nReasoning: ${functionArgs.reasoning}`)
       let userInput = await this.getUserInput(rl)
-      if (userInput == 'n' || userInput == "N") break
+      if (userInput == 'q' || userInput == "Q") break
       if (userInput) {
         this.messages.push({ role: "system", content: `You requested the following command, but the user interupted before the command you requested could be run: ${functionArgs.command}\n\nRespond to the user, or follow the user's instructions. The user's instructions take precedence over the plan.` })
         this.messages.push({ role: "user", content: userInput })
@@ -128,14 +141,13 @@ ${commandOutput}` })
     })
     const openai = new OpenAIApi(configuration)
     let messages = [{ role: "system", content: `You are a helpful assistant. 
-Your job is to help the user achieve a goal by completing the current step in the user's plan to achieve the goal.
-You will be given a goal and the summary of a plan to achieve that goal. 
+You have full access to the user's system and can execute shell commands.
+You will be given a goal and a plan to achieve that goal as well as the current step in the plan.
+Your job is to break the step down into tasks that will help us move forward on the current step of the plan. ` }]
+    messages.push({ role: "user", content: `Create a list of tasks that will help us move forward on the current step of the plan. 
+Talk through the tasks. Be extremely through and verbose when describing the tasks and how they relate to the current step and the larger plan to reach the user's goal.
 
-You have two capabilities that you can use to complete the tasks necessary to complete the current step:
-- executing shell commands
-- creating, modifying, and configuring source code and systems
-` }]
-    messages.push({ role: "user", content: `${prompt} \n\nCreate a list of tasks that will help us move forward on the current step of the plan. Talk through the tasks. Be extremely through and verbose when describing the tasks and how they relate to the current step and the larger plan to reach the user's goal.` })
+${prompt}` })
     if (CliState.verbose()) console.log(`plan step:`)
     if (CliState.verbose()) console.log(messages)
     const response = await openai.createChatCompletion({
@@ -168,13 +180,13 @@ You have two capabilities that you can use to complete the tasks necessary to co
           type: "function",
           function: {
             name: "interact_with_user",
-            description: "Respond to a user question",
+            description: "Respond to a user question or send a message to the user.",
             parameters: {
               'type': 'object',
               'properties': {
                 'response': {
                   'type': 'string',
-                  'description': 'The response to the user.'
+                  'description': 'The message to the user.'
                 }
               }
             }
@@ -210,6 +222,10 @@ You have two capabilities that you can use to complete the tasks necessary to co
                 'step_name': {
                   'type': 'string',
                   'description': 'The name of the step that has been verified as complete.'
+                },
+                'reasoning': {
+                  'type': 'string',
+                  'description': 'Your reasoning for verifying the step as complete.'
                 },
               }
             }
@@ -258,7 +274,8 @@ You have two capabilities that you can use to complete the tasks necessary to co
 
     return {
       role: "system",
-      content: `You are a helpful assistant. 
+      content: `You are a helpful assistant.
+You have full access to the user's system and can execute shell commands.
 Your job is to help the user achieve a goal by completing a step in the user's plan to achieve the goal. 
 You will be given the user's goal and a summary of the user's plan to achieve the goal. 
 Your job is to complete the current step of the plan. 
@@ -286,7 +303,7 @@ Instructions for using promptr:
 - promptr can only operate on files in the current directory, so you will need to cd into the project's root folder before each command.
 - always give promptr conceptual instructions, not actual source code. For example, instead of "write a test for the controller", say "write tests for the controller at path x/y/z and place tests at path a/b/c".
 
-General information:
+General information about the system:
 The current shell is ${currentShell}
 The current directory is ${currentDirectory}
 

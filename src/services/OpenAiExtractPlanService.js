@@ -32,9 +32,11 @@ export default class OpenAiExtractPlanService {
   static systemMessage() {
     return {
       role: "system",
-      content: `You will be presented with a plan. 
-Each step should have a description and a verification. Steps may have names or ID's to identify them. 
-Your response should be a json object that represents the steps and goal. Don't omit any details when specifying the goal. 
+      content: `You will be presented with a goal and a plan to achieve the goal. 
+Each step of the plan should have a description and an optional verification. 
+Steps may have names or ID's to identify them. 
+Your response should be a json object that represents the steps and the goal. 
+Don't omit any details when specifying the goal. 
 It's extremely important to capture everything the user said when specifying the goal. 
 The object should look like this: 
       {
@@ -55,7 +57,8 @@ The object should look like this:
       }
 
 If there's an ID or identifier of any kind for a step then the identifier should be used as the value of the "name" key. 
-If there's no identifier then the value of the "name" key should be the step number.`
+If there's no identifier then the value of the "name" key should be the step number.
+If there is no plan stated then create a plan to achieve the goal.`
     }
   }
 
