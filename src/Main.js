@@ -10,7 +10,10 @@ export default class Main {
   static async call(argv) {
     CliState.init(argv, await this.getVersion());
 
-    await Agent.call();
+    if (CliState.planPath()) {
+      await Agent.call()
+      return
+    }
 
     if (argv.length <= 2) {
       console.log("Usage: promptr -m <model> <input filepath(s)> -o <output filepath> -p \"Cleanup the code in this file\"");
