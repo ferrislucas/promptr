@@ -13,8 +13,11 @@ export default class Agent {
       const expandedPlan = await TemplateLoader.parseTemplate(userPlan);
       let plan = await OpenAiExtractPlanService.call(expandedPlan);
       console.log(`Goal: ${plan.goal}\n\nSummary: ${plan.summary}\n\n`)
+      for (let i = 0; i< plan.steps.length; i++) {
+        console.log(`Step ${i + 1}: ${plan.steps[i].name}\n${plan.steps[i].description}\n\n`)
+      }
       for (let i = 0; i < plan.steps.length; i++) {
-        console.log(`Executing step ${i + 1} of ${plan.steps.length}: 
+        console.log(`\n\nExecuting step ${i + 1} of ${plan.steps.length}: 
 ${plan.steps[i].name}
 ${plan.steps[i].description}\n\n`);
         let executor = new StepExecutor(plan, plan.steps[i]);
