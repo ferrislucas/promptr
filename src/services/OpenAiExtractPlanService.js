@@ -59,8 +59,7 @@ The object should look like this:
 
 If there's an ID or identifier of any kind for a step then the identifier should be used as the value of the "name" key. 
 If there's no identifier then the value of the "name" key should be the step number.
-If there is no plan stated then create a plan to achieve the goal.
-If there is no verification for a step then ask the user for verification.`
+If there is no plan stated then create a plan to achieve the goal.`
     }
   }
 
