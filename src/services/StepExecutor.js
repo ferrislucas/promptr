@@ -100,10 +100,18 @@ Verification: ${this.step.verification}`
       if (CliState.verbose()) console.log(`Executing command: ${functionArgs.command}`)
       console.log(functionArgs.command)
       try {
-        commandOutput = child_process.execSync(functionArgs.command).toString()
+          // Capture the output of the command, including stdout and stderr
+          commandOutput = child_process.execSync(functionArgs.command, { stdio: 'pipe' }).toString();
       } catch (error) {
-        isError = true
-        commandOutput = error.message
+          // Capture and log both stdout and stderr from the error object
+          const errorOutput = error.stdout ? error.stdout.toString() : '';
+          const errorStderr = error.stderr ? error.stderr.toString() : '';
+          if (CliState.verbose()) {
+            console.error('Command failed:', error.message);
+            console.error('Standard Output:', errorOutput);
+            console.error('Standard Error:', errorStderr);
+          }
+          commandOutput = errorOutput + errorStderr;
       }
       console.log(commandOutput)
 
