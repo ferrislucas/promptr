@@ -11,7 +11,8 @@ export default class Main {
     CliState.init(argv, await this.getVersion());
 
     if (CliState.planPath()) {
-      await Agent.call()
+      const userPlan = await Agent.userPlan()
+      await Agent.call(userPlan)
       return
     }
 

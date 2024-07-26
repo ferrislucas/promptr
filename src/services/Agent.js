@@ -7,8 +7,7 @@ import os from 'os';
 import path from 'path';
 
 export default class Agent {
-  static async call() {
-    const userPlan = await this.plan();
+  static async call(userPlan) {
     if (userPlan) {
       const expandedPlan = await TemplateLoader.parseTemplate(userPlan);
       let plan = await OpenAiExtractPlanService.call(expandedPlan);
@@ -27,7 +26,7 @@ ${plan.steps[i].description}\n\n`);
     }
   }
 
-  static async plan() {
+  static async userPlan() {
     let plan = CliState.planPath() ?? "";
     if (plan.startsWith('http://') || plan.startsWith('https://')) {
       const response = await fetch(plan);
