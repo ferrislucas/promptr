@@ -45,24 +45,24 @@ Verification: ${this.step.verification}`
     do {
       loopCount++
       
-      let result = await this.retrieveActionFromModel()
-      let functionArgs = JSON.parse(result.arguments)
+      let modelAction = await this.retrieveActionFromModel()
+      let functionArgs = JSON.parse(modelAction.arguments)
       
-      if (CliState.verbose()) console.log(`Function: ${result.name}`)
+      if (CliState.verbose()) console.log(`Function: ${modelAction.name}`)
       if (CliState.verbose()) console.log(functionArgs)
       
-      if (result.name == "step_verified") {
+      if (modelAction.name == "step_verified") {
         console.log(`${functionArgs.step_name} verified as complete. \n\nReasoning: ${functionArgs.reasoning}`)
         break
       }
-      if (result.name == "take_note_of_something_important") {
+      if (modelAction.name == "take_note_of_something_important") {
         this.messages.push({ role: "system", content: `The following information has been committed to memory: ${functionArgs.informationToRemember} \n\nReasoning: ${functionArgs.reasoning}` })
         // comment on step in order to suggest a next action
         let comment = await this.reviewStep()
         this.messages.push({ role: "assistant", content: comment })
         continue
       }
-      if (result.name == "interact_with_user") {
+      if (modelAction.name == "interact_with_user") {
         this.messages.push({ role: "assistant", content: functionArgs.response })
         console.log(this.messages[this.messages.length - 1].content)
         let userInput = await this.getUserInput(rl)
@@ -74,12 +74,12 @@ Verification: ${this.step.verification}`
       }
       
       if (
-        (result.name == "functions:execute_shell_command") || 
-        (result.name == "functionsexecute_shell_command")
-      ) result.name = "execute_shell_command"
+        (modelAction.name == "functions:execute_shell_command") || 
+        (modelAction.name == "functionsexecute_shell_command")
+      ) modelAction.name = "execute_shell_command"
 
-      if (result.name != "execute_shell_command") {
-        console.log(`Unknown function: ${result.name}`)
+      if (modelAction.name != "execute_shell_command") {
+        console.log(`Unknown function: ${modelAction.name}`)
         break
       }
       
