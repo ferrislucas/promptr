@@ -44,7 +44,6 @@ Verification: ${this.step.verification}`
     // loop until the model calls the step_verified function
     do {
       loopCount++
-      //if (CliState.verbose()) console.log(this.messages)
       
       let result = await this.retrieveActionFromModel()
       let functionArgs = JSON.parse(result.arguments)
@@ -59,7 +58,7 @@ Verification: ${this.step.verification}`
       if (result.name == "take_note_of_something_important") {
         this.messages.push({ role: "system", content: `The following information has been committed to memory: ${functionArgs.informationToRemember} \n\nReasoning: ${functionArgs.reasoning}` })
         // comment on step in order to suggest a next action
-        let comment = await this.commentOnStep()
+        let comment = await this.reviewStep()
         this.messages.push({ role: "assistant", content: comment })
         continue
       }
@@ -92,7 +91,6 @@ Verification: ${this.step.verification}`
         this.messages.push({ role: "user", content: userInput })
         continue
       } 
-      //this.messages.push({ role: "assistant", content: `Run the following command: \`${functionArgs.command}\`\nReasoning: ${functionArgs.reasoning}` })
 
       // execute the command on the user's system
       let commandOutput = ""
@@ -122,13 +120,13 @@ ${(isError ? "The command did not run successfully": "The command executed succe
 Command output:
 ${commandOutput}` })
 
-      let comment = await this.commentOnStep()
+      let comment = await this.reviewStep()
       this.messages.push({ role: "assistant", content: comment })
     } while (true)
     rl.close()
   }
 
-  async commentOnStep() {
+  async reviewStep() {
     console.log("Reviewing the current step and planning the next action...")
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY,
