@@ -41,11 +41,12 @@ Verification: ${this.step.verification}`
     this.messages.push({ role: "assistant", content: `${stepPlan}` })
 
     let loopCount = 0
+    let modelAction = null
     // loop until the model calls the step_verified function
     do {
       loopCount++
       
-      let modelAction = await this.retrieveActionFromModel()
+      modelAction = await this.retrieveActionFromModel()
       let functionArgs = JSON.parse(modelAction.arguments)
       
       if (CliState.verbose()) console.log(`Function: ${modelAction.name}`)
@@ -56,7 +57,7 @@ Verification: ${this.step.verification}`
         break
       }
       if (modelAction.name == "take_note_of_something_important") {
-        this.messages.push({ role: "system", content: `The following information has been committed to memory: ${functionArgs.informationToRemember} \n\nReasoning: ${functionArgs.reasoning}` })
+        this.messages.push({ role: "assistant", content: `The following information has been committed to memory: ${functionArgs.informationToRemember} \n\nReasoning: ${functionArgs.reasoning}` })
         // comment on step in order to suggest a next action
         let comment = await this.reviewStep()
         this.messages.push({ role: "assistant", content: comment })
@@ -72,7 +73,9 @@ Verification: ${this.step.verification}`
         }  
         continue
       }
-      
+      if (modelAction.name == "update_the_plan") {
+        break
+      }
       if (
         (modelAction.name == "functions:execute_shell_command") || 
         (modelAction.name == "functionsexecute_shell_command")
@@ -80,14 +83,15 @@ Verification: ${this.step.verification}`
 
       if (modelAction.name != "execute_shell_command") {
         console.log(`Unknown function: ${modelAction.name}`)
-        break
+        continue
       }
       
-      console.log(`\nIs it Ok to run \`${functionArgs.command}\`? \n\nReasoning: ${functionArgs.reasoning}`)
+      let m = `\nThe assistant wants to run \`${functionArgs.command}\`? \n\nPress enter to allow the command to run.\n\nReasoning: ${functionArgs.reasoning}`
+      console.log(m)
+      //this.messages.push({ role: "assistant", content: m })
       let userInput = await this.getUserInput(rl)
-      if (userInput == 'q' || userInput == "Q") break
       if (userInput) {
-        this.messages.push({ role: "system", content: `You requested the following command, but the user interupted before the command you requested could be run: ${functionArgs.command}\n\nRespond to the user, or follow the user's instructions. The user's instructions take precedence over the plan.` })
+        this.messages.push({ role: "assistant", content: `I attempted to run the following command, but the user interupted before the command could be run: ${functionArgs.command}\n\n` })
         this.messages.push({ role: "user", content: userInput })
         continue
       } 
@@ -124,6 +128,7 @@ ${commandOutput}` })
       this.messages.push({ role: "assistant", content: comment })
     } while (true)
     rl.close()
+    return modelAction
   }
 
   async reviewStep() {
@@ -241,6 +246,26 @@ ${prompt}` })
                 'reasoning': {
                   'type': 'string',
                   'description': 'Your reasoning for verifying the step as complete.'
+                },
+              }
+            }
+          }
+        },
+        {
+          type: "function",
+          function: {
+            name: "update_the_plan",
+            description: "Update the plan based on the current conversation",
+            parameters: {
+              'type': 'object',
+              'properties': {
+                'planUpdates': {
+                  'type': 'string',
+                  'description': 'The updates that should be made to the plan.'
+                },
+                'reasoning': {
+                  'type': 'string',
+                  'description': 'Your reasoning for updating the plan.'
                 },
               }
             }

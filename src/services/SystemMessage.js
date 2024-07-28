@@ -72,6 +72,7 @@ You should execute one of these functions as your response:
 - The take_note_of_something_important function stores information in your membory. Any information you store will always be available to you.
 - The step_verified function is used when the step is complete. Call this function when you've verified that the step is complete.
 - The interact_with_user function is used to respond to a user's question.
+- The update_the_plan function is used if we need to update the plan.
 
 Only call one function at a time.
 All json should be valid.
