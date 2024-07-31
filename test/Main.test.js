@@ -29,16 +29,6 @@ describe('Main', () => {
     sinon.restore();
   });
 
-  it('should get user input correctly', async () => {
-    const rlMock = {
-      question: (prompt, callback) => {
-        callback('test input');
-      }
-    };
-    const result = await Main.getUserInput(rlMock);
-    assert.strictEqual(result, 'test input');
-  });
-
   it('should pass the expected prompt to PromptrService.call when prompt is a URL', async () => {
     const url = 'https://example.com/prompt.txt';
     const templateUrl = 'https://example.com/template.txt';

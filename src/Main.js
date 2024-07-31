@@ -10,21 +10,18 @@ export default class Main {
   static async call(argv) {
     CliState.init(argv, await this.getVersion());
 
-    if (CliState.planPath()) {
-      const userPlan = await Agent.userPlan()
+    if (CliState.planPath() || CliState.isInteractive()) {
+      let userPlan = await Agent.userPlan()
+      if (!userPlan) {
+        userPlan = "Your goal is to work with the user to form a plan.\n\n Step 1\n- Ask the user for their goal, work with them to form a plan. Be terse. Just get the information you need to form a plan.\n- Ask the user to confirm when the plan is complete.\n- Update the plan by calling the update_the_plan function."
+      }
       await Agent.call(userPlan)
-      return
+      return 0
     }
 
     if (argv.length <= 2) {
       console.log("Usage: promptr -m <model> <input filepath(s)> -o <output filepath> -p \"Cleanup the code in this file\"");
       return -1;
-    }
-
-    // Interactive mode
-    if (CliState.isInteractive()) {
-      await this.loopUntilUserExit();
-      return 0;
     }
 
     // Non-interactive mode
@@ -42,30 +39,6 @@ export default class Main {
       }
     }
     return await PromptrService.call(prompt);
-  }
-
-  static async loopUntilUserExit() {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
-
-    while (true) {
-      let userInput = await this.getUserInput(rl);
-      if (!userInput) continue;
-      if (userInput == 'exit' || userInput == "\q") break;
-
-      await PromptrService.call(userInput);
-    }
-    rl.close();
-  }
-
-  static async getUserInput(rl) {
-    return new Promise(resolve => {
-      rl.question('promptr# ', _input => {
-        resolve(_input);
-      });
-    });
   }
 
   static async getVersion() {
