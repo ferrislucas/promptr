@@ -67,10 +67,10 @@ Verification: ${this.step.verification}`
         this.messages.push({ role: "assistant", content: functionArgs.response })
         console.log(this.messages[this.messages.length - 1].content)
         let userInput = await this.getUserInput(rl)
-        if (userInput == 'q' || userInput == "Q") break
+        if (userInput == 'q' || userInput == "Q" || userInput == "\\q" || userInput == "exit" || userInput == "quit") break 
         if (userInput) {
           this.messages.push({ role: "user", content: userInput })
-        }  
+        }
         continue
       }
       if (modelAction.name == "update_the_plan") {
