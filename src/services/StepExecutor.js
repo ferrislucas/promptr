@@ -159,7 +159,7 @@ ${commandOutput}` })
   }
 
   async buildStepPlan(prompt) {
-    console.log("Building a plan for the current step...")
+    console.log("Step planning...")
     // call the model to get the plan
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY,
