@@ -67,7 +67,7 @@ Verification: ${this.step.verification}`
         this.messages.push({ role: "assistant", content: functionArgs.response })
         console.log(this.messages[this.messages.length - 1].content)
         let userInput = await this.getUserInput(rl)
-        if (userInput == 'q' || userInput == "Q" || userInput == "\\q" || userInput == "exit" || userInput == "quit") break 
+        if (this.userWantsToQuit(userInput)) break 
         if (userInput) {
           this.messages.push({ role: "user", content: userInput })
         }
@@ -90,6 +90,7 @@ Verification: ${this.step.verification}`
       console.log(m)
       //this.messages.push({ role: "assistant", content: m })
       let userInput = await this.getUserInput(rl)
+      if (this.userWantsToQuit(userInput)) break 
       if (userInput) {
         this.messages.push({ role: "assistant", content: `I attempted to run the following command, but the user interupted before the command could be run: ${functionArgs.command}\n\n` })
         this.messages.push({ role: "user", content: userInput })
@@ -179,6 +180,17 @@ ${prompt}` })
     const responseBody = response.data.choices[0].message['content']
     if (CliState.verbose()) console.log(responseBody)
     return responseBody
+  }
+  
+  userWantsToQuit(userInput) {
+    // Define keywords or phrases that indicate a desire to quit
+    const quitSignals = ["quit", "exit", "stop", "end", "q", "bye", "goodbye"];
+
+    // Normalize the user input to lower case for case-insensitive comparison
+    const normalizedInput = userInput.trim().toLowerCase();
+
+    // Check if the normalized input matches any of the quit signals
+    return quitSignals.some(signal => normalizedInput === signal);
   }
 
   async retrieveActionFromModel() {
