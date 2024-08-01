@@ -10,7 +10,7 @@ export default class Main {
   static async call(argv) {
     CliState.init(argv, await this.getVersion());
 
-    if (CliState.planPath() || CliState.isInteractive()) {
+    if (CliState.planPath() || CliState.isInteractive() || (CliState.getPrompt() ?? "") === "") {
       let userPlan = await Agent.userPlan()
       if (!userPlan) {
         userPlan = "Your goal is to work with the user to form a plan.\n\n Step 1\n- Ask the user for their goal, work with them to form a plan. Be terse. Just get the information you need to form a plan.\n- Ask the user to confirm when the plan is complete.\n- Update the plan by calling the update_the_plan function."
