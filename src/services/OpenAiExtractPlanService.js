@@ -4,7 +4,7 @@ import CliState from "../CliState.js";
 export default class OpenAiExtractPlanService {
 
   static async call(stepDescription) {
-    console.log("Extracting plan...")
+    console.log("Goal planning...")
     const model = "gpt-4o-mini"
 
     const configuration = new Configuration({

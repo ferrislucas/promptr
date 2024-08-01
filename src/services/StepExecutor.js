@@ -82,13 +82,13 @@ Verification: ${this.step.verification}`
       ) modelAction.name = "execute_shell_command"
 
       if (modelAction.name != "execute_shell_command") {
-        console.log(`Unknown function: ${modelAction.name}`)
+        if (CliState.verbose()) console.log(`Unknown function: ${modelAction.name}`)
         continue
       }
       
       let m = `\nThe assistant wants to run \`${functionArgs.command}\`? \n\nPress enter to allow the command to run.\n\nReasoning: ${functionArgs.reasoning}`
       console.log(m)
-      //this.messages.push({ role: "assistant", content: m })
+
       let userInput = await this.getUserInput(rl)
       if (this.userWantsToQuit(userInput)) break 
       if (userInput) {
@@ -194,7 +194,7 @@ ${prompt}` })
   }
 
   async retrieveActionFromModel() {
-    console.log("Retrieving the next action from the model...")
+    if (CliState.verbose()) console.log("Retrieving the next action from the model...")
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY,
       basePath: process.env.OPENAI_API_BASE || "https://api.openai.com/v1"
