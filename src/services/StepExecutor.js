@@ -65,8 +65,6 @@ Verification: ${this.step.verification}`
       if (modelAction.name == "take_note_of_something_important") {
         this.messages.push({ role: "assistant", content: `The following information has been committed to memory: ${functionArgs.informationToRemember} \n\nReasoning: ${functionArgs.reasoning}` })
         // comment on step in order to suggest a next action
-        let comment = await this.reviewStep()
-        this.messages.push({ role: "assistant", content: comment })
         continue
       }
       if (modelAction.name == "interact_with_user") {
@@ -131,31 +129,9 @@ ${(isError ? "The command did not run successfully": "The command executed succe
 Command output:
 ${commandOutput}` })
 
-      let comment = await this.reviewStep()
-      this.messages.push({ role: "assistant", content: comment })
     } while (true)
     rl.close()
     return modelAction
-  }
-
-  async reviewStep() {
-    console.log("Reviewing the current step and planning the next action...")
-    const configuration = new Configuration({
-      apiKey: process.env.OPENAI_API_KEY,
-      basePath: process.env.OPENAI_API_BASE || "https://api.openai.com/v1"
-    })
-    const openai = new OpenAIApi(configuration)
-    let payload  = [...this.messages, { role: "user", content: "Summarize the result of the last action taken. If the tasks for the current step need to change then list the new tasks. Then describe the next action that will help us move forward on the current step of the plan. " }]
-    const response = await openai.createChatCompletion({
-      model: "gpt-4o",
-      temperature: 0.7,
-      messages: payload
-    })
-    // get the plan from the response
-    if (!response?.data?.choices) return null
-    const responseBody = response.data.choices[0].message['content']
-    if (CliState.verbose()) console.log(responseBody)
-    return responseBody
   }
 
   async buildStepPlan(prompt) {
