@@ -47,8 +47,14 @@ Verification: ${this.step.verification}`
       loopCount++
       
       modelAction = await this.retrieveActionFromModel()
-      let functionArgs = JSON.parse(modelAction.arguments)
-      
+      let functionArgs = null
+      try {
+        functionArgs = JSON.parse(modelAction.arguments)  
+      } catch (error) {
+        console.error(error)
+        continue
+      }
+
       if (CliState.verbose()) console.log(`Function: ${modelAction.name}`)
       if (CliState.verbose()) console.log(functionArgs)
       
