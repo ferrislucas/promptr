@@ -1,7 +1,7 @@
 import assert from 'assert';
 import sinon from 'sinon';
 import OpenAiGptService from '../src/services/OpenAiGptService.js';
-import { OpenAIApi } from 'openai';
+import { OpenAI } from 'openai';
 import ConfigService from '../src/services/ConfigService.js';
 import CliState from '../src/CliState.js';
 import SystemMessage from '../src/services/SystemMessage.js';
@@ -20,7 +20,7 @@ describe('OpenAiGptService', () => {
     const model = 'gpt-4';
 
     const configStub = sinon.stub(ConfigService, 'retrieveConfig').resolves({ api: { temperature: 0.5 } });
-    const openaiStub = sinon.stub(OpenAIApi.prototype, 'createChatCompletion').resolves({
+    const openaiStub = sinon.stub(OpenAI.prototype, 'createChatCompletion').resolves({
       data: {
         choices: [
           { message: { function_call: { arguments: expectedResult } } }
@@ -41,7 +41,7 @@ describe('OpenAiGptService', () => {
       const model = 'gpt-4';
 
       const configStub = sinon.stub(ConfigService, 'retrieveConfig').resolves({ api: { temperature: 0.5 } });
-      const openaiStub = sinon.stub(OpenAIApi.prototype, 'createChatCompletion').resolves({
+      const openaiStub = sinon.stub(OpenAI.prototype, 'createChatCompletion').resolves({
         data: {}
       });
 
@@ -58,7 +58,7 @@ describe('OpenAiGptService', () => {
     const expectedResult = 'The capital of France is Paris.';
     const model = 'gpt-4';
     const configStub = sinon.stub(ConfigService, 'retrieveConfig').resolves({ api: { temperature: 0.5 } })
-    const openaiStub = sinon.stub(OpenAIApi.prototype, 'createChatCompletion').resolves({
+    const openaiStub = sinon.stub(OpenAI.prototype, 'createChatCompletion').resolves({
       data: {
         choices: [
           { message: { function_call: { arguments: expectedResult } } }
@@ -82,7 +82,7 @@ describe('OpenAiGptService', () => {
     const expectedResult = 'The capital of France is Paris.';
     const model = 'gpt-4';
     const configStub = sinon.stub(ConfigService, 'retrieveConfig').resolves({ api: { temperature: 0.5 } })
-    const openaiStub = sinon.stub(OpenAIApi.prototype, 'createChatCompletion').resolves({
+    const openaiStub = sinon.stub(OpenAI.prototype, 'createChatCompletion').resolves({
       data: {
         choices: [
           { message: { function_call: { arguments: expectedResult } } }
@@ -106,7 +106,7 @@ describe('OpenAiGptService', () => {
     const models = ['gpt3', 'gpt4'];
     const expectedModels = ['gpt-3.5-turbo', 'gpt-4o'];
 
-    const openaiStub = sinon.stub(OpenAIApi.prototype, 'createChatCompletion').resolves({
+    const openaiStub = sinon.stub(OpenAI.prototype, 'createChatCompletion').resolves({
       data: {
         choices: [
           { message: { function_call: { arguments: expectedResult } } }
