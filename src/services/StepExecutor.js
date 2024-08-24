@@ -1,9 +1,9 @@
-import { Configuration, OpenAIApi } from "openai"
-import CliState from "../CliState.js";
+import { OpenAI } from "openai"
+import CliState from "../CliState.js"
 import process from 'process'
 import readline from 'readline'
 import child_process from 'child_process'
-import SystemMessage from "./SystemMessage.js";
+import SystemMessage from "./SystemMessage.js"
 
 export default class StepExecutor {
   constructor(plan, step) {    
@@ -139,11 +139,6 @@ ${commandOutput}` })
   async buildStepPlan(prompt) {
     console.log("Step planning...")
     // call the model to get the plan
-    const configuration = new Configuration({
-      apiKey: process.env.OPENAI_API_KEY,
-      basePath: process.env.OPENAI_API_BASE || "https://api.openai.com/v1"
-    })
-    const openai = new OpenAIApi(configuration)
     let messages = [{ role: "system", content: `You are a helpful assistant. 
 You have full access to the user's system and can execute shell commands.
 You will be given a goal and a plan to achieve that goal as well as the current step in the plan.
@@ -154,8 +149,13 @@ Talk through the tasks. Be extremely through and verbose when describing the tas
 ${prompt}` })
     if (CliState.verbose()) console.log(`plan step:`)
     if (CliState.verbose()) console.log(messages)
-    const response = await openai.createChatCompletion({
-      model: "gpt-4o",
+
+    const openai = new OpenAI({
+      apiKey: process.env.GROQ_API_KEY,
+      baseURL: "https://api.groq.com/openai/v1"
+    })
+    const response = await openai.chat.completions.create({
+      model: "mixtral-8x7b-32768",
       temperature: 0.7,
       messages: messages,
     })
@@ -179,15 +179,15 @@ ${prompt}` })
 
   async retrieveActionFromModel() {
     if (CliState.verbose()) console.log("Retrieving the next action from the model...")
-    const configuration = new Configuration({
-      apiKey: process.env.OPENAI_API_KEY,
-      basePath: process.env.OPENAI_API_BASE || "https://api.openai.com/v1"
+    const openai = new OpenAI({
+      apiKey: process.env.GROQ_API_KEY,
+      baseURL: "https://api.groq.com/openai/v1"
     })
-    const openai = new OpenAIApi(configuration)
-    const response = await openai.createChatCompletion({
-      model: "gpt-4o",
+    
+    const response = await openai.chat.completions.create({
+      model: "llama3-groq-70b-8192-tool-use-preview",
       temperature: 0.7,
-      response_format: { "type": "json_object" },
+      //response_format: { "type": "json_object" },
       tool_choice: "required",
       messages: this.messages,
       parallel_tool_calls: false,
@@ -290,12 +290,12 @@ ${prompt}` })
     })
     if (CliState.verbose()) {
       console.log(`action response:`)
-      console.log(response.data)
+      console.log(response?.choices[0]?.message)
       console.log(response.data?.choices)
       console.log(response.data?.choices[0]?.message)
       console.log(response.data?.choices[0]?.message?.tool_calls)
     }
-    return response.data?.choices[0]?.message?.tool_calls[0].function
+    return response?.choices[0]?.message?.tool_calls[0].function
   }
 
   async getUserInput(rl) {
