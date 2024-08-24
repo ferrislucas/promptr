@@ -40,12 +40,9 @@ Verification: ${this.step.verification}`
 
     this.messages.push({ role: "assistant", content: `${stepPlan}` })
 
-    let loopCount = 0
     let modelAction = null
     // loop until the model calls the step_verified function
-    do {
-      loopCount++
-      
+    do {      
       modelAction = await this.retrieveActionFromModel()
       let functionArgs = null
       try {
