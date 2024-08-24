@@ -20,6 +20,7 @@ export default class Agent {
       let currentStep = plan.steps[i];
       let executor = new StepExecutor(plan, currentStep);
       let modelAction = await executor.call()
+      if (modelAction?.name === 'user exit') break
       if (modelAction?.name === 'update_the_plan') {        
         let newPlan = await Agent.calculateUpdatedPlan(expandedPlan, plan, currentStep, modelAction, executor.messages)
         console.log(`The updated plan is\n${newPlan}`)

@@ -43,91 +43,96 @@ Verification: ${this.step.verification}`
     let modelAction = null
     // loop until the model calls the step_verified function
     do {      
-      modelAction = await this.retrieveActionFromModel()
-      let functionArgs = null
-      try {
-        functionArgs = JSON.parse(modelAction.arguments)  
-      } catch (error) {
-        console.error(error)
-        continue
-      }
+      modelAction = await this.runStepIteration(rl)
+      if (modelAction.name == "step_verified") break
+      if (modelAction.name == "user exit") break
+    } while (true)
+    rl.close()
+    return modelAction
+  }
 
-      if (CliState.verbose()) console.log(`Function: ${modelAction.name}`)
-      if (CliState.verbose()) console.log(functionArgs)
-      
-      if (modelAction.name == "step_verified") {
-        console.log(`${functionArgs.step_name} verified as complete. \n\nReasoning: ${functionArgs.reasoning}`)
-        break
-      }
-      if (modelAction.name == "take_note_of_something_important") {
-        this.messages.push({ role: "assistant", content: `The following information has been committed to memory: ${functionArgs.informationToRemember} \n\nReasoning: ${functionArgs.reasoning}` })
-        // comment on step in order to suggest a next action
-        continue
-      }
-      if (modelAction.name == "interact_with_user") {
-        this.messages.push({ role: "assistant", content: functionArgs.response })
-        console.log(this.messages[this.messages.length - 1].content)
-        let userInput = await this.getUserInput(rl)
-        if (this.userWantsToQuit(userInput)) break 
-        if (userInput) {
-          this.messages.push({ role: "user", content: userInput })
-        }
-        continue
-      }
-      if (modelAction.name == "update_the_plan") {
-        break
-      }
-      if (
-        (modelAction.name == "functions:execute_shell_command") || 
-        (modelAction.name == "functionsexecute_shell_command")
-      ) modelAction.name = "execute_shell_command"
+  async runStepIteration(rl) {
+    let modelAction = await this.retrieveActionFromModel()
+    let functionArgs = null
+    try {
+      functionArgs = JSON.parse(modelAction.arguments)  
+    } catch (error) {
+      console.error(error)
+      return modelAction
+    }
 
-      if (modelAction.name != "execute_shell_command") {
-        if (CliState.verbose()) console.log(`Unknown function: ${modelAction.name}`)
-        continue
-      }
-      
-      let m = `\nThe assistant wants to run \`${functionArgs.command}\`? \n\nPress enter to allow the command to run.\n\nReasoning: ${functionArgs.reasoning}`
-      console.log(m)
-
+    if (CliState.verbose()) console.log(`Function: ${modelAction.name}`)
+    if (CliState.verbose()) console.log(functionArgs)
+    
+    if (modelAction.name == "step_verified") {
+      console.log(`${functionArgs.step_name} verified as complete. \n\nReasoning: ${functionArgs.reasoning}`)
+    }
+    if (modelAction.name == "take_note_of_something_important") {
+      this.messages.push({ role: "assistant", content: `The following information has been committed to memory: ${functionArgs.informationToRemember} \n\nReasoning: ${functionArgs.reasoning}` })
+      // comment on step in order to suggest a next action
+      return modelAction
+    }
+    if (modelAction.name == "interact_with_user") {
+      this.messages.push({ role: "assistant", content: functionArgs.response })
+      console.log(this.messages[this.messages.length - 1].content)
       let userInput = await this.getUserInput(rl)
-      if (this.userWantsToQuit(userInput)) break 
+      if (this.userWantsToQuit(userInput)) return modelAction
       if (userInput) {
-        this.messages.push({ role: "assistant", content: `I attempted to run the following command, but the user interupted before the command could be run: ${functionArgs.command}\n\n` })
         this.messages.push({ role: "user", content: userInput })
-        continue
-      } 
-
-      // execute the command on the user's system
-      let commandOutput = ""
-      let isError = false
-      // use child_process to execute the command and capture the output
-      if (CliState.verbose()) console.log(`Executing command: ${functionArgs.command}`)
-      console.log(functionArgs.command)
-      try {
-          // Capture the output of the command, including stdout and stderr
-          commandOutput = child_process.execSync(functionArgs.command, { stdio: 'pipe' }).toString();
-      } catch (error) {
-          // Capture and log both stdout and stderr from the error object
-          const errorOutput = error.stdout ? error.stdout.toString() : '';
-          const errorStderr = error.stderr ? error.stderr.toString() : '';
-          if (CliState.verbose()) {
-            console.error('Command failed:', error.message);
-            console.error('Standard Output:', errorOutput);
-            console.error('Standard Error:', errorStderr);
-          }
-          commandOutput = errorOutput + errorStderr;
       }
-      console.log(commandOutput)
+      return modelAction
+    }
+    if (modelAction.name == "update_the_plan") {
+      return modelAction
+    }
+    if (
+      (modelAction.name == "functions:execute_shell_command") || 
+      (modelAction.name == "functionsexecute_shell_command")
+    ) modelAction.name = "execute_shell_command"
 
-      this.messages.push({ role: "assistant", content: `I ran the following command: \`${functionArgs.command}\`
+    if (modelAction.name != "execute_shell_command") {
+      if (CliState.verbose()) console.log(`Unknown function: ${modelAction.name}`)
+      return modelAction
+    }
+    
+    let m = `\nThe assistant wants to run \`${functionArgs.command}\`? \n\nPress enter to allow the command to run.\n\nReasoning: ${functionArgs.reasoning}`
+    console.log(m)
+
+    let userInput = await this.getUserInput(rl)
+    if (this.userWantsToQuit(userInput)) return({ name: "user exit" })
+    if (userInput) {
+      this.messages.push({ role: "assistant", content: `I attempted to run the following command, but the user interupted before the command could be run: ${functionArgs.command}\n\n` })
+      this.messages.push({ role: "user", content: userInput })
+      return modelAction
+    } 
+
+    // execute the command on the user's system
+    let commandOutput = ""
+    let isError = false
+    // use child_process to execute the command and capture the output
+    if (CliState.verbose()) console.log(`Executing command: ${functionArgs.command}`)
+    console.log(functionArgs.command)
+    try {
+        // Capture the output of the command, including stdout and stderr
+        commandOutput = child_process.execSync(functionArgs.command, { stdio: 'pipe' }).toString();
+    } catch (error) {
+        // Capture and log both stdout and stderr from the error object
+        const errorOutput = error.stdout ? error.stdout.toString() : '';
+        const errorStderr = error.stderr ? error.stderr.toString() : '';
+        if (CliState.verbose()) {
+          console.error('Command failed:', error.message);
+          console.error('Standard Output:', errorOutput);
+          console.error('Standard Error:', errorStderr);
+        }
+        commandOutput = errorOutput + errorStderr;
+    }
+    console.log(commandOutput)
+
+    this.messages.push({ role: "assistant", content: `I ran the following command: \`${functionArgs.command}\`
 Reasoning: ${functionArgs.reasoning} 
 ${(isError ? "The command did not run successfully": "The command executed succesfully.")} 
 Command output:
 ${commandOutput}` })
-
-    } while (true)
-    rl.close()
     return modelAction
   }
 
@@ -163,7 +168,7 @@ ${prompt}` })
   
   userWantsToQuit(userInput) {
     // Define keywords or phrases that indicate a desire to quit
-    const quitSignals = ["quit", "exit", "stop", "end", "q", "bye", "goodbye"];
+    const quitSignals = ["quit", "exit", "stop", "end", "q", "bye", "goodbye", "\\q"];
 
     // Normalize the user input to lower case for case-insensitive comparison
     const normalizedInput = userInput.trim().toLowerCase();
@@ -178,7 +183,7 @@ ${prompt}` })
       apiKey: process.env.OPENAI_API_KEY,
       basePath: process.env.OPENAI_API_BASE || "https://api.openai.com/v1"
     })
-    const openai = new OpenAIApi(configuration)    
+    const openai = new OpenAIApi(configuration)
     const response = await openai.createChatCompletion({
       model: "gpt-4o",
       temperature: 0.7,
