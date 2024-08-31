@@ -153,7 +153,15 @@ ${commandOutput}` })
       "Do NOT use interactive shell commands like nano or vim.",
     ]
     let messages = [
-      { role: "system", content: `Your goal is to consider some "ground truths" and evaluate if a shell command should be modified in adherence of the ground truths. You can use the modify_shell_command function to modify the shell command. Supply your reasoning for updating the shell command. Respond with valid JSON. Always preserve the intent of the shell command. Only modify the command if ground truths require the command to be modified. Never modify the shell command unless you have to, and always obey the reasoning for running the shell command. If a command is in direct violation of ground truths then reject the command.` },
+      { role: "system", content: `Your goal is to consider some "ground truths" and evaluate if a shell command should be modified in adherence of the ground truths. You can use the modify_shell_command function to modify the shell command. 
+Supply your reasoning for updating the shell command. Respond with valid JSON. Always preserve the intent of the shell command. 
+Only modify the command if ground truths require the command to be modified. Never modify the shell command unless you have to, 
+and always obey the reasoning for running the shell command. If a command is in direct violation of ground truths then reject the command.
+
+Make sure any calls to promptr adhere to the correct usage:
+promptr -p "refactoring inctructions" <file1> <file2> <file3> ...
+
+promptr should only be used to create and modify source code files` },
       { role: "user", content: `The ground truths are: \n${additionalTruths.join("\n")}\n${this.plan.groundTruths?.join('\n')}\n\n\n \n\nThe shell command is: \`${functionArgs.command}\` \n\nReasoning for running the shell command: ${functionArgs.reasoning}\n\nModify the shell command as necessary based on ground truths` }
     ]
     if (CliState.verbose()) console.log(`refining shell command:\n${messages.map(m => m.content).join("\n")}`)
@@ -230,6 +238,7 @@ ${commandOutput}` })
       if (CliState.verbose()) {
         console.log(`modifying shell command:\n${argVals.command}\n\nReasoning: ${argVals.reasoning}`)
       }
+      this.messages.push({ role: "user", content: `The command that the assitant attempted to run was modified to be: ${argVals.command} \n\nReasoning: ${functionArgs.reasoning}` })
       functionArgs.command = argVals.command
     }
     return functionArgs
@@ -249,7 +258,7 @@ You can instruct promptr with conceptual instructions in order to create and mod
 It's important to use promptr when creating, modifying, or configuring source code.
 
 Promptr usage: 
-promptr [options] -p "refactoring inctructions" <file1> <file2> <file3> ...
+promptr -p "refactoring inctructions" <file1> <file2> <file3> ...
 
 You can include as many files as you want in the context sent to promptr. Always include relevant files in the context. 
 For exmaple, if the instructions mention a file, include any related code in other files by adding those files to the context as well.
@@ -415,13 +424,6 @@ The tasks must be achievable using non-interactive shell commands! Do NOT use in
         },
       ],
     })
-    if (CliState.verbose()) {
-      console.log(`action response:`)
-      console.log(response?.choices[0]?.message)
-      console.log(response.data?.choices)
-      console.log(response.data?.choices[0]?.message)
-      console.log(response.data?.choices[0]?.message?.tool_calls)
-    }
     return response?.choices[0]?.message?.tool_calls[0].function
   }
 
