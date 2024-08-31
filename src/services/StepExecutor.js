@@ -235,15 +235,45 @@ ${commandOutput}` })
     console.log("Step planning...")
     // call the model to get the plan
     let messages = [{ role: "system", content: `You are a helpful assistant. 
-You have full access to the user's system and can execute shell commands.
-You will be given a goal and a plan to achieve that goal as well as the current step in the plan.
-Your job is to break the step down into tasks that will help us move forward on the current step of the plan.
-List the tasks to take in order to complete the step and move towards achieving the goal.` }]
+You will be given a goal and a plan to achieve that goal as well as the current step that we're working on from the plan.
+Your job is to break the step down into non-interactive shell commands that will accomplish the current step of the plan.
+You have full access to the user's system and can execute non-interactive shell commands.
+You cannot execute interactive shell commands. Avoid interactive shell commands!
+
+The promptr CLI tool is extremely useful for modifying source code.
+You can instruct promptr with conceptual instructions in order to create and modify source code.
+It's important to use promptr when creating, modifying, or configuring source code.
+
+Promptr usage: 
+promptr [options] -p "refactoring inctructions" <file1> <file2> <file3> ...
+
+You can include as many files as you want in the context sent to promptr. Always include relevant files in the context. 
+For exmaple, if the instructions mention a file, include any related code in other files by adding those files to the context as well.
+
+- Promptr can only create and modify source code files. 
+- provide a prompt with the -p argument, for example: \`promptr -p "write tests for the controller at path x/y/z and place tests at path a/b/c"\`
+- The promptr cli tool reports time elapsed on success. It does not display file contents.
+- Give promptr instructions as if you're giving instructions to a junior software engineer.
+- promptr requires the paths to any files that would be needed to understand and accomplish the task.
+- very often, you will need to provide promptr with multiple files - for example, when creating tests provide the test path as well as any relevant production code file paths
+- promptr can only operate on files in the current directory, so you will need to cd into the project's root folder before each command.
+- always give promptr conceptual instructions, not actual source code. For example, instead of "write a test for the controller", say "write tests for the controller at path x/y/z and place tests at path a/b/c".
+
+Promptr examples:
+# create a class named Cat in cat.js - the class shoudl have a method named meow that returns 'meow'. Include cat_data.json in the context:
+promptr -p "create a class named Cat with a method named meow that returns 'meow' in cat.js" cat_data.json
+
+# refactor the Cat class to be named Dog add a method named bark that returns 'ruff' and include cat_data.json and dog_data.json in the context:
+promptr -p "refactor the Cat class in cat.js to be named Dog. add a method named bark that returns 'ruff'" cat_data.json dog_data.json
+
+# fix the failing test in cat_test.js and include cat.js in the context:
+promptr -p "fix the failing test in cat_test.js" cat.js
+
+
+If a task involves creating or modifying source code then indicate that the task should use the Promptr CLI tool.` }]
     
-    messages.push({ role: "user", content: `${prompt}\n\n\nSummarize the shell commands to take in order to move forward on the current step of the plan. 
-The tasks must be achievable using shell commands.` })
-    if (CliState.verbose()) console.log(`plan step:`)
-    if (CliState.verbose()) console.log(messages)
+    messages.push({ role: "user", content: `${prompt}\n\n\nList the non-interactive shell commands to execute in order to move forward on the current step of the plan. 
+The tasks must be achievable using non-interactive shell commands! Do NOT use interactive shell commands like nano or vim.` })
 
     const openai = new OpenAI({
       apiKey: process.env.GROQ_API_KEY,
