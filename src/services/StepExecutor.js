@@ -125,7 +125,8 @@ Verification: ${this.step.verification}`
           console.error('Standard Output:', errorOutput);
           console.error('Standard Error:', errorStderr);
         }
-        commandOutput = errorOutput + errorStderr;
+        commandOutput = errorOutput + "\n" + errorStderr;
+        isError = true
     }
     console.log(commandOutput)
 
