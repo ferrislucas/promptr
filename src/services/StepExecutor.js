@@ -94,11 +94,12 @@ Verification: ${this.step.verification}`
       return modelAction
     }
     
-    functionArgs = await this.refineShellCommmand(modelAction)
+    functionArgs = await this.rejectShellCommmand(modelAction)
     if (functionArgs.name == "reject_shell_command") {
-      this.messages.push({ role: "user", content: `The command that the assitant attempted to run was rejected. Reasoning: ${functionArgs.reasoning}` })
+      this.messages.push({ role: "user", content: `The command that the assistant attempted to run was rejected for these reasons: ${functionArgs.reasoning}` })
       return modelAction
     }
+    functionArgs = await this.refineShellCommmand(modelAction)
 
     let m = `\nThe assistant wants to run \`${functionArgs.command}\`? \n\nPress enter to allow the command to run.\n\nReasoning: ${functionArgs.reasoning}`
     console.log(m)
@@ -148,15 +149,13 @@ ${commandOutput}` })
       apiKey: process.env.GROQ_API_KEY,
       baseURL: "https://api.groq.com/openai/v1"
     })
-    const additionalTruths = [
-      "Do NOT use commands that will destroy the user's system.",
-      "Do NOT use interactive shell commands like nano or vim.",
-    ]
+    const additionalTruths = []
     let messages = [
-      { role: "system", content: `Your goal is to consider some "ground truths" and evaluate if a shell command should be modified in adherence of the ground truths. You can use the modify_shell_command function to modify the shell command. 
-Supply your reasoning for updating the shell command. Respond with valid JSON. Always preserve the intent of the shell command. 
-Only modify the command if ground truths require the command to be modified. Never modify the shell command unless you have to, 
-and always obey the reasoning for running the shell command. If a command is in direct violation of ground truths then reject the command.
+      { role: "system", content: `Your goal is to consider some "ground truths" and modify a shell command in adherence of the ground truths. 
+You can use the modify_shell_command function to modify the shell command if necessary. 
+Supply your reasoning for updating the shell command. Respond with valid JSON. 
+Always preserve the intent of the shell command. 
+Only modify the command if ground truths require the command to be modified. Never modify the shell command unless you have to.
 
 Make sure any calls to promptr adhere to the correct usage:
 promptr -p "refactoring inctructions" <file1> <file2> <file3> ...
@@ -195,6 +194,58 @@ promptr should only be used to create and modify source code files` },
         {
           type: "function",
           function: {
+            name: "do_not_modify_shell_command",
+            description: "Leave the shell command as is",
+            parameters: {
+              'type': 'object',
+              'properties': {
+                'reasoning': {
+                  'type': 'string',
+                  'description': 'Your reasoning for modifying the shell command.'
+                },
+              }
+            }
+          }
+        },
+      ],
+    })
+    if (response?.choices[0]?.message?.tool_calls[0].function?.name == "modify_shell_command") {
+      let argVals = JSON.parse(response?.choices[0]?.message.tool_calls[0].function.arguments)
+      if (CliState.verbose()) {
+        console.log(`modifying shell command:\n${argVals.command}\n\nReasoning: ${argVals.reasoning}`)
+      }
+      this.messages.push({ role: "user", content: `The command that the assitant attempted to run was modified to be: ${argVals.command} \n\nReasoning: ${functionArgs.reasoning}` })
+      functionArgs.command = argVals.command
+    }
+    return functionArgs
+  }
+
+  async rejectShellCommmand(modelAction) {
+    let functionArgs = JSON.parse(modelAction.arguments)
+    const openai = new OpenAI({
+      apiKey: process.env.GROQ_API_KEY,
+      baseURL: "https://api.groq.com/openai/v1"
+    })
+    const additionalTruths = [
+      "Do NOT use commands that will destroy the user's system.",
+      "Do NOT use interactive shell commands like nano or vim.",
+    ]
+    let messages = [
+      { role: "system", content: `Your goal is to consider some "ground truths" and evaluate if a shell command violates any of the ground truths. 
+You are to reject the command violates any of the ground truths. It's okay to allow a command if the command could be modified in order to follow the ground truths.` },
+      { role: "user", content: `The ground truths are: \n${additionalTruths.join("\n")}\n${this.plan.groundTruths?.join('\n')}\n\n\n \n\nThe shell command is: \`${functionArgs.command}\` \n\nReasoning for running the shell command: ${functionArgs.reasoning}\n\nReject the shell command as necessary based on ground truths` }
+    ]
+    if (CliState.verbose()) console.log(`rejecting shell command:\n${messages.map(m => JSON.stringify(m)).join("\n")}`)
+    const response = await openai.chat.completions.create({
+      model: "llama3-groq-70b-8192-tool-use-preview",
+      temperature: 0.7,
+      tool_choice: "required",
+      messages: messages,
+      parallel_tool_calls: false,
+      tools: [
+        {
+          type: "function",
+          function: {
             name: "reject_shell_command",
             description: "Reject the shell command",
             parameters: {
@@ -211,14 +262,14 @@ promptr should only be used to create and modify source code files` },
         {
           type: "function",
           function: {
-            name: "do_not_modify_shell_command",
-            description: "Leave the shell command as is",
+            name: "accept_shell_command",
+            description: "Accept the shell command",
             parameters: {
               'type': 'object',
               'properties': {
                 'reasoning': {
                   'type': 'string',
-                  'description': 'Your reasoning for modifying the shell command.'
+                  'description': 'Your reasoning for accepting the shell command.'
                 },
               }
             }
@@ -226,20 +277,13 @@ promptr should only be used to create and modify source code files` },
         },
       ],
     })
+    if (CliState.verbose()) console.log(`Evaluating rejection of shell command:\n ${response.choices[0].message.tool_calls[0].function.name} ${response.choices[0].message.tool_calls[0].function.arguments}`)
     if (response?.choices[0]?.message?.tool_calls[0].function?.name == "reject_shell_command") {
       let argVals = JSON.parse(response?.choices[0]?.message.tool_calls[0].function.arguments)
       if (CliState.verbose()) {
         console.log(`Rejecting shell command:\n${functionArgs.command}\n\nReasoning: ${argVals.reasoning}`)
       }
       return { name: "reject_shell_command", reasoning: argVals.reasoning }
-    }
-    if (response?.choices[0]?.message?.tool_calls[0].function?.name == "modify_shell_command") {
-      let argVals = JSON.parse(response?.choices[0]?.message.tool_calls[0].function.arguments)
-      if (CliState.verbose()) {
-        console.log(`modifying shell command:\n${argVals.command}\n\nReasoning: ${argVals.reasoning}`)
-      }
-      this.messages.push({ role: "user", content: `The command that the assitant attempted to run was modified to be: ${argVals.command} \n\nReasoning: ${functionArgs.reasoning}` })
-      functionArgs.command = argVals.command
     }
     return functionArgs
   }
