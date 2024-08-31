@@ -60,7 +60,7 @@ Verification: ${this.step.verification}`
       return modelAction
     }
 
-    if (CliState.verbose()) console.log(`Function: ${modelAction.name}`)
+    if (CliState.verbose()) console.log(`runStepIteration llm tool call: ${modelAction.name}`)
     if (CliState.verbose()) console.log(functionArgs)
     
     if (modelAction.name == "step_verified") {
