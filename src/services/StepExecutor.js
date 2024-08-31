@@ -219,7 +219,7 @@ ${commandOutput}` })
       if (CliState.verbose()) {
         console.log(`Rejecting shell command:\n${functionArgs.command}\n\nReasoning: ${argVals.reasoning}`)
       }
-      return argVals
+      return { name: "reject_shell_command", reasoning: argVals.reasoning }
     }
     if (response?.choices[0]?.message?.tool_calls[0].function?.name == "modify_shell_command") {
       let argVals = JSON.parse(response?.choices[0]?.message.tool_calls[0].function.arguments)
