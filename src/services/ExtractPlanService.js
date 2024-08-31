@@ -26,16 +26,17 @@ export default class OpenAiExtractPlanService {
   static systemMessage() {
     return {
       role: "system",
-      content: `You will be presented with a goal and a plan to achieve the goal. 
+      content: `You will be presented with a goal. You may also be given a plan and/or ground truths. 
 Each step of the plan should have a description and an optional verification. 
 Steps may have names or ID's to identify them. 
 Your response should be a json object that represents the steps and the goal. 
 Don't omit any details when specifying the goal. 
 It's extremely important to capture everything the user said when specifying the goal. 
-The object should look like this: 
+Here's an example of the json object you might return - stick to this structure: 
       {
         "goal": "Goal description",
         "summary": "Summary of the plan. List the steps by name and briefly summarize each step.",
+        "groundTruths": ["An important fact", "Another important fact"],
         "steps": [
           {
             "name": "Step 1",

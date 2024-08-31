@@ -1,6 +1,6 @@
 import { OpenAI } from "openai"
 import TemplateLoader from './TemplateLoader.js';
-import OpenAiExtractPlanService from './OpenAiExtractPlanService.js';
+import ExtractPlanService from './ExtractPlanService.js';
 import StepExecutor from './StepExecutor.js';
 import CliState from '../CliState.js';
 import fs from 'fs';
@@ -10,8 +10,8 @@ import path from 'path';
 export default class Agent {
   static async call(userPlan) {
     const expandedPlan = await TemplateLoader.parseTemplate(userPlan);
-    let plan = await OpenAiExtractPlanService.call(expandedPlan);
-    console.log(`Goal: ${plan?.goal}\n\nSummary: ${plan?.summary}\n\n`)
+    let plan = await ExtractPlanService.call(expandedPlan);
+    console.log(`Goal: ${plan?.goal}\n\nGround Truths:\n ${plan?.groundTruths?.join("\n")}\n\nSummary: ${plan?.summary}\n\n`)
     for (let i = 0; i < plan.steps.length; i++) {
       console.log(`Step ${i + 1}: ${plan.steps[i].name}\n${plan.steps[i].description}\n\n`)
     }
