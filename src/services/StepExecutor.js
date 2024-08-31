@@ -148,9 +148,13 @@ ${commandOutput}` })
       apiKey: process.env.GROQ_API_KEY,
       baseURL: "https://api.groq.com/openai/v1"
     })
+    const additionalTruths = [
+      "Do NOT use commands that will destroy the user's system.",
+      "Do NOT use interactive shell commands like nano or vim.",
+    ]
     let messages = [
       { role: "system", content: `Your goal is to consider some "ground truths" and evaluate if a shell command should be modified in adherence of the ground truths. You can use the modify_shell_command function to modify the shell command. Supply your reasoning for updating the shell command. Respond with valid JSON. Always preserve the intent of the shell command. Only modify the command if ground truths require the command to be modified. Never modify the shell command unless you have to, and always obey the reasoning for running the shell command. If a command is in direct violation of ground truths then reject the command.` },
-      { role: "user", content: `The ground truths are: \n${this.plan.groundTruths?.join('\n')}\n\n \n\nThe shell command is: \`${functionArgs.command}\` \n\nReasoning for running the shell command: ${functionArgs.reasoning}\n\nModify the shell command as necessary based on ground truths` }
+      { role: "user", content: `The ground truths are: \n${additionalTruths.join("\n")}\n${this.plan.groundTruths?.join('\n')}\n\n\n \n\nThe shell command is: \`${functionArgs.command}\` \n\nReasoning for running the shell command: ${functionArgs.reasoning}\n\nModify the shell command as necessary based on ground truths` }
     ]
     if (CliState.verbose()) console.log(`refining shell command:\n${messages.map(m => m.content).join("\n")}`)
     const response = await openai.chat.completions.create({
