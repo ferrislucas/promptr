@@ -95,6 +95,10 @@ Verification: ${this.step.verification}`
     }
     
     functionArgs = await this.refineShellCommmand(modelAction)
+    if (functionArgs.name == "reject_shell_command") {
+      this.messages.push({ role: "user", content: `The command that the assitant attempted to run was rejected. Reasoning: ${functionArgs.reasoning}` })
+      return modelAction
+    }
 
     let m = `\nThe assistant wants to run \`${functionArgs.command}\`? \n\nPress enter to allow the command to run.\n\nReasoning: ${functionArgs.reasoning}`
     console.log(m)
@@ -102,7 +106,7 @@ Verification: ${this.step.verification}`
     let userInput = await this.getUserInput(rl)
     if (this.userWantsToQuit(userInput)) return({ name: "user exit" })
     if (userInput) {
-      this.messages.push({ role: "assistant", content: `I attempted to run the following command, but the user interupted before the command could be run: ${functionArgs.command}\n\n` })
+      this.messages.push({ role: "assistant", content: `The assistant attempted to run the following command, but the user interupted before the command could be run: ${functionArgs.command}\n\n` })
       this.messages.push({ role: "user", content: userInput })
       return modelAction
     } 
@@ -144,31 +148,49 @@ ${commandOutput}` })
       apiKey: process.env.GROQ_API_KEY,
       baseURL: "https://api.groq.com/openai/v1"
     })
-    
+    let messages = [
+      { role: "system", content: `Your goal is to consider some "ground truths" and evaluate if a shell command should be modified in adherence of the ground truths. You can use the modify_shell_command function to modify the shell command. Supply your reasoning for updating the shell command. Respond with valid JSON. Always preserve the intent of the shell command. Only modify the command if ground truths require the command to be modified. Never modify the shell command unless you have to, and always obey the reasoning for running the shell command. If a command is in direct violation of ground truths then reject the command.` },
+      { role: "user", content: `The ground truths are: \n${this.plan.groundTruths?.join('\n')}\n\n \n\nThe shell command is: \`${functionArgs.command}\` \n\nReasoning for running the shell command: ${functionArgs.reasoning}\n\nModify the shell command as necessary based on ground truths` }
+    ]
+    if (CliState.verbose()) console.log(`refining shell command:\n${messages.map(m => m.content).join("\n")}`)
     const response = await openai.chat.completions.create({
       model: "llama3-groq-70b-8192-tool-use-preview",
       temperature: 0.7,
       tool_choice: "required",
-      messages: [{ role: "system", content: `Your goal is to consider some "ground truths" and evaluate if a shell command should be modified in adherence of the ground truths. You can use the modify_shell_command function to modify the shell command. Supply your reasoning for updating the shell command. Respond with valid JSON. Always preserve the intent of the shell command. Only modify the command if ground truths require the command to be modified.` },
-                  { role: "user", content: `The ground truths are: \n${this.plan.groundTruths?.join('\n')}\n\n \n\nThe shell command is: \`${functionArgs.command}\` \n\nReasoning for running the shell command: ${functionArgs.reasoning}` }
-      ],
+      messages: messages,
       parallel_tool_calls: false,
       tools: [
         {
           type: "function",
           function: {
             name: "modify_shell_command",
-            description: "Modify the shell command due to ground truths",
+            description: "Modify the shell command",
             parameters: {
               'type': 'object',
               'properties': {
                 'reasoning': {
                   'type': 'string',
-                  'description': 'Your reasoning for modifying the shell command: describe whey the original command had to be modified.'
+                  'description': 'Your reasoning for modifying the shell command: describe why the original command had to be modified.'
                 },
                 'command': {
                   'type': 'string',
                   'description': 'The modified shell command.'
+                },
+              }
+            }
+          }
+        },
+        {
+          type: "function",
+          function: {
+            name: "reject_shell_command",
+            description: "Reject the shell command",
+            parameters: {
+              'type': 'object',
+              'properties': {
+                'reasoning': {
+                  'type': 'string',
+                  'description': 'Your reasoning for rejecting the shell command: describe why the original command needs to be rejected.'
                 },
               }
             }
@@ -192,12 +214,19 @@ ${commandOutput}` })
         },
       ],
     })
+    if (response?.choices[0]?.message?.tool_calls[0].function?.name == "reject_shell_command") {
+      let argVals = JSON.parse(response?.choices[0]?.message.tool_calls[0].function.arguments)
+      if (CliState.verbose()) {
+        console.log(`Rejecting shell command:\n${functionArgs.command}\n\nReasoning: ${argVals.reasoning}`)
+      }
+      return argVals
+    }
     if (response?.choices[0]?.message?.tool_calls[0].function?.name == "modify_shell_command") {
       let argVals = JSON.parse(response?.choices[0]?.message.tool_calls[0].function.arguments)
       if (CliState.verbose()) {
         console.log(`modifying shell command:\n${argVals.command}\n\nReasoning: ${argVals.reasoning}`)
       }
-      return argVals
+      functionArgs.command = argVals.command
     }
     return functionArgs
   }
@@ -208,11 +237,11 @@ ${commandOutput}` })
     let messages = [{ role: "system", content: `You are a helpful assistant. 
 You have full access to the user's system and can execute shell commands.
 You will be given a goal and a plan to achieve that goal as well as the current step in the plan.
-Your job is to break the step down into tasks that will help us move forward on the current step of the plan. ` }]
-    messages.push({ role: "user", content: `Create a list of tasks that will help us move forward on the current step of the plan. 
-Talk through the tasks. Be extremely through and verbose when describing the tasks and how they relate to the current step and the larger plan to reach the user's goal.
-
-${prompt}` })
+Your job is to break the step down into tasks that will help us move forward on the current step of the plan.
+List the tasks to take in order to complete the step and move towards achieving the goal.` }]
+    
+    messages.push({ role: "user", content: `${prompt}\n\n\nSummarize the shell commands to take in order to move forward on the current step of the plan. 
+The tasks must be achievable using shell commands.` })
     if (CliState.verbose()) console.log(`plan step:`)
     if (CliState.verbose()) console.log(messages)
 
@@ -220,16 +249,14 @@ ${prompt}` })
       apiKey: process.env.GROQ_API_KEY,
       baseURL: "https://api.groq.com/openai/v1"
     })
+
     const response = await openai.chat.completions.create({
-      model: "mixtral-8x7b-32768",
+      model: "llama3-groq-70b-8192-tool-use-preview",
       temperature: 0.7,
       messages: messages,
+      parallel_tool_calls: false,
     })
-    // get the plan from the response
-    if (!response?.data?.choices) return null
-    const responseBody = response.data.choices[0].message['content']
-    if (CliState.verbose()) console.log(responseBody)
-    return responseBody
+    return response.choices[0].message.content
   }
   
   userWantsToQuit(userInput) {
