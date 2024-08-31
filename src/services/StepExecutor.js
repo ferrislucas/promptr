@@ -10,7 +10,6 @@ export default class StepExecutor {
     this.messages = [SystemMessage.stepExecutorSystemMessage()]
     this.plan = plan
     this.step = step
-    this.stepPlan = null
   }
 
   async call() {
