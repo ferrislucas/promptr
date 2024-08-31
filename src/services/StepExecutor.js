@@ -94,6 +94,8 @@ Verification: ${this.step.verification}`
       return modelAction
     }
     
+    functionArgs = await this.refineShellCommmand(modelAction)
+
     let m = `\nThe assistant wants to run \`${functionArgs.command}\`? \n\nPress enter to allow the command to run.\n\nReasoning: ${functionArgs.reasoning}`
     console.log(m)
 
@@ -133,6 +135,70 @@ ${(isError ? "The command did not run successfully": "The command executed succe
 Command output:
 ${commandOutput}` })
     return modelAction
+  }
+
+  async refineShellCommmand(modelAction) {
+    let functionArgs = JSON.parse(modelAction.arguments)
+    const openai = new OpenAI({
+      apiKey: process.env.GROQ_API_KEY,
+      baseURL: "https://api.groq.com/openai/v1"
+    })
+    
+    const response = await openai.chat.completions.create({
+      model: "llama3-groq-70b-8192-tool-use-preview",
+      temperature: 0.7,
+      tool_choice: "required",
+      messages: [{ role: "system", content: `Your goal is to consider some "ground truths" and evaluate if a shell command should be modified in adherence of the ground truths. You can use the modify_shell_command function to modify the shell command. Supply your reasoning for updating the shell command. Respond with valid JSON. Always preserve the intent of the shell command. Only modify the command if ground truths require the command to be modified.` },
+                  { role: "user", content: `The ground truths are: \n${this.plan.groundTruths?.join('\n')}\n\n \n\nThe shell command is: \`${functionArgs.command}\` \n\nReasoning for running the shell command: ${functionArgs.reasoning}` }
+      ],
+      parallel_tool_calls: false,
+      tools: [
+        {
+          type: "function",
+          function: {
+            name: "modify_shell_command",
+            description: "Modify the shell command due to ground truths",
+            parameters: {
+              'type': 'object',
+              'properties': {
+                'reasoning': {
+                  'type': 'string',
+                  'description': 'Your reasoning for modifying the shell command: describe whey the original command had to be modified.'
+                },
+                'command': {
+                  'type': 'string',
+                  'description': 'The modified shell command.'
+                },
+              }
+            }
+          }
+        },
+        {
+          type: "function",
+          function: {
+            name: "do_not_modify_shell_command",
+            description: "Leave the shell command as is",
+            parameters: {
+              'type': 'object',
+              'properties': {
+                'reasoning': {
+                  'type': 'string',
+                  'description': 'Your reasoning for modifying the shell command.'
+                },
+              }
+            }
+          }
+        },
+      ],
+    })
+    if (response?.choices[0]?.message?.tool_calls[0].function?.name == "modify_shell_command") {
+      let argVals = JSON.parse(response?.choices[0]?.message.tool_calls[0].function.arguments)
+      if (CliState.verbose()) {
+        console.log(`modifying shell command:\n${argVals.command}\n\nReasoning: ${argVals.reasoning}`)
+      }
+      return argVals
+    }
+    return functionArgs
   }
 
   async buildStepPlan(prompt) {
