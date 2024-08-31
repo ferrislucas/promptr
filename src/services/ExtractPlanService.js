@@ -11,7 +11,6 @@ export default class OpenAiExtractPlanService {
     
     let messages = [this.systemMessage()]
     messages.push({ role: "user", content: `Here is the plan: \n${stepDescription}` })
-    if (verbose) console.log(messages)
     const response = await openai.chat.completions.create({
       model: "mixtral-8x7b-32768",
       temperature: 0.7,
