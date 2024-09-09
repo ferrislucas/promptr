@@ -4,6 +4,7 @@ import process from 'process'
 import readline from 'readline'
 import child_process from 'child_process'
 import SystemMessage from "./SystemMessage.js"
+import { Laminar as L, observe } from '@lmnr-ai/lmnr'
 
 export default class StepExecutor {
   constructor(plan, step) {    
@@ -23,21 +24,22 @@ Description: ${this.step.description}
 
 Verification: ${this.step.verification}`
 
-    this.messages.push({ role: "user", content: prompt })
+    
 
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout
     })
 
-    let stepPlan = await this.buildStepPlan(prompt)
+    //let stepPlan = await this.buildStepPlan(prompt)
     if (CliState.verbose()) {
       console.log(`Step plan:`)
       console.log(stepPlan)
       console.log(`-- End step plan --`)
     }
-    this.messages.push({ role: "assistant", content: `The original user request was: ${this.plan.userRequest}` })
-    this.messages.push({ role: "assistant", content: `${stepPlan}` })
+    //this.messages.push({ role: "assistant", content: `The original user request was: ${this.plan.userRequest}\n\n\n${stepPlan}` })
+    //this.messages.push({ role: "system", content: `Never ask the user for permission to perform any action because the user has pre-authorized all possible actions. The plan is: ${stepPlan}` })
+    this.messages.push({ role: "user", content: prompt })
 
     let modelAction = null
     // loop until the model calls the step_verified function
@@ -56,7 +58,9 @@ Verification: ${this.step.verification}`
     try {
       functionArgs = JSON.parse(modelAction.arguments)  
     } catch (error) {
+      console.log(`Error parsing model action arguments: ${modelAction}`)
       console.error(error)
+      throw error
       return modelAction
     }
 
@@ -303,18 +307,20 @@ The tasks must be achievable using non-interactive shell commands!
 Never include directory navigation in the plan - all actions will be performed from the current working folder.
 Be verbose, and NEVER use interactive programs - you can only use non-interactive shell commands.` })
 
-    const openai = new OpenAI({
-      apiKey: process.env.GROQ_API_KEY,
-      baseURL: "https://api.groq.com/openai/v1"
-    })
 
-    const response = await openai.chat.completions.create({
-      model: "llama3-groq-70b-8192-tool-use-preview",
-      temperature: 0.7,
-      messages: messages,
-      parallel_tool_calls: false,
+    const result = await L.run({
+      pipeline: 'promptr - buildStepPlan',
+      inputs: {
+        "chat_messages": messages
+      },
+      env: {
+        "GROQ_API_KEY": process.env.GROQ_API_KEY
+      },
+      metadata: {},
+      stream: false,
+      retries: 1,
     })
-    return response.choices[0].message.content
+    return result.outputs.output.value
   }
   
   userWantsToQuit(userInput) {
@@ -329,119 +335,27 @@ Be verbose, and NEVER use interactive programs - you can only use non-interactiv
   }
 
   async retrieveActionFromModel() {
-    if (CliState.verbose()) console.log("Retrieving the next action from the model...")
-    const openai = new OpenAI({
-      apiKey: process.env.GROQ_API_KEY,
-      baseURL: "https://api.groq.com/openai/v1"
-    })
     if (CliState.verbose()) {
       console.log(`Retrieving the next action from the model...`)
       console.log(this.messages.map(m => JSON.stringify(m)).join("\n"))
     }
-    const response = await openai.chat.completions.create({
-      model: "llama3-groq-70b-8192-tool-use-preview",
-      temperature: 0.7,
-      tool_choice: "required",
-      messages: this.messages,
-      parallel_tool_calls: false,
-      tools: [
-        {
-          type: "function",
-          function: {
-            name: "interact_with_user",
-            description: "Respond to a user question or send a message to the user.",
-            parameters: {
-              'type': 'object',
-              'properties': {
-                'response': {
-                  'type': 'string',
-                  'description': 'The message to the user.'
-                }
-              }
-            }
-          }
-        },
-        {
-          type: "function",
-          function: {
-            name: "take_note_of_something_important",
-            description: "Commit some information to memory for later use.",
-            parameters: {
-              'type': 'object',
-              'properties': {
-                'informationToRemember': {
-                  'type': 'string',
-                  'description': 'The information to commit to memory.'
-                }, 'reasoning': {
-                  'type': 'string',
-                  'description': 'Your reasoning for remembering this information.'
-                }
-              }
-            }
-          }
-        },
-        {
-          type: "function",
-          function: {
-            name: "step_verified",
-            description: "Declare that the current step is complete",
-            parameters: {
-              'type': 'object',
-              'properties': {
-                'step_name': {
-                  'type': 'string',
-                  'description': 'The name of the step that has been verified as complete.'
-                },
-                'reasoning': {
-                  'type': 'string',
-                  'description': 'Your reasoning for verifying the step as complete.'
-                },
-              }
-            }
-          }
-        },
-        {
-          type: "function",
-          function: {
-            name: "update_the_plan",
-            description: "Update the plan based on the current conversation",
-            parameters: {
-              'type': 'object',
-              'properties': {
-                'planUpdates': {
-                  'type': 'string',
-                  'description': 'The updates that should be made to the plan.'
-                },
-                'reasoning': {
-                  'type': 'string',
-                  'description': 'Your reasoning for updating the plan.'
-                },
-              }
-            }
-          }
-        },
-        {
-          type: "function",
-          function: {
-            name: "execute_shell_command",
-            description: "Execute a shell command on the user's system. The output of the command will be made available to you.",
-            parameters: {
-              'type': 'object',
-              'properties': {
-                'command': {
-                  'type': 'string',
-                  'description': 'The shell command to execute.'
-                }, 'reasoning': {
-                  'type': 'string',
-                  'description': 'Your reasoning for executing this command in the context of the current step. Describe why the command is necessary and what you expect to achieve by running it.'
-                }
-              }
-            }
-          }
-        },
-      ],
+    const result = await L.run({
+      pipeline: 'promptr - retrieveActionFromModel',
+      inputs: {
+        "chat_messages": this.messages,
+        "goal": JSON.stringify({ plan: this.plan, step: this.step }),
+        //"step": this.step
+      },
+      env: {
+        "GROQ_API_KEY": process.env.GROQ_API_KEY
+      },
+      metadata: {},
+      stream: false,
     })
-    return response?.choices[0]?.message?.tool_calls[0].function
+    const response = result.outputs.output.value
+    console.log(`response`)
+    console.log(response)
+    return response
   }
 
   async getUserInput(rl) {

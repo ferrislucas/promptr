@@ -5,9 +5,12 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import Agent from './services/Agent.js';
-
+import { Laminar as L } from '@lmnr-ai/lmnr'
 export default class Main {
   static async call(argv) {
+    L.initialize({ projectApiKey: process.env.LAMINAR_API_KEY,
+      baseUrl: "http://localhost:8000"
+    })
     CliState.init(argv, await this.getVersion());
 
     if (CliState.planPath() || CliState.isInteractive() || (CliState.getPrompt() ?? "") === "") {
