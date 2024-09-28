@@ -157,10 +157,13 @@ Supply your reasoning for updating the shell command. Respond with valid JSON.
 Always preserve the intent of the shell command. 
 Only modify the command if ground truths require the command to be modified. Never modify the shell command unless you have to.
 
-Make sure any calls to promptr adhere to the correct usage:
-promptr -p "refactoring inctructions" <file1> <file2> <file3> ...
+${this.promptrToolDescription()}
 
-promptr should only be used to create and modify source code files` },
+The promptr CLI tool should only be used to create and modify source code files.
+Make sure any calls to promptr adhere to the correct usage.
+
+Make sure that all relevant ground truths are included in the instructions sent to promptr. 
+For example, if the ground truths include project conventions then make sure that the instructions to promptr also include those project conventions.` },
       { role: "user", content: `The ground truths are: \n${additionalTruths.join("\n")}\n${this.plan.groundTruths?.join('\n')}\n\n\n \n\nThe shell command is: \`${functionArgs.command}\` \n\nReasoning for running the shell command: ${functionArgs.reasoning}\n\nModify the shell command as necessary based on ground truths` }
     ]
     if (CliState.verbose()) console.log(`refining shell command:\n${messages.map(m => m.content).join("\n")}`)
@@ -228,15 +231,19 @@ promptr should only be used to create and modify source code files` },
     })
     const additionalTruths = [
       "Do NOT use commands that will destroy the user's system.",
-      "Promptr should be used for creating and modifying source code files",
-      "Do NOT use interactive shell commands like nano or vim which require user input. The promptr CLI tool is allowed because it doesn't require user input interactive.",
+      "Do NOT use interactive shell commands like nano or vim which require user input. The promptr CLI tool is allowed because it doesn't require user interactive input.",
     ]
     let messages = [
       { role: "system", content: `Your goal is to consider some "ground truths" and evaluate if a shell command violates any of the ground truths. 
-You are to reject the command violates any of the ground truths. It's okay to allow a command if the command could be modified in order to follow the ground truths.` },
-      { role: "user", content: `The ground truths are: \n${additionalTruths.join("\n")}\n${this.plan.groundTruths?.join('\n')}\n\n\n \n\nThe shell command is: \`${functionArgs.command}\` \n\nReasoning for running the shell command: ${functionArgs.reasoning}\n\nReject the shell command as necessary based on ground truths` }
+You are to reject the command if it violates any of the ground truths. 
+It's okay to allow a command if the command could be modified in order to follow the ground truths - we can refine the command later.
+The ground truths are: \n${additionalTruths.join("\n")}\n${this.plan.groundTruths?.join('\n')}
+\n\n
+Reject the command if it violates any of the ground truths. Otherwise, accept the command.` },
+      { role: "user", content: `The shell command to evaluate is: \`${functionArgs.command}\` \n\nReasoning for running the shell command: ${functionArgs.reasoning}` }
     ]
-    if (CliState.verbose()) console.log(`rejecting shell command:\n${messages.map(m => JSON.stringify(m)).join("\n")}`)
+    
+      
     const response = await openai.chat.completions.create({
       model: "llama3-groq-70b-8192-tool-use-preview",
       temperature: 0.7,
@@ -278,8 +285,8 @@ You are to reject the command violates any of the ground truths. It's okay to al
         },
       ],
     })
-    if (CliState.verbose()) console.log(`Evaluating rejection of shell command:\n ${response.choices[0].message.tool_calls[0].function.name} ${response.choices[0].message.tool_calls[0].function.arguments}`)
-    if (response?.choices[0]?.message?.tool_calls[0].function?.name == "reject_shell_command") {
+    const toolName = response?.choices[0]?.message?.tool_calls[0].function?.name
+    if (toolName == "reject_shell_command") {
       let argVals = JSON.parse(response?.choices[0]?.message.tool_calls[0].function.arguments)
       if (CliState.verbose()) {
         console.log(`Rejecting shell command:\n${functionArgs.command}\n\nReasoning: ${argVals.reasoning}`)
@@ -292,18 +299,30 @@ You are to reject the command violates any of the ground truths. It's okay to al
   async buildStepPlan(prompt) {
     console.log("Step planning...")
     // call the model to get the plan
-    let messages = [{ role: "system", content: `You are a helpful assistant. 
-You will be given a goal and a plan to achieve that goal as well as the current step that we're working on from the plan.
-Your job is to break the step down into tasks that will accomplish the current step of the plan.
-The tasks should be achievable using non-interactive shell commands, but don't specify the commands.
-If a task requires creating or modifying source code, indicate that the task should use the Promptr CLI tool.` }]
-    
-    messages.push({ role: "user", content: `${prompt}\n\n\nBreak the current step down into tasks.
-The tasks must be achievable using non-interactive shell commands!
-Never include directory navigation in the plan - all actions will be performed from the current working folder.
-Be verbose, and NEVER use interactive programs - you can only use non-interactive shell commands.` })
-
-    const openai = new OpenAI({
+    let messages = [{ role: "system", content: `You are a helpful digital assistant. 
+      Your job is to achieve a goal.
+      You will be given a plan to achieve the goal.
+      You are currently engaged in a step of the plan. 
+      You will be given context around the step of the plan that you're working on.
+      Your job is to break the step down into non-interactive shell commands that will complete the step.
+      You have full access to the user's system. 
+      You have permission to use the system in any way necessary to achieve the goal.
+      You can only execute non-interactive shell commands.
+      You cannot execute interactive shell commands. 
+      Avoid interactive shell commands!
+      
+      Sometimes the step will call for creating or modifying source code.
+      Always use thr promptr CLI tool when you need to create or modify source code.
+      
+      ${this.promptrToolDescription()}
+      
+      
+      If a task involves creating or modifying source code then indicate that the task should use the Promptr CLI tool.` }]
+          
+          messages.push({ role: "user", content: `${prompt}\n\n\nList the non-interactive shell commands to execute in order to move forward on the current step of the plan. 
+      The tasks must be achievable using non-interactive shell commands! Do NOT use interactive shell commands like nano or vim.` })
+      
+          const openai = new OpenAI({
       apiKey: process.env.GROQ_API_KEY,
       baseURL: "https://api.groq.com/openai/v1"
     })
@@ -315,6 +334,38 @@ Be verbose, and NEVER use interactive programs - you can only use non-interactiv
       parallel_tool_calls: false,
     })
     return response.choices[0].message.content
+  }
+
+  promptrToolDescription() {
+    return `The promptr CLI tool is extremely useful for authoring source code and other text based files.
+      You can instruct promptr with conceptual instructions in order to create and modify source code.
+      It's important to use promptr when creating, modifying, or configuring source code.
+      
+      Promptr usage: 
+      promptr -p "instructions for creating or modifying source code" <file1> <file2> <file3> ...
+      
+      You can include as many files as you want in the context sent to promptr. 
+      Always pass relevant file paths to promptr.
+      For example, if the step you're working on calls for modifying a source code class then pass the path to the class source code to promptr - always pass the paths to any source code files that are relevant to the task when using promptr.
+      
+      - Promptr can create and modify source code files; it can also create or modify any text based file. For example, mermaid diagrams, svg files, etc.
+      - provide a prompt with the -p argument, for example: \`promptr -p "write tests for the controller at path x/y/z and place tests at path a/b/c" x/y/z a/b/c\`
+      - The promptr cli tool reports time elapsed on success. It does not display file contents.
+      - Give promptr instructions as if you're giving instructions to a junior software engineer.
+      - promptr requires the paths to any files that are needed to understand and accomplish the task.
+      - very often, you will need to provide promptr with multiple files - for example, when creating tests provide the test path as well as any relevant production code file paths
+      - the paths you pass to promptr should be relative to the current working directory
+      - always give promptr conceptual instructions, not actual source code - and instruct promptr with paths to the files it should operate on. For example, instead of "write a test for the controller", say "write tests for the controller at path x/y/z and place tests at path a/b/c".
+      
+      Promptr examples:
+      # create a class named Cat in cat.js - the class shoudl have a method named meow that returns 'meow'. Include cat_data.json in the context:
+      promptr -p "create a class named Cat with a method named meow that returns 'meow' in cat.js" cat_data.json
+      
+      # refactor the Cat class to be named Dog add a method named bark that returns 'ruff' and include cat_data.json and dog_data.json in the context:
+      promptr -p "refactor the Cat class in cat.js to be named Dog. add a method named bark that returns 'ruff'" cat_data.json dog_data.json
+      
+      # fix the failing test in cat_test.js and include cat.js in the context:
+      promptr -p "fix the failing test in cat_test.js" cat.js cat_test.js`
   }
   
   userWantsToQuit(userInput) {
