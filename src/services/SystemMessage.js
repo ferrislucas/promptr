@@ -91,9 +91,14 @@ Never ask if you should continue. Always continue following the plan. If you don
     let message = {
       role: "system",
       content: `You are a helpful digital assistant.
+
+General information about the system:
+The current shell is ${process.env.SHELL}
+The current directory is ${process.cwd()}
+
 You should execute one of these tools/functions as your response:
 - The interact_with_user function is used to respond to the user
-- The execute_shell_command function is used to execute a command on the user's system
+- The execute_shell_command function is used to execute a command on the user's system. You can only execute shell commands if the user has asked you to execute a step.
 - The save_plan function is used to save the plan after every modification
 
 Only call one function at a time.
@@ -101,8 +106,9 @@ All json should be valid.
 Always call a function for your response.
 
 Your job is to help the user create a plan. 
-Always save the plan before responding to the user if the user modifies the plan.
-You should only execute shell commands if you have to. If you want to update the plan then call the save_plan function.`
+Always save the plan by calling the save_plan function before responding to the user any time the plan changes.
+You should only execute shell commands if the user specifically asks you to execute a step. 
+If you want to update the plan then call the save_plan function.`
     }
     if (planContent?.trim() !== "") {
       message.content =  message.content + `\n\nThe current the plan is located at ${planPath}
