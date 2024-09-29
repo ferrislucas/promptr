@@ -2,6 +2,7 @@ import { OpenAI } from "openai"
 import TemplateLoader from './TemplateLoader.js';
 import ExtractPlanService from './ExtractPlanService.js';
 import StepExecutor from './StepExecutor.js';
+import ChatService from './ChatService.js';
 import CliState from '../CliState.js';
 import fs from 'fs';
 import os from 'os';
@@ -9,6 +10,10 @@ import path from 'path';
 
 export default class Agent {
   static async call(userPlan) {
+    let executor = new ChatService(CliState.planPath())
+    await executor.call()
+    return
+
     const expandedPlan = await TemplateLoader.parseTemplate(userPlan);
     let plan = await ExtractPlanService.call(expandedPlan);
     console.log(`Goal: ${plan?.goal}\n\nGround Truths:\n ${plan?.groundTruths?.join("\n")}\n\nSummary: ${plan?.summary}\n\n`)
