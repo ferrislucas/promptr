@@ -5,6 +5,7 @@ import readline from 'readline'
 import child_process from 'child_process'
 import SystemMessage from "./SystemMessage.js"
 import fs from 'fs'
+import StepExecutor from "./StepExecutor.js"
 
 export default class ChatService {
   constructor(pathToPlan = null) {
@@ -72,14 +73,26 @@ export default class ChatService {
     
     if (modelAction.name == "save_plan") {
       const content = JSON.parse(modelAction.arguments).planContent
-      console.log(`saving the plan:\n${content}`)
-      
-      // save the plan to this.pathToPlan
       fs.writeFileSync(this.pathToPlan, content)
       this.messages.push({
         "role": "tool",
         "content": `The plan was saved.`,
         "tool_call_id": `save_plan_${new Date().getTime()}`
+      })
+      return modelAction
+    }
+
+    if (modelAction.name == "initiate_step") {
+      const stepName = functionArgs.stepName
+      const stepContent = functionArgs.stepContent
+      console.log(`Initiating step: ${stepName}`)
+      let stepExecutor = new StepExecutor(`${stepName}\n\n${stepContent}`)
+      await stepExecutor.call()
+      console.log(`Step ${stepName} complete.`)
+      this.messages.push({
+        "role": "tool",
+        "content": `Step completed: ${stepName}`,
+        "tool_call_id": `initiate_step_${new Date().getTime()}`
       })
       return modelAction
     }
@@ -199,7 +212,7 @@ ${commandOutput}` })
               type: "function",
               function: {
                 name: "execute_shell_command",
-                description: "Execute a shell command on the user's system. The output of the command will be made available to you.",
+                description: "Execute a shell command at the user's request. You can only execute shell commands if specifically requested. The output of the command will be made available to you.",
                 parameters: {
                   'type': 'object',
                   'properties': {
@@ -209,6 +222,26 @@ ${commandOutput}` })
                     }, 'reasoning': {
                       'type': 'string',
                       'description': 'Your reasoning for executing this command in the context of the current step. Describe why the command is necessary and what you expect to achieve by running it.'
+                    }
+                  }
+                }
+              }
+            },
+            {
+              type: "function",
+              function: {
+                name: "initiate_step",
+                description: "Initiate a step of the plan.",
+                parameters: {
+                  'type': 'object',
+                  'properties': {
+                    'stepName': {
+                      'type': 'string',
+                      'description': 'The name of the step to initiate.'
+                    },
+                    'stepContent': {
+                      'type': 'string',
+                      'description': 'The content of the step to initiate.'
                     }
                   }
                 }
@@ -238,7 +271,8 @@ ${commandOutput}` })
           throw error;
         }
         retries--;
-        if (CliState.verbose()) console.log(`Retrying... Attempts left: ${retries}`);
+        await new Promise(resolve => setTimeout(resolve, 500))
+        if (CliState.verbose()) console.log(`Retrying... Attempts left: ${retries}`)
       }
     }
   }

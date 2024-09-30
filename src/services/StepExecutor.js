@@ -6,38 +6,18 @@ import child_process from 'child_process'
 import SystemMessage from "./SystemMessage.js"
 
 export default class StepExecutor {
-  constructor(plan, step) {    
+  constructor(planContent) {
     this.messages = [SystemMessage.stepExecutorSystemMessage()]
-    this.plan = plan
-    this.step = step
+    this.planContent = planContent
   }
 
   async call() {
-    const prompt = `The goal is: ${this.plan.goal}
-The plan summary is: ${this.plan.summary}
-
-You are currently working on this step in the plan:
-Step: ${this.step.name}
-
-Description: ${this.step.description}
-
-Verification: ${this.step.verification}`
-
-    this.messages.push({ role: "user", content: prompt })
+    this.messages.push({ role: "user", content: this.planContent })
 
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout
     })
-
-    let stepPlan = await this.buildStepPlan(prompt)
-    if (CliState.verbose()) {
-      console.log(`Step plan:`)
-      console.log(stepPlan)
-      console.log(`-- End step plan --`)
-    }
-    this.messages.push({ role: "assistant", content: `The original user request was: ${this.plan.userRequest}` })
-    this.messages.push({ role: "assistant", content: `${stepPlan}` })
 
     let modelAction = null
     // loop until the model calls the step_verified function
@@ -60,16 +40,8 @@ Verification: ${this.step.verification}`
       return modelAction
     }
 
-    if (CliState.verbose()) console.log(`runStepIteration llm tool call: ${modelAction.name}`)
-    if (CliState.verbose()) console.log(functionArgs)
-    
     if (modelAction.name == "step_verified") {
       console.log(`${functionArgs.step_name} verified as complete. \n\nReasoning: ${functionArgs.reasoning}`)
-    }
-    if (modelAction.name == "take_note_of_something_important") {
-      this.messages.push({ role: "assistant", content: `The following information has been committed to memory: ${functionArgs.informationToRemember} \n\nReasoning: ${functionArgs.reasoning}` })
-      // comment on step in order to suggest a next action
-      return modelAction
     }
     if (modelAction.name == "interact_with_user") {
       this.messages.push({ role: "assistant", content: functionArgs.response })
@@ -79,9 +51,6 @@ Verification: ${this.step.verification}`
       if (userInput) {
         this.messages.push({ role: "user", content: userInput })
       }
-      return modelAction
-    }
-    if (modelAction.name == "update_the_plan") {
       return modelAction
     }
     if (
@@ -94,12 +63,15 @@ Verification: ${this.step.verification}`
       return modelAction
     }
     
+    functionArgs = JSON.parse(modelAction.arguments)
+    /*
     functionArgs = await this.rejectShellCommmand(modelAction)
     if (functionArgs.name == "reject_shell_command") {
       this.messages.push({ role: "user", content: `The command that the assistant attempted to run was rejected for these reasons: ${functionArgs.reasoning}` })
       return modelAction
     }
     functionArgs = await this.refineShellCommmand(modelAction)
+    */
 
     let m = `\nThe assistant wants to run \`${functionArgs.command}\`? \n\nPress enter to allow the command to run.\n\nReasoning: ${functionArgs.reasoning}`
     console.log(m)
@@ -107,7 +79,11 @@ Verification: ${this.step.verification}`
     let userInput = await this.getUserInput(rl)
     if (this.userWantsToQuit(userInput)) return({ name: "user exit" })
     if (userInput) {
-      this.messages.push({ role: "assistant", content: `The assistant attempted to run the following command, but the user interupted before the command could be run: ${functionArgs.command}\n\n` })
+      this.messages.push({
+        "role": "tool",
+        "content": `The following command was rejected by the user: \`${functionArgs.command}\``,
+        "tool_call_id": `execute_shell_command_rejected_${new Date().getTime()}`
+      })
       this.messages.push({ role: "user", content: userInput })
       return modelAction
     } 
@@ -135,11 +111,11 @@ Verification: ${this.step.verification}`
     }
     console.log(commandOutput)
 
-    this.messages.push({ role: "assistant", content: `I ran the following command: \`${functionArgs.command}\`
-Reasoning: ${functionArgs.reasoning} 
-${(isError ? "The command did not run successfully": "The command executed succesfully.")} 
-Command output:
-${commandOutput}` })
+    this.messages.push({
+      "role": "tool",
+      "content": `The following command was executed: \n\`${functionArgs.command}\`  \nThe output of the command is: \n\n\`\`\`\n${commandOutput}\n\`\`\``,
+      "tool_call_id": `execute_shell_command_${new Date().getTime()}`
+    })
     return modelAction
   }
 
@@ -296,46 +272,6 @@ Reject the command if it violates any of the ground truths. Otherwise, accept th
     return functionArgs
   }
 
-  async buildStepPlan(prompt) {
-    console.log("Step planning...")
-    // call the model to get the plan
-    let messages = [{ role: "system", content: `You are a helpful digital assistant. 
-      Your job is to achieve a goal.
-      You will be given a plan to achieve the goal.
-      You are currently engaged in a step of the plan. 
-      You will be given context around the step of the plan that you're working on.
-      Your job is to break the step down into non-interactive shell commands that will complete the step.
-      You have full access to the user's system. 
-      You have permission to use the system in any way necessary to achieve the goal.
-      You can only execute non-interactive shell commands.
-      You cannot execute interactive shell commands. 
-      Avoid interactive shell commands!
-      
-      Sometimes the step will call for creating or modifying source code.
-      Always use thr promptr CLI tool when you need to create or modify source code.
-      
-      ${this.promptrToolDescription()}
-      
-      
-      If a task involves creating or modifying source code then indicate that the task should use the Promptr CLI tool.` }]
-          
-          messages.push({ role: "user", content: `${prompt}\n\n\nList the non-interactive shell commands to execute in order to move forward on the current step of the plan. 
-      The tasks must be achievable using non-interactive shell commands! Do NOT use interactive shell commands like nano or vim.` })
-      
-          const openai = new OpenAI({
-      apiKey: process.env.GROQ_API_KEY,
-      baseURL: "https://api.groq.com/openai/v1"
-    })
-
-    const response = await openai.chat.completions.create({
-      model: "llama3-groq-70b-8192-tool-use-preview",
-      temperature: 0.7,
-      messages: messages,
-      parallel_tool_calls: false,
-    })
-    return response.choices[0].message.content
-  }
-
   promptrToolDescription() {
     return `The promptr CLI tool is extremely useful for authoring source code and other text based files.
       You can instruct promptr with conceptual instructions in order to create and modify source code.
@@ -380,7 +316,6 @@ Reject the command if it violates any of the ground truths. Otherwise, accept th
   }
 
   async retrieveActionFromModel() {
-    if (CliState.verbose()) console.log("Retrieving the next action from the model...")
     const openai = new OpenAI({
       apiKey: process.env.GROQ_API_KEY,
       baseURL: "https://api.groq.com/openai/v1"
@@ -415,57 +350,14 @@ Reject the command if it violates any of the ground truths. Otherwise, accept th
         {
           type: "function",
           function: {
-            name: "take_note_of_something_important",
-            description: "Commit some information to memory for later use.",
+            name: "all_done",
+            description: "Signal that all work is complete",
             parameters: {
               'type': 'object',
               'properties': {
-                'informationToRemember': {
-                  'type': 'string',
-                  'description': 'The information to commit to memory.'
-                }, 'reasoning': {
-                  'type': 'string',
-                  'description': 'Your reasoning for remembering this information.'
-                }
-              }
-            }
-          }
-        },
-        {
-          type: "function",
-          function: {
-            name: "step_verified",
-            description: "Declare that the current step is complete",
-            parameters: {
-              'type': 'object',
-              'properties': {
-                'step_name': {
-                  'type': 'string',
-                  'description': 'The name of the step that has been verified as complete.'
-                },
                 'reasoning': {
                   'type': 'string',
-                  'description': 'Your reasoning for verifying the step as complete.'
-                },
-              }
-            }
-          }
-        },
-        {
-          type: "function",
-          function: {
-            name: "update_the_plan",
-            description: "Update the plan based on the current conversation",
-            parameters: {
-              'type': 'object',
-              'properties': {
-                'planUpdates': {
-                  'type': 'string',
-                  'description': 'The updates that should be made to the plan.'
-                },
-                'reasoning': {
-                  'type': 'string',
-                  'description': 'Your reasoning for updating the plan.'
+                  'description': 'Your reasoning that there is nothing left to do.'
                 },
               }
             }
