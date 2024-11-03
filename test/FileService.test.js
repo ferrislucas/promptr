@@ -1,3 +1,4 @@
+import { describe, it } from 'mocha'
 import { FileService } from '../src/services/FileService.js';
 import fs from 'fs';
 import assert from 'assert';

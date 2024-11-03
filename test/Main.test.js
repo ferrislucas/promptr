@@ -1,3 +1,4 @@
+import { describe, it } from 'mocha'
 import assert from 'assert'
 import Main from '../src/Main.js'
 import PromptrService from '../src/services/PromptrService.js'

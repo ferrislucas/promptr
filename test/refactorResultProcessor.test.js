@@ -1,3 +1,4 @@
+import { describe, it } from 'mocha'
 import fs from 'fs';
 import path from 'path';
 import assert from 'assert';
