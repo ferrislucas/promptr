@@ -51,6 +51,21 @@ describe('AutoContext.call', () => {
       assert.deepStrictEqual([
         '/src/services/AutoContext.js'
     ], result)
+  })
+
+  describe('when the prompt mentions paths inside liquid comment tags', () => {
+    let prompt = `
+      Instructions here
+
+      {% comment %}
+      // this file shouldn't be included in the prompt sent to the LLM
+      See file /abc/test.txt
+      {% endcomment %}
+    `
+
+    it('excludes paths inside liquid comment tags', () => {
+      const result = AutoContext.call(prompt)
+      assert.deepStrictEqual([], result)
     })
   })
 })
